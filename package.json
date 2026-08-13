@@ -18,7 +18,8 @@
     "validate:live-harness": "node scripts/validate-live-harness.mjs",
     "deploy:supabase": "node scripts/deploy-supabase.mjs",
     "deploy:supabase:run": "node scripts/deploy-supabase.mjs --deploy --verify-live",
-    "validate:deployment": "node scripts/validate-deployment.mjs"
+    "validate:deployment": "node scripts/validate-deployment.mjs",
+    "check:supabase-connectivity": "node scripts/check-supabase-connectivity.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.56.0",

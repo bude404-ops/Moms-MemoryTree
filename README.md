@@ -78,6 +78,12 @@ npm run build
 npm run validate
 ```
 
+## Supabase project
+
+This repository is configured for Supabase project ref `foiyynmpifrpbcymjrgw` at `https://foiyynmpifrpbcymjrgw.supabase.co`.
+
+The project ref is public and stored in `supabase/config.toml`. Secrets are never committed. See `docs/SUPABASE_DEPLOYMENT.md` for secure deployment and manual Supabase configuration steps.
+
 ## Supabase workflow
 
 Every schema change must follow:
