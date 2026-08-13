@@ -26,6 +26,7 @@ This repository contains the Phase 1 foundation:
 - Upload preparation and private path validation
 - Session-aware sign-up/sign-in onboarding
 - First family archive creation flow
+- Normalized demo/live archive data loading
 - Storage usage tracking foundation
 - Legacy custodian data model
 - Legacy permission data model

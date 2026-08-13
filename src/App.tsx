@@ -1,13 +1,11 @@
 import { BookOpenText, Clock3, FileHeart, Home, PlusCircle, ShieldCheck, TreePine, UsersRound } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
-import { demoFamily, demoUser } from './lib/demoData';
-import { bytesByType, loadArchive, saveArchive } from './lib/archiveStore';
-import type { LocalArchiveState } from './lib/archiveStore';
-import type { Memory } from './types/domain';
+import { useMemo, useState } from 'react';
 import { FamilyPage, HomePage, LegacyPage, MemoriesPage, MemoryTreePage, RecordPage, TimelinePage } from './pages/Pages';
 import { isSupabaseConfigured } from './lib/supabase';
 import { useOnboarding } from './lib/onboarding';
 import { OnboardingGate } from './components/OnboardingGate';
+import { useArchiveData } from './lib/archiveData';
+import type { Memory } from './types/domain';
 
 type Tab = 'home' | 'tree' | 'record' | 'memories' | 'family' | 'timeline' | 'legacy';
 
@@ -23,31 +21,17 @@ const tabs: { id: Tab; label: string; icon: typeof Home }[] = [
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('home');
-  const [archive, setArchive] = useState<LocalArchiveState>(() => loadArchive());
   const onboarding = useOnboarding();
-
-  useEffect(() => saveArchive(archive), [archive]);
+  const archiveData = useArchiveData({ mode: onboarding.state.mode, activeFamily: onboarding.state.activeFamily, userId: onboarding.state.user?.id });
 
   const activeTitle = useMemo(() => tabs.find(t => t.id === tab)?.label ?? 'Home', [tab]);
 
-  function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>) {
-    const memory: Memory = {
-      ...input,
-      id: `memory-${crypto.randomUUID()}`,
-      familyId: demoFamily.id,
-      creatorId: demoUser.id,
-      tags: input.category ? [input.category.toLowerCase().replace(/\s+/g, '-')] : [],
-      legacyStatus: input.privacy === 'legacy' ? 'legacy_ready' : 'active',
-      createdAt: new Date().toISOString()
-    };
-    setArchive(prev => ({ ...prev, memories: [memory, ...prev.memories] }));
+  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>) {
+    await archiveData.createMemory(input);
     setTab('memories');
   }
 
-  const normalizedArchive = useMemo(() => {
-    const mediaBytes = bytesByType(archive.media);
-    return { ...archive, storage: { ...archive.storage, ...mediaBytes } };
-  }, [archive]);
+  const archive = archiveData.archive;
 
   return <div className="min-h-screen text-stone-900">
     <header className="sticky top-0 z-30 border-b border-amber-100 bg-[#fffaf3]/90 backdrop-blur-xl">
@@ -65,13 +49,13 @@ export default function App() {
       <OnboardingGate state={onboarding.state} onSignIn={onboarding.actions.signIn} onSignUp={onboarding.actions.signUp} onCreateFamily={onboarding.actions.createFirstFamily} />
       {(onboarding.state.mode === 'demo' || onboarding.state.mode === 'ready') && <>
         {onboarding.state.mode === 'ready' && <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950"><span><b>Family archive active:</b> {onboarding.state.activeFamily?.name}</span><button onClick={() => void onboarding.actions.signOut()} className="rounded-full bg-white px-4 py-2 font-bold text-emerald-900 ring-1 ring-emerald-200">Sign out</button></div>}
-        {tab === 'home' && <HomePage archive={normalizedArchive} />}
-        {tab === 'tree' && <MemoryTreePage />}
-        {tab === 'record' && <RecordPage onCreate={createMemory} />}
-        {tab === 'memories' && <MemoriesPage archive={normalizedArchive} />}
-        {tab === 'family' && <FamilyPage />}
-        {tab === 'timeline' && <TimelinePage />}
-        {tab === 'legacy' && <LegacyPage />}
+        {tab === 'home' && <HomePage archive={archive} />}
+        {tab === 'tree' && <MemoryTreePage people={archive.people} relationships={archive.relationships} />}
+        {tab === 'record' && <RecordPage archive={archive} onCreate={createMemory} />}
+        {tab === 'memories' && <MemoriesPage archive={archive} />}
+        {tab === 'family' && <FamilyPage family={archive.family} members={archive.members} people={archive.people} />}
+        {tab === 'timeline' && <TimelinePage events={archive.timeline} />}
+        {tab === 'legacy' && <LegacyPage custodians={archive.custodians} people={archive.people} />}
       </>}
     </main>
 

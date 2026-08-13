@@ -1,7 +1,7 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { requireSupabase, supabase } from './supabase';
-import type { Family, FamilyMember, FamilyRelationship, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel } from '../types/domain';
-import { demoFamily, demoMembers, demoPeople, demoRelationships, demoTimeline } from './demoData';
+import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageUsage } from '../types/domain';
+import { demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoTimeline } from './demoData';
 import { signedUrlPolicy, storagePathFor } from './security';
 
 export interface AuthSessionState {
@@ -97,6 +97,28 @@ function mapMedia(row: Record<string, unknown>): MemoryMedia {
     storagePath: String(row.storage_path),
     mediaType: row.media_type as MemoryMedia['mediaType'],
     bytes: Number(row.bytes ?? 0)
+  };
+}
+
+function mapCustodian(row: Record<string, unknown>): LegacyCustodian {
+  return {
+    id: String(row.id),
+    familyId: String(row.family_id),
+    ownerUserId: String(row.owner_user_id),
+    custodianPersonId: String(row.custodian_person_id),
+    priority: row.priority as LegacyCustodian['priority'],
+    status: row.status as LegacyCustodian['status']
+  };
+}
+
+function mapStorageUsage(row: Record<string, unknown>, familyId: string, fallbackLimit: number): StorageUsage {
+  return {
+    familyId,
+    videosBytes: Number(row.videos_bytes ?? 0),
+    photosBytes: Number(row.photos_bytes ?? 0),
+    audioBytes: Number(row.audio_bytes ?? 0),
+    documentsBytes: Number(row.documents_bytes ?? 0),
+    limitBytes: Number(row.storage_limit_bytes ?? fallbackLimit)
   };
 }
 
@@ -219,6 +241,29 @@ export class MemoryTreeRepository {
       title: String(row.title),
       description: row.description ? String(row.description) : undefined
     }));
+  }
+
+  async listMemoryMedia(familyId: string): Promise<MemoryMedia[]> {
+    if (!this.client) return [];
+    const { data, error } = await this.client.from('memory_media').select('*').eq('family_id', familyId).order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map(mapMedia);
+  }
+
+  async listLegacyCustodians(familyId: string): Promise<LegacyCustodian[]> {
+    if (!this.client) return demoCustodians.filter(custodian => custodian.familyId === familyId);
+    const { data, error } = await this.client.from('legacy_custodians').select('*').eq('family_id', familyId).order('created_at');
+    if (error) throw error;
+    return (data ?? []).map(mapCustodian);
+  }
+
+  async getStorageUsage(familyId: string): Promise<StorageUsage> {
+    if (!this.client) return { ...demoStorage, familyId };
+    const { data, error } = await this.client.from('storage_usage').select('*').eq('family_id', familyId).maybeSingle();
+    if (error) throw error;
+    if (data) return mapStorageUsage(data, familyId, demoStorage.limitBytes);
+    const { data: family } = await this.client.from('families').select('storage_limit_bytes').eq('id', familyId).maybeSingle();
+    return { ...demoStorage, familyId, limitBytes: Number(family?.storage_limit_bytes ?? demoStorage.limitBytes), videosBytes: 0, photosBytes: 0, audioBytes: 0, documentsBytes: 0 };
   }
 
   async uploadMemoryMedia(input: UploadMediaInput): Promise<MemoryMedia> {
