@@ -1,7 +1,7 @@
 export type PrivacyLevel = 'private' | 'family' | 'specific_people' | 'descendants' | 'legacy';
-export type FamilyRole = 'family_member' | 'contributor' | 'family_manager' | 'legacy_custodian';
-export type MemoryType = 'video' | 'audio' | 'photo' | 'story' | 'letter' | 'life_lesson' | 'event' | 'family_tradition' | 'recipe' | 'important_document';
-export type LegacyPermissionRule = 'private_forever' | 'family_after_legacy_activation' | 'descendants_after_legacy_activation' | 'custodian_only' | 'specific_person';
+export type FamilyRole = 'owner' | 'manager' | 'member' | 'contributor' | 'legacy_custodian';
+export type MemoryType = 'video' | 'audio' | 'photo' | 'story' | 'letter' | 'life_lesson' | 'event' | 'family_tradition' | 'recipe' | 'document';
+export type LegacyPermissionRule = 'private_forever' | 'family_after_legacy' | 'descendants_after_legacy' | 'custodian_only' | 'specific_person';
 
 export interface UserProfile {
   id: string;

@@ -90,18 +90,18 @@ function mapMemory(row: Record<string, unknown>): Memory {
     id: String(row.id),
     familyId: String(row.family_id),
     creatorId: String(row.creator_id),
-    associatedPersonId: row.associated_person_id ? String(row.associated_person_id) : undefined,
+    associatedPersonId: row.person_id ? String(row.person_id) : undefined,
     title: String(row.title),
     description: row.description ? String(row.description) : '',
     type: row.memory_type as Memory['type'],
     dateText: row.approximate_date ? String(row.approximate_date) : row.memory_date ? String(row.memory_date) : undefined,
-    locationText: row.location_text ? String(row.location_text) : undefined,
+    locationText: row.location ? String(row.location) : undefined,
     category: row.category ? String(row.category) : 'Life',
-    privacy: row.privacy as PrivacyLevel,
+    privacy: row.privacy_level as PrivacyLevel,
     legacyStatus: row.legacy_status === 'archived' || row.legacy_status === 'legacy_ready' ? row.legacy_status : 'active',
     tags: [],
     createdAt: String(row.created_at),
-    softDeletedAt: row.soft_deleted_at ? String(row.soft_deleted_at) : undefined
+    softDeletedAt: row.deleted_at ? String(row.deleted_at) : undefined
   };
 }
 
@@ -112,7 +112,7 @@ function mapMedia(row: Record<string, unknown>): MemoryMedia {
     familyId: String(row.family_id),
     storagePath: String(row.storage_path),
     mediaType: row.media_type as MemoryMedia['mediaType'],
-    bytes: Number(row.bytes ?? 0)
+    bytes: Number(row.file_size ?? row.bytes ?? 0)
   };
 }
 
@@ -130,10 +130,10 @@ function mapCustodian(row: Record<string, unknown>): LegacyCustodian {
 function mapStorageUsage(row: Record<string, unknown>, familyId: string, fallbackLimit: number): StorageUsage {
   return {
     familyId,
-    videosBytes: Number(row.videos_bytes ?? 0),
-    photosBytes: Number(row.photos_bytes ?? 0),
+    videosBytes: Number(row.video_bytes ?? row.videos_bytes ?? 0),
+    photosBytes: Number(row.photo_bytes ?? row.photos_bytes ?? 0),
     audioBytes: Number(row.audio_bytes ?? 0),
-    documentsBytes: Number(row.documents_bytes ?? 0),
+    documentsBytes: Number(row.document_bytes ?? row.documents_bytes ?? 0),
     limitBytes: Number(row.storage_limit_bytes ?? fallbackLimit)
   };
 }
@@ -182,7 +182,7 @@ export class MemoryTreeRepository {
     if (familyError) throw familyError;
     const { data: person, error: personError } = await client.from('people').insert({ family_id: family.id, display_name: input.creatorDisplayName, created_by: input.creatorProfileId }).select('*').single();
     if (personError) throw personError;
-    const { error: memberError } = await client.from('family_members').insert({ family_id: family.id, user_id: input.creatorProfileId, person_id: person.id, role: 'family_manager', status: 'active', joined_at: new Date().toISOString(), permissions: ['memory:create', 'family:manage', 'media:upload'] });
+    const { error: memberError } = await client.from('family_members').insert({ family_id: family.id, user_id: input.creatorProfileId, person_id: person.id, role: 'owner', status: 'active', joined_at: new Date().toISOString(), permissions: ['memory:create', 'family:manage', 'media:upload'] });
     if (memberError) throw memberError;
     return mapFamily(family);
   }
@@ -251,7 +251,7 @@ export class MemoryTreeRepository {
 
   async listMemories(familyId: string): Promise<Memory[]> {
     if (!this.client) return [];
-    const { data, error } = await this.client.from('memories').select('*').eq('family_id', familyId).is('soft_deleted_at', null).order('created_at', { ascending: false });
+    const { data, error } = await this.client.from('memories').select('*').eq('family_id', familyId).is('deleted_at', null).order('created_at', { ascending: false });
     if (error) throw error;
     return (data ?? []).map(mapMemory);
   }
@@ -261,15 +261,15 @@ export class MemoryTreeRepository {
     const { data, error } = await client.from('memories').insert({
       family_id: input.familyId,
       creator_id: input.creatorId,
-      associated_person_id: input.associatedPersonId,
+      person_id: input.associatedPersonId,
       title: input.title,
       description: input.description,
       memory_type: input.memoryType,
-      privacy: input.privacy,
+      privacy_level: input.privacy,
       category: input.category,
       approximate_date: input.approximateDate,
-      location_text: input.locationText,
-      legacy_permission: input.privacy === 'legacy' ? 'family_after_legacy_activation' : 'private_forever',
+      location: input.locationText,
+      legacy_permission: input.privacy === 'legacy' ? 'family_after_legacy' : 'private_forever',
       legacy_status: input.privacy === 'legacy' ? 'legacy_ready' : 'active'
     }).select('*').single();
     if (error) throw error;
@@ -325,8 +325,9 @@ export class MemoryTreeRepository {
       uploaded_by: input.uploaderId,
       media_type: input.mediaType,
       storage_path: storagePath,
+      file_name: input.file.name,
       mime_type: input.file.type,
-      bytes: input.file.size
+      file_size: input.file.size
     }).select('*').single();
     if (error) throw error;
     return mapMedia(data);

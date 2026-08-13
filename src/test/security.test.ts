@@ -49,7 +49,7 @@ describe('storage signed URL architecture', () => {
 
 describe('legacy permissions', () => {
   it('does not expose legacy permissions before legacy mode', () => {
-    expect(legacyRuleAllowsAccess('family_after_legacy_activation', false, daughter)).toBe(false);
+    expect(legacyRuleAllowsAccess('family_after_legacy', false, daughter)).toBe(false);
   });
 
   it('keeps private forever locked even after legacy activation', () => {

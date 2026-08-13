@@ -17,7 +17,7 @@ export function canViewMemory(memory: Memory, viewer: ViewerContext, allowedSpec
     case 'private':
       return false;
     case 'family':
-      return viewer.member.permissions.includes('memory:view_family') || viewer.member.role === 'family_manager' || viewer.member.role === 'legacy_custodian';
+      return viewer.member.permissions.includes('memory:view_family') || viewer.member.role === 'owner' || viewer.member.role === 'manager' || viewer.member.role === 'legacy_custodian';
     case 'specific_people':
       return Boolean(viewer.personId && allowedSpecificPeople.includes(viewer.personId));
     case 'descendants':
@@ -55,8 +55,8 @@ export function isSignedUrlExpired(expiresAt: string, now = new Date()): boolean
 export function legacyRuleAllowsAccess(rule: LegacyPermissionRule, legacyModeActive: boolean, viewer: ViewerContext, specificPersonId?: string): boolean {
   if (rule === 'private_forever') return false;
   if (!legacyModeActive) return false;
-  if (rule === 'family_after_legacy_activation') return Boolean(viewer.member?.status === 'active');
-  if (rule === 'descendants_after_legacy_activation') return Boolean(viewer.personId && viewer.descendantPersonIds?.includes(viewer.personId));
+  if (rule === 'family_after_legacy') return Boolean(viewer.member?.status === 'active');
+  if (rule === 'descendants_after_legacy') return Boolean(viewer.personId && viewer.descendantPersonIds?.includes(viewer.personId));
   if (rule === 'custodian_only') return viewer.member?.role === 'legacy_custodian';
   if (rule === 'specific_person') return Boolean(viewer.personId && viewer.personId === specificPersonId);
   return false;

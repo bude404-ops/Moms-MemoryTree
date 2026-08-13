@@ -23,9 +23,9 @@ export const demoPeople: Person[] = [
 ];
 
 export const demoMembers: FamilyMember[] = [
-  { id: 'member-mom', familyId: demoFamily.id, userId: demoUser.id, personId: 'person-mom', role: 'family_manager', status: 'active', permissions: ['memory:create', 'family:manage', 'media:upload'] },
+  { id: 'member-mom', familyId: demoFamily.id, userId: demoUser.id, personId: 'person-mom', role: 'owner', status: 'active', permissions: ['memory:create', 'family:manage', 'media:upload'] },
   { id: 'member-daughter', familyId: demoFamily.id, personId: 'person-daughter', role: 'legacy_custodian', status: 'active', relationshipLabel: 'Daughter', permissions: ['legacy:request', 'memory:view_family'] },
-  { id: 'member-son', familyId: demoFamily.id, personId: 'person-son', role: 'family_member', status: 'active', relationshipLabel: 'Son', permissions: ['memory:view_family'] }
+  { id: 'member-son', familyId: demoFamily.id, personId: 'person-son', role: 'member', status: 'active', relationshipLabel: 'Son', permissions: ['memory:view_family'] }
 ];
 
 export const demoRelationships: FamilyRelationship[] = [

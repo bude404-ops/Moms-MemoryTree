@@ -12,7 +12,8 @@
     "test": "vitest run",
     "validate:db": "node scripts/validate-migrations.mjs",
     "validate:secrets": "node scripts/check-secrets.mjs",
-    "validate": "npm run lint && npm run test && npm run validate:db && npm run validate:secrets && npm run build"
+    "validate": "npm run lint && npm run test && npm run validate:db && npm run validate:rls && npm run validate:secrets && npm run build",
+    "validate:rls": "node scripts/validate-rls.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.56.0",

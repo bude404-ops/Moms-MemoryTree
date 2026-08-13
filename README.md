@@ -6,38 +6,41 @@ Private, family-centered digital legacy platform foundation.
 
 Moms MemoryTree is not a social-media platform and not a generic cloud drive. It is a private family archive designed around people, stories, relationships, voices, photographs, videos, wisdom, and long-term family continuity.
 
-## Phase 1 status
+## Current build
 
-This repository contains the Phase 1 foundation:
+`0.1.0-phase1` — Supabase backend foundation
 
-- React + TypeScript + Vite
-- Tailwind CSS
-- Supabase client integration
-- Family ownership architecture
-- User profile model
-- Family membership model
-- Family relationship graph model
-- Universal memory model
-- Memory permissions architecture
-- Timeline model
-- Private media metadata model
-- Signed media access policy helper
-- Supabase-facing repository/service layer
-- Upload preparation and private path validation
-- Session-aware sign-up/sign-in onboarding
-- First family archive creation flow
+This repository is the source of truth for:
+
+- React + TypeScript + Vite application code
+- Supabase configuration
+- Database migrations
+- Row Level Security policies
+- Private storage bucket definitions
+- Edge Function source
+- Documentation
+- Environment templates
+
+## Implemented foundation
+
+- Centralized Supabase browser client at `src/lib/supabase/client.ts`
+- Safe unconfigured demo mode when env vars are absent
+- Email/password auth wiring through Supabase Auth
+- Profile creation/upsert after signup
+- Family creation and family-management flows
 - Normalized demo/live archive data loading
-- Family management forms for people, relationships, and invite-ready members
-- Storage usage tracking foundation
-- Legacy custodian data model
-- Legacy permission data model
-- Backup record data model
-- Archive export data model
-- Audit log model
-- Mobile-first dashboard and navigation
-- Basic MemoryTree visualization
-- Guided storytelling question foundation
-- Tests for privacy, media authorization, signed URL expiry, and legacy permission boundaries
+- Memory creation and listing architecture
+- Private storage path generation and upload metadata model
+- Signed media access helper and Edge Function source
+- Private buckets in migration:
+  - `family-media`
+  - `family-avatars`
+  - `family-exports`
+- Full migration-backed schema with RLS
+- Legacy custodian and legacy permission foundation
+- Backup and portable archive export foundations
+- Audit log foundation
+- Local tests for privacy, storage authorization, signed URL expiry, and migration/RLS protections
 
 ## Local development
 
@@ -51,14 +54,15 @@ Set these in `.env.local` for Supabase-backed development:
 
 ```bash
 VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 ```
 
-Do not commit `.env.local`.
+Do not commit `.env`, `.env.local`, or any credential file.
 
 ## Validation
 
 ```bash
+npm install
 npm run lint
 npm run test
 npm run validate:db
@@ -67,33 +71,26 @@ npm run build
 npm run validate
 ```
 
-## Database
+## Supabase workflow
 
-Apply the migration in `supabase/migrations/202608120001_phase1_foundation.sql` to a Supabase project.
+Every schema change must follow:
 
-The migration creates the relational foundation and enables Row Level Security. The media bucket should be private. Do not make family media public by default.
+1. Create/update a migration in `supabase/migrations`.
+2. Validate locally with `npm run validate:db`.
+3. Run tests and build.
+4. Commit the migration and code.
+5. Push to GitHub.
+6. Apply migrations to Supabase with the Supabase CLI or dashboard SQL editor.
+7. Verify RLS and storage policies against real users.
+
+The Supabase CLI is not available in this execution environment, so this repo includes `supabase/config.toml` and reproducible SQL migrations but does not claim cloud deployment has occurred without project credentials.
 
 ## Storage
 
-See `docs/STORAGE_ARCHITECTURE.md`.
+Large media files must never be stored in PostgreSQL. PostgreSQL stores metadata and private object references only. Private memories must use authorized access and short-lived signed URLs. Permanent public media URLs are forbidden for family memories.
 
-Phase 1 stores media references and authorization rules. Large media files belong in private object storage. Production signed URL generation should run through an authenticated server/edge function that checks memory permissions before returning a short-lived signed URL.
+See `docs/STORAGE_ARCHITECTURE.md` and `SECURITY.md`.
 
-## Security principles
+## Backup boundary
 
-- No permanent public URLs for private media.
-- RLS is required for family data.
-- Memory privacy is separate from family membership.
-- Legacy custody does not reveal private memories automatically.
-- Backup redundancy is not claimed until independent backup infrastructure exists.
-- Original memories must remain separate from future AI-generated metadata.
-
-## GitHub workflow
-
-Before pushing:
-
-1. Run validation.
-2. Review changed files.
-3. Scan for secrets.
-4. Commit with a meaningful message.
-5. Push and verify.
+Backup tables and status fields exist. Actual independent backup is not implemented yet. Do not display or claim “Backed Up” or “Protected” until a real backup provider has been configured, run, and verified.

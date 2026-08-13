@@ -2,30 +2,72 @@
 
 Moms MemoryTree media is private by default.
 
-## Current Phase 1 implementation
+## Buckets
 
-- PostgreSQL stores metadata and object references in `memory_media`.
-- Large files belong in Supabase Storage, not PostgreSQL.
-- The intended private bucket is `family-media`.
-- Storage paths are generated in app code with the form:
-  - `family/{family_id}/memories/{memory_id}/{timestamp}-{safe_file_name}`
-  - `family/{family_id}/legacy/{memory_id}/{timestamp}-{safe_file_name}`
-- Public permanent media URLs are not used.
-- Signed URL policy helpers are implemented in `src/lib/security.ts`.
-- Upload preparation and file classification are implemented in `src/lib/mediaUpload.ts`.
-- Supabase upload and signed URL calls are centralized in `src/lib/repository.ts`.
+The migration defines private Supabase Storage buckets:
+
+- `family-media` — original photos, videos, audio, and documents attached to memories.
+- `family-avatars` — profile/person photographs.
+- `family-exports` — portable archive export artifacts.
+
+None of these buckets should be public.
+
+## Storage paths
+
+Expected structure:
+
+```text
+family/{family_id}/people/{person_id}/
+family/{family_id}/memories/{memory_id}/
+family/{family_id}/legacy/{message_id}/
+```
+
+The app generates paths through `src/lib/mediaUpload.ts` and `src/lib/security.ts`. Users must not be trusted to supply raw storage paths.
+
+## Metadata
+
+PostgreSQL table `memory_media` stores:
+
+- Memory reference
+- Family reference
+- Storage bucket
+- Storage path
+- Media type
+- File name
+- MIME type
+- File size
+- Duration
+- Thumbnail path
+
+Large files are never stored directly in PostgreSQL.
 
 ## Authorization flow
 
 1. User authenticates with Supabase Auth.
-2. App requests memory/media metadata.
-3. Database RLS verifies family membership and memory permissions.
-4. Authorized request calls a server/edge function to create a temporary signed URL.
-5. Signed URL expires quickly.
-6. Expired URLs must not be accepted as durable access.
+2. User requests media access.
+3. Edge Function `signed-media-access` checks the current JWT.
+4. Function calls `authorized_signed_media(media_row_id)`.
+5. Database verifies `can_view_memory(memory_id)`.
+6. Supabase returns a short-lived signed URL.
 
-## Phase 1 boundary
+Permanent public URLs are forbidden for private family memories.
 
-Phase 1 includes schema, RLS, private bucket design, signed URL helper logic, and tests for authorization rules.
+## Current status
 
-It does **not** claim production media redundancy or permanent preservation. Independent backup and export flows are documented and modeled for later phases.
+Implemented in repository:
+
+- Private bucket SQL definitions
+- Storage object RLS policies
+- Signed media RPC foundation
+- Edge Function source
+- Upload path generation
+- Upload metadata repository methods
+- Local tests inspecting storage/RLS protections
+
+Not yet proven in this environment:
+
+- Live Supabase bucket creation
+- Real upload to cloud storage
+- Real signed URL playback
+
+Those require Supabase project credentials and migration deployment access.

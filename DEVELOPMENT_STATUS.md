@@ -2,86 +2,94 @@
 
 ## COMPLETED
 
-- Project initialized as React + TypeScript + Vite + Tailwind application.
-- Supabase browser client integration added with safe unconfigured-development mode.
-- Mobile-first application shell created.
-- Home dashboard created with family archive framing and emotional product direction.
-- Basic MemoryTree visualization created using internal person IDs.
-- Record My Story foundation created with guided categories and structured memory creation.
-- Memories browsing page created with per-memory privacy labels.
-- Family members page created with explicit roles and permissions.
-- Timeline page created.
-- Legacy page created showing custodian architecture without granting premature access.
-- Local persistence added for development demo memories.
-- Database migration created for Phase 1 relational foundation.
-- RLS policies created for family membership and memory access boundaries.
-- Storage authorization helper created for private paths and expiring signed URL policy.
-- Tests created for:
-  - Creator access to private memory.
-  - Family member blocked from private memory.
-  - Other family blocked from family memory.
-  - Legacy memory blocked before legacy activation.
-  - Media authorization tied to memory permission.
-  - Signed URL expiry.
-  - Legacy permission boundaries.
-- README, roadmap, storage architecture documentation, and env example created.
+- Existing React + TypeScript + Vite + Tailwind application preserved.
+- GitHub repository remains the source of truth.
+- Centralized Supabase client moved to `src/lib/supabase/client.ts` with compatibility export.
+- `.env.example` updated to use `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` placeholders only.
+- Supabase config created at `supabase/config.toml`.
+- Full Phase 1 Supabase migration created for:
+  - Profiles
+  - Families
+  - People
+  - Family members
+  - Family relationships
+  - Memories
+  - Memory media
+  - Memory people
+  - Memory tags
+  - Memory permissions
+  - Life events
+  - Story questions
+  - Legacy messages
+  - Legacy custodians
+  - Legacy permissions
+  - Family invitations
+  - Storage usage
+  - Backup records
+  - Archive exports
+  - Audit logs
+- RLS enabled on every private family table.
+- Security helper functions created for family membership, managers, descendant checks, memory visibility, storage access, and signed media authorization.
+- Private Supabase Storage bucket definitions added:
+  - `family-media`
+  - `family-avatars`
+  - `family-exports`
+- Storage object policies added for private family-scoped access.
+- Signed media Edge Function source added.
+- Supabase-facing repository/service layer exists for auth, profile, family, people, relationships, memories, timeline, upload metadata, and signed URL foundations.
+- Mobile UI remains functional in demo mode without Supabase env vars.
+- Local tests cover privacy helpers, signed URL expiry logic, migration/RLS/static family isolation checks, and local archive persistence.
 
 ## IN PROGRESS
 
-- Supabase project connection remains environment-dependent.
-- Real photo/video upload UI now prepares private storage paths and validates file safety before later Supabase upload.
-- Supabase-facing repository/service layer added for auth, profiles, family creation, people, relationships, memories, timeline, upload metadata, and signed URL creation.
-- Session-aware onboarding gate added for live Supabase sign-up/sign-in and first family creation when env vars are configured.
-- Demo and live archive data now flow through the same normalized archive state model.
-- Family management forms now support adding people, creating relationships, and preparing invited members in demo/live architecture.
+- Live Supabase deployment is pending project credentials and CLI/dashboard execution.
+- Real cloud upload/playback is pending deployed buckets and Edge Function.
+- Family invitation email delivery is architecture-only.
 
 ## PLANNED
 
-- Supabase Auth screens backed by live project.
-- Real family data loading after live Supabase onboarding.
-- Edge function for signed media URL creation after RLS checks.
-- Real photo upload to private bucket.
-- Video upload with thumbnail generation.
-- Family invitation acceptance flow.
-- Specific-person permission management UI.
-- Descendant graph query support.
-- Family archive export worker.
-- Independent backup provider integration.
-- AI transcription and organization as metadata only.
+- Deploy migration to Supabase project.
+- Deploy `signed-media-access` Edge Function.
+- Generate TypeScript database types from Supabase CLI.
+- Run real Supabase user isolation tests with Family A / Family B accounts.
+- Wire password reset UI.
+- Build real photo/video upload status UI.
+- Add specific-person permission management UI.
+- Build family archive export worker.
+- Integrate independent backup provider and verification.
 
 ## BLOCKED
 
-- GitHub push requires a configured remote and credentials.
-- Supabase deployment requires project URL, anon key, and migration execution access.
-- Private storage signed URLs require a live Supabase Storage bucket and server/edge function deployment.
+- Supabase CLI is not installed in this execution environment.
+- Supabase cloud project URL/publishable key alone are not present here.
+- Supabase deployment requires project access credentials or dashboard execution.
 
 ## SECURITY
 
 - No secrets committed.
-- `.env.local` is ignored.
-- `.env.example` contains placeholders only.
-- RLS migration exists and includes memory authorization helpers.
-- Private media architecture avoids permanent public URLs.
-- Legacy custodians do not automatically access private memories.
+- `.env`, `.env.local`, and `.env.*.local` are ignored.
+- Secret scan is part of validation.
+- RLS migration forbids broad authenticated read-all patterns.
+- Private storage buckets are defined as non-public.
+- Family media requires database authorization before signed URL creation.
+- Legacy custodians do not automatically unlock private memories.
 
 ## STORAGE
 
-- Current implementation: local demo metadata plus Supabase-ready schema.
-- Media storage model: private object storage references in `memory_media`.
-- Storage usage tracked at family level by media category.
-- No production redundancy claimed in Phase 1.
+- Architecture: private Supabase Storage + metadata in PostgreSQL.
+- Storage usage table tracks video/photo/audio/document totals.
+- Actual cloud upload and playback are not yet verified in this environment.
 
 ## LEGACY
 
-- Custodian and legacy permission data models exist.
-- Legacy Mode workflow is documented as future controlled verification.
+- Primary/backup custodian architecture exists.
+- Legacy permissions exist.
+- Legacy Mode remains a future controlled verification workflow.
 - No automatic death detection.
 - No password transfer model.
-- No premature exposure of private memories.
 
-## TECHNICAL DEBT
+## BACKUP
 
-- Replace local demo persistence with Supabase-backed repositories after project credentials are configured.
-- Add Playwright mobile viewport tests after dev server stabilization.
-- Expand RLS tests against a real local Supabase instance when available.
-- Add generated TypeScript database types from Supabase CLI once configured.
+ARCHITECTURE ONLY.
+
+Backup records and export records exist, but no independent backup provider is implemented or verified yet. Do not claim backup protection.
