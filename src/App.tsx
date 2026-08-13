@@ -26,9 +26,10 @@ export default function App() {
 
   const activeTitle = useMemo(() => tabs.find(t => t.id === tab)?.label ?? 'Home', [tab]);
 
-  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>) {
-    await archiveData.createMemory(input);
+  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File) {
+    const created = await archiveData.createMemory(input, file);
     setTab('memories');
+    return created;
   }
 
   const archive = archiveData.archive;

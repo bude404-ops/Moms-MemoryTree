@@ -1,4 +1,5 @@
 import { Camera, Clock, FileHeart, Home, LockKeyhole, Mic, ShieldCheck, Upload, UsersRound } from 'lucide-react';
+import { useState } from 'react';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, Person, PrivacyLevel, StorageUsage } from '../types/domain';
 import { storyQuestions } from '../lib/demoData';
 import { formatBytes } from '../lib/archiveStore';
@@ -60,19 +61,92 @@ export function RecordPage({ archive, onCreate }: { archive: ArchiveDataState; o
   return <div className="space-y-5"><Card className="bg-gradient-to-br from-rose-50 to-amber-50"><SectionTitle eyebrow="Tell your story" title="Record My Story">Video and audio upload foundations are wired to private storage paths. Live recording controls are staged for the next media phase.</SectionTitle><MemoryForm archive={archive} onCreate={onCreate} /></Card><Card><SectionTitle eyebrow="Guided storytelling" title="Choose a question" /> <div className="grid gap-3 md:grid-cols-2">{storyQuestions.map(q=><div key={q.id} className="rounded-2xl border border-amber-100 bg-white p-4"><b className="text-amber-800">{q.category}</b><p className="mt-1 text-stone-700">{q.question}</p></div>)}</div></Card></div>;
 }
 
+type PreservationStatus = 'draft' | 'creating_memory' | 'uploading_media' | 'preserved' | 'failed';
+
+const preservationCopy: Record<PreservationStatus, { label: string; detail: string }> = {
+  draft: { label: 'Local draft', detail: 'Nothing is preserved until you save. A selected file is only staged locally.' },
+  creating_memory: { label: 'Creating memory row', detail: 'Writing the story, privacy, date, people, and legacy flags first.' },
+  uploading_media: { label: 'Uploading private media', detail: 'The memory exists; media must finish storage and metadata before success.' },
+  preserved: { label: 'Preserved', detail: 'Memory saved. If a file was attached, storage and media metadata completed.' },
+  failed: { label: 'Not preserved', detail: 'The last save failed. Review the message and try again.' }
+};
+
 function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate: RecordPageProps['onCreate'] }) {
   const people = archive.people.length ? archive.people : [{ id: '', displayName: 'No family people yet', familyId: archive.family.id } as Person];
-  return <form className="grid gap-3" onSubmit={(e)=>{e.preventDefault(); const fd=new FormData(e.currentTarget); onCreate({ title: String(fd.get('title')||'Untitled memory'), description: String(fd.get('description')||''), type: String(fd.get('type')||'story') as Memory['type'], associatedPersonId: String(fd.get('person')||''), dateText: String(fd.get('date')||''), locationText: String(fd.get('location')||''), category: String(fd.get('category')||'Life'), privacy: String(fd.get('privacy')||'private') as PrivacyLevel }); e.currentTarget.reset(); }}>
-    <input required name="title" className="rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Memory title" />
-    <textarea name="description" className="min-h-28 rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Tell the story..." />
-    <div className="grid gap-3 sm:grid-cols-2"><select name="type" className="rounded-2xl border border-amber-200 bg-white px-4 py-3"><option value="story">Story</option><option value="photo">Photo</option><option value="video">Video</option><option value="audio">Audio</option><option value="life_lesson">Life Lesson</option><option value="letter">Letter</option></select><select name="privacy" className="rounded-2xl border border-amber-200 bg-white px-4 py-3"><option value="private">Private</option><option value="family">Family</option><option value="specific_people">Specific people</option><option value="descendants">Descendants</option><option value="legacy">Legacy</option></select></div>
-    <div className="grid gap-3 sm:grid-cols-3"><select name="person" className="rounded-2xl border border-amber-200 bg-white px-4 py-3">{people.map(p=><option key={p.id || 'empty'} value={p.id}>{p.displayName}</option>)}</select><input name="date" className="rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Date or approx date" /><input name="location" className="rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Location" /></div>
-    <input name="category" className="rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Category e.g. Childhood" />
-    <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-stone-600"><Upload className="mb-2" /> Photo/video upload foundation: selected files will use private Supabase Storage paths and signed URL access once Supabase is configured.<input className="mt-3 block w-full text-sm" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onChange={(event)=>{ const file = event.currentTarget.files?.[0]; if (!file) return; const errors = validateMemoryUpload(file); if (errors.length) event.currentTarget.setCustomValidity(errors.join(' ')); else { prepareMemoryUpload(archive.family.id,'pending-memory',file); event.currentTarget.setCustomValidity(''); } }} /></div>
-    <button className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white shadow-lg shadow-stone-900/20">Save Memory</button>
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<PreservationStatus>('draft');
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const fd = new FormData(form);
+    setBusy(true);
+    setMessage(null);
+    setStatus('creating_memory');
+    try {
+      const file = selectedFile ?? undefined;
+      if (file) setStatus('uploading_media');
+      await onCreate({
+        title: String(fd.get('title') || 'Untitled memory'),
+        description: String(fd.get('description') || ''),
+        type: String(fd.get('type') || 'story') as Memory['type'],
+        associatedPersonId: String(fd.get('person') || ''),
+        dateText: String(fd.get('date') || ''),
+        locationText: String(fd.get('location') || ''),
+        category: String(fd.get('category') || 'Life'),
+        privacy: String(fd.get('privacy') || 'private') as PrivacyLevel
+      }, file);
+      setStatus('preserved');
+      setMessage(file ? 'Memory and private media were preserved together.' : 'Memory preserved without an attached file.');
+      setSelectedFile(null);
+      form.reset();
+    } catch (error) {
+      setStatus('failed');
+      setMessage(error instanceof Error ? error.message : 'Unable to preserve this memory.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function chooseFile(file: File | null, input: HTMLInputElement) {
+    if (!file) {
+      setSelectedFile(null);
+      setStatus('draft');
+      setMessage(null);
+      input.setCustomValidity('');
+      return;
+    }
+    const errors = validateMemoryUpload(file);
+    if (errors.length) {
+      setSelectedFile(null);
+      setStatus('failed');
+      setMessage(errors.join(' '));
+      input.setCustomValidity(errors.join(' '));
+      return;
+    }
+    const prepared = prepareMemoryUpload(archive.family.id, 'pending-memory', file);
+    setSelectedFile(file);
+    setStatus('draft');
+    setMessage(`Ready to attach ${file.name} as ${prepared.mediaType}. It is not preserved yet.`);
+    input.setCustomValidity('');
+  }
+
+  const statusTone = status === 'preserved' ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : status === 'failed' ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-950';
+
+  return <form className="grid gap-3" onSubmit={submit}>
+    <div className={`rounded-2xl border p-4 text-sm ${statusTone}`}><b>{preservationCopy[status].label}</b><p className="mt-1 leading-6">{message ?? preservationCopy[status].detail}</p></div>
+    <input required name="title" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Memory title" />
+    <textarea name="description" disabled={busy} className="min-h-28 rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Tell the story..." />
+    <div className="grid gap-3 sm:grid-cols-2"><select name="type" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100"><option value="story">Story</option><option value="photo">Photo</option><option value="video">Video</option><option value="audio">Audio</option><option value="life_lesson">Life Lesson</option><option value="letter">Letter</option></select><select name="privacy" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100"><option value="private">Private</option><option value="family">Family</option><option value="specific_people">Specific people</option><option value="descendants">Descendants</option><option value="legacy">Legacy</option></select></div>
+    <div className="grid gap-3 sm:grid-cols-3"><select name="person" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100">{people.map(p=><option key={p.id || 'empty'} value={p.id}>{p.displayName}</option>)}</select><input name="date" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Date or approx date" /><input name="location" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Location" /></div>
+    <input name="category" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Category e.g. Childhood" />
+    <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-stone-600"><Upload className="mb-2" /> Select a file only when you are ready to preserve it. The app now saves the memory row first, then the private media object and metadata. No success is shown until the chain completes.<input disabled={busy} className="mt-3 block w-full text-sm" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onChange={(event)=>chooseFile(event.currentTarget.files?.[0] ?? null, event.currentTarget)} />{selectedFile && <p className="mt-2 font-semibold text-stone-700">Staged: {selectedFile.name}</p>}</div>
+    <button disabled={busy} className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white shadow-lg shadow-stone-900/20 disabled:bg-stone-400">{busy ? preservationCopy[status].label : 'Preserve Memory'}</button>
   </form>;
 }
-interface RecordPageProps { onCreate: (memory: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>) => void | Promise<void> }
+interface RecordPageProps { onCreate: (memory: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File) => Memory | Promise<Memory> }
 
 export function MemoriesPage({ archive }: { archive: ArchiveDataState }) {
   return <Card><SectionTitle eyebrow="Memories" title="Family stories, not a file drive">Every memory carries privacy, people, dates, and legacy status.</SectionTitle>{archive.memories.length === 0 && <p className="rounded-2xl bg-amber-50 p-4 text-stone-600">No memories yet. Record the first story for this family archive.</p>}<div className="grid gap-4 md:grid-cols-2">{archive.memories.map(memory=><article key={memory.id} className="rounded-3xl border border-amber-100 bg-gradient-to-br from-white to-amber-50 p-4"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">{memory.category}</p><h3 className="text-xl font-semibold text-stone-900">{memory.title}</h3></div><span className="rounded-full bg-stone-900 px-3 py-1 text-xs font-bold text-white">{privacyLabels[memory.privacy]}</span></div><p className="mt-3 text-sm leading-6 text-stone-600">{memory.description}</p><div className="mt-4 flex flex-wrap gap-2 text-xs text-stone-500">{memory.tags.map(t=><span key={t} className="rounded-full bg-white px-3 py-1 ring-1 ring-amber-100">#{t}</span>)}</div></article>)}</div></Card>;

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { bytesByType, loadArchive, saveArchive, type LocalArchiveState } from './archiveStore';
 import { demoFamily, demoStorage, demoTimeline } from './demoData';
 import { memoryTreeRepository, type CreateMemoryInput, type CreateRelationshipInput, type InviteFamilyMemberInput, type MemoryTreeRepository } from './repository';
+import { mediaTypeFromFile } from './mediaUpload';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageUsage } from '../types/domain';
 
 export interface ArchiveDataState {
@@ -96,7 +97,7 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
     return { ...demoArchiveState(localArchive), loading, error };
   }, [context.activeFamily, context.mode, error, liveState, loading, localArchive]);
 
-  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>) {
+  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File) {
     if (context.mode === 'ready' && context.activeFamily && context.userId) {
       const created = await repository.createMemory({
         familyId: context.activeFamily.id,
@@ -110,7 +111,17 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
         approximateDate: input.dateText,
         locationText: input.locationText
       } satisfies CreateMemoryInput);
-      setLiveState(prev => prev ? buildArchiveState({ ...prev, memories: [created, ...prev.memories] }) : prev);
+      let uploadedMedia: MemoryMedia | null = null;
+      if (file) {
+        uploadedMedia = await repository.uploadMemoryMedia({
+          familyId: context.activeFamily.id,
+          memoryId: created.id,
+          uploaderId: context.userId,
+          file,
+          mediaType: mediaTypeFromFile(file)
+        });
+      }
+      setLiveState(prev => prev ? buildArchiveState({ ...prev, memories: [created, ...prev.memories], media: uploadedMedia ? [uploadedMedia, ...prev.media] : prev.media }) : prev);
       await reload();
       return created;
     }
@@ -123,7 +134,15 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
       legacyStatus: input.privacy === 'legacy' ? 'legacy_ready' : 'active',
       createdAt: new Date().toISOString()
     };
-    setLocalArchive(prev => ({ ...prev, memories: [memory, ...prev.memories] }));
+    const localMedia: MemoryMedia | null = file ? {
+      id: `media-${crypto.randomUUID()}`,
+      memoryId: memory.id,
+      familyId: demoFamily.id,
+      storagePath: `demo/private/${memory.id}/${file.name}`,
+      mediaType: mediaTypeFromFile(file),
+      bytes: file.size
+    } : null;
+    setLocalArchive(prev => ({ ...prev, memories: [memory, ...prev.memories], media: localMedia ? [localMedia, ...prev.media] : prev.media }));
     return memory;
   }
 

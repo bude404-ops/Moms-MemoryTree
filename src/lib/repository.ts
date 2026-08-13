@@ -315,7 +315,7 @@ export class MemoryTreeRepository {
   }
 
   async uploadMemoryMedia(input: UploadMediaInput): Promise<MemoryMedia> {
-    const client = requireSupabase();
+    const client = this.client ?? requireSupabase();
     const storagePath = storagePathFor(input.familyId, input.memoryId, input.file.name, input.zone ?? 'memories');
     const upload = await client.storage.from('family-media').upload(storagePath, input.file, { contentType: input.file.type, upsert: false });
     if (upload.error) throw upload.error;
