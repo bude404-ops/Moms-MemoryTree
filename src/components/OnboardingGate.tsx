@@ -7,15 +7,16 @@ export interface OnboardingGateProps {
   onSignIn: (input: AuthCredentials) => Promise<void>;
   onSignUp: (input: AuthCredentials) => Promise<void>;
   onCreateFamily: (input: FirstFamilyInput) => Promise<void>;
+  onRequestPasswordReset: (email: string) => Promise<void>;
 }
 
-export function OnboardingGate({ state, onSignIn, onSignUp, onCreateFamily }: OnboardingGateProps) {
+export function OnboardingGate({ state, onSignIn, onSignUp, onCreateFamily, onRequestPasswordReset }: OnboardingGateProps) {
   if (state.mode === 'demo' || state.mode === 'ready') return null;
   if (state.mode === 'needs_family') return <CreateFamilyGate state={state} onCreateFamily={onCreateFamily} />;
-  return <AuthGate state={state} onSignIn={onSignIn} onSignUp={onSignUp} />;
+  return <AuthGate state={state} onSignIn={onSignIn} onSignUp={onSignUp} onRequestPasswordReset={onRequestPasswordReset} />;
 }
 
-function AuthGate({ state, onSignIn, onSignUp }: Pick<OnboardingGateProps, 'state' | 'onSignIn' | 'onSignUp'>) {
+function AuthGate({ state, onSignIn, onSignUp, onRequestPasswordReset }: Pick<OnboardingGateProps, 'state' | 'onSignIn' | 'onSignUp' | 'onRequestPasswordReset'>) {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-up');
   const [form, setForm] = useState({ email: '', password: '', displayName: '' });
 
@@ -44,6 +45,11 @@ function AuthGate({ state, onSignIn, onSignUp }: Pick<OnboardingGateProps, 'stat
         <label className="block"><span className="sr-only">Email</span><div className="relative"><Mail className="absolute left-4 top-4 text-stone-400" size={18} /><input required type="email" className="w-full rounded-2xl border border-amber-200 py-4 pl-11 pr-4" placeholder="Email" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} /></div></label>
         <input required minLength={8} type="password" className="w-full rounded-2xl border border-amber-200 px-4 py-4" placeholder="Password, 8+ characters" value={form.password} onChange={event => setForm({ ...form, password: event.target.value })} />
         {state.error && <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{state.error}</div>}
+        {state.notice && <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">{state.notice}</div>}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {mode === 'sign-in' && <button type="button" disabled={!form.email || state.loading} onClick={() => void onRequestPasswordReset(form.email)} className="text-left text-sm font-bold text-amber-800 disabled:text-stone-400">Send password reset</button>}
+          <p className="text-xs leading-5 text-stone-500">Credentials are handled by Supabase Auth. Moms MemoryTree never stores passwords in app tables.</p>
+        </div>
         <button disabled={state.loading} className="w-full rounded-2xl bg-stone-950 px-5 py-4 font-black text-white disabled:opacity-60">{state.loading ? 'Working...' : mode === 'sign-up' ? 'Create my archive account' : 'Enter my archive'}</button>
       </form>
     </div>

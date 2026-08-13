@@ -1,13 +1,9 @@
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { memoryTreeAuthService, type AuthSessionState, type MemoryTreeAuthService } from './auth';
 import { requireSupabase, supabase } from './supabase';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageUsage } from '../types/domain';
 import { demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoTimeline } from './demoData';
 import { storagePathFor } from './security';
-
-export interface AuthSessionState {
-  configured: boolean;
-  user: User | null;
-}
 
 export interface CreateFamilyInput {
   name: string;
@@ -139,34 +135,34 @@ function mapStorageUsage(row: Record<string, unknown>, familyId: string, fallbac
 }
 
 export class MemoryTreeRepository {
-  constructor(private readonly client: SupabaseClient | null = supabase) {}
+  constructor(private readonly client: SupabaseClient | null = supabase, private readonly authService: MemoryTreeAuthService = memoryTreeAuthService) {}
 
   isConfigured(): boolean {
     return Boolean(this.client);
   }
 
   async getAuthState(): Promise<AuthSessionState> {
-    if (!this.client) return { configured: false, user: null };
-    const { data, error } = await this.client.auth.getUser();
-    if (error) return { configured: true, user: null };
-    return { configured: true, user: data.user };
+    return this.authService.getAuthState();
+  }
+
+  onAuthStateChange(handler: Parameters<MemoryTreeAuthService['onAuthStateChange']>[0]) {
+    return this.authService.onAuthStateChange(handler);
   }
 
   async signInWithEmail(email: string, password: string) {
-    return requireSupabase().auth.signInWithPassword({ email, password });
+    return this.authService.signInWithEmail(email, password);
   }
 
   async signUpWithEmail(email: string, password: string, displayName: string) {
-    const client = requireSupabase();
-    const result = await client.auth.signUp({ email, password, options: { data: { display_name: displayName } } });
-    if (result.data.user) {
-      await client.from('profiles').upsert({ id: result.data.user.id, display_name: displayName });
-    }
-    return result;
+    return this.authService.signUpWithEmail({ email, password, displayName });
+  }
+
+  async requestPasswordReset(email: string, redirectTo?: string) {
+    return this.authService.requestPasswordReset({ email, redirectTo });
   }
 
   async signOut() {
-    return requireSupabase().auth.signOut();
+    return this.authService.signOut();
   }
 
   async listFamilies(): Promise<Family[]> {

@@ -25,8 +25,9 @@ This repository is the source of truth for:
 
 - Centralized Supabase browser client at `src/lib/supabase/client.ts`
 - Safe unconfigured demo mode when env vars are absent
-- Email/password auth wiring through Supabase Auth
+- Email/password auth wiring through centralized Supabase Auth service
 - Profile creation/upsert after signup
+- Sign up, sign in, sign out, password reset requests, session persistence refresh, and first-family onboarding
 - Family creation and family-management flows
 - Normalized demo/live archive data loading
 - Memory creation and listing architecture

@@ -14,12 +14,17 @@ export interface OnboardingState {
   families: Family[];
   activeFamily: Family | null;
   error: string | null;
+  notice: string | null;
 }
 
 export interface AuthCredentials {
   email: string;
   password: string;
   displayName?: string;
+}
+
+export interface PasswordResetRequest {
+  email: string;
 }
 
 export interface FirstFamilyInput {
@@ -42,7 +47,8 @@ export function useOnboarding(repository: MemoryTreeRepository = memoryTreeRepos
     user: null,
     families: [],
     activeFamily: null,
-    error: null
+    error: null,
+    notice: null
   });
 
   async function refresh() {
@@ -51,13 +57,17 @@ export function useOnboarding(repository: MemoryTreeRepository = memoryTreeRepos
       const auth = await repository.getAuthState();
       const families = auth.user ? await repository.listFamilies() : [];
       const mode = resolveOnboardingMode(auth.configured, auth.user, families);
-      setState({ configured: auth.configured, loading: false, mode, user: auth.user, families, activeFamily: families[0] ?? null, error: null });
+      setState(prev => ({ ...prev, configured: auth.configured, loading: false, mode, user: auth.user, families, activeFamily: families[0] ?? null, error: null }));
     } catch (error) {
       setState(prev => ({ ...prev, loading: false, error: error instanceof Error ? error.message : 'Unable to load archive state.' }));
     }
   }
 
-  useEffect(() => { void refresh(); }, []);
+  useEffect(() => {
+    void refresh();
+    const subscription = repository.onAuthStateChange?.(() => { void refresh(); });
+    return () => subscription?.unsubscribe();
+  }, [repository]);
 
   const actions = useMemo(() => ({
     async signIn({ email, password }: AuthCredentials) {
@@ -70,13 +80,23 @@ export function useOnboarding(repository: MemoryTreeRepository = memoryTreeRepos
       await refresh();
     },
     async signUp({ email, password, displayName }: AuthCredentials) {
-      setState(prev => ({ ...prev, loading: true, error: null }));
+      setState(prev => ({ ...prev, loading: true, error: null, notice: null }));
       const { error } = await repository.signUpWithEmail(email, password, displayName || email.split('@')[0]);
       if (error) {
         setState(prev => ({ ...prev, loading: false, error: error.message }));
         return;
       }
+      setState(prev => ({ ...prev, notice: 'Account created. If email confirmation is enabled, check your inbox before signing in.' }));
       await refresh();
+    },
+    async requestPasswordReset({ email }: PasswordResetRequest) {
+      setState(prev => ({ ...prev, loading: true, error: null, notice: null }));
+      const { error } = await repository.requestPasswordReset(email, window.location.origin);
+      if (error) {
+        setState(prev => ({ ...prev, loading: false, error: error.message }));
+        return;
+      }
+      setState(prev => ({ ...prev, loading: false, notice: 'Password reset email sent. Open it from the same device when possible.' }));
     },
     async createFirstFamily(input: FirstFamilyInput) {
       if (!state.user) {

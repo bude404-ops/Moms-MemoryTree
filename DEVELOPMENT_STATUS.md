@@ -38,6 +38,7 @@
 - Storage object policies added for private family-scoped access.
 - Signed media Edge Function source added.
 - Supabase-facing repository/service layer exists for auth, profile, family, people, relationships, memories, timeline, upload metadata, and signed URL foundations.
+- Centralized auth service supports sign up, sign in, sign out, password reset requests, profile creation after signup, and session-change refresh.
 - Mobile UI remains functional in demo mode without Supabase env vars.
 - Local tests cover privacy, storage authorization, signed URL expiry logic, migration/RLS/static family isolation checks, and local archive persistence.
 - Supabase deployment preflight script and GitHub Actions workflow added for controlled migrations, Edge Function deployment, and optional live verification.
