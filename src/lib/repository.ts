@@ -106,9 +106,20 @@ function mapMedia(row: Record<string, unknown>): MemoryMedia {
     id: String(row.id),
     memoryId: String(row.memory_id),
     familyId: String(row.family_id),
+    storageBucket: String(row.storage_bucket ?? 'family-media'),
     storagePath: String(row.storage_path),
     mediaType: row.media_type as MemoryMedia['mediaType'],
-    bytes: Number(row.file_size ?? row.bytes ?? 0)
+    mimeType: row.mime_type ? String(row.mime_type) : undefined,
+    originalFileName: row.original_file_name ? String(row.original_file_name) : row.file_name ? String(row.file_name) : undefined,
+    bytes: Number(row.file_size ?? row.bytes ?? 0),
+    durationSeconds: row.duration_seconds == null ? undefined : Number(row.duration_seconds),
+    width: row.width == null ? undefined : Number(row.width),
+    height: row.height == null ? undefined : Number(row.height),
+    thumbnailPath: row.thumbnail_path ? String(row.thumbnail_path) : undefined,
+    uploadStatus: row.upload_status as MemoryMedia['uploadStatus'] ?? 'completed',
+    provider: row.provider ? String(row.provider) : 'supabase',
+    originalPreserved: row.original_preserved == null ? true : Boolean(row.original_preserved),
+    deletedAt: row.deleted_at ? String(row.deleted_at) : undefined
   };
 }
 
@@ -293,7 +304,7 @@ export class MemoryTreeRepository {
 
   async listMemoryMedia(familyId: string): Promise<MemoryMedia[]> {
     if (!this.client) return [];
-    const { data, error } = await this.client.from('memory_media').select('*').eq('family_id', familyId).order('created_at', { ascending: false });
+    const { data, error } = await this.client.from('memory_media').select('*').eq('family_id', familyId).eq('upload_status', 'completed').is('deleted_at', null).order('created_at', { ascending: false });
     if (error) throw error;
     return (data ?? []).map(mapMedia);
   }
@@ -326,8 +337,12 @@ export class MemoryTreeRepository {
       media_type: input.mediaType,
       storage_path: storagePath,
       file_name: input.file.name,
+      original_file_name: input.file.name,
       mime_type: input.file.type,
-      file_size: input.file.size
+      file_size: input.file.size,
+      upload_status: 'completed',
+      provider: 'supabase',
+      original_preserved: true
     }).select('*').single();
     if (error) throw error;
     return mapMedia(data);

@@ -64,14 +64,27 @@ export interface Memory {
   softDeletedAt?: string;
 }
 
+export type MediaUploadStatus = 'pending' | 'uploading' | 'paused' | 'processing' | 'completed' | 'failed' | 'deleted';
+
 export interface MemoryMedia {
   id: string;
   memoryId: string;
   familyId: string;
+  storageBucket: string;
   storagePath: string;
   mediaType: 'photo' | 'video' | 'audio' | 'document';
+  mimeType?: string;
+  originalFileName?: string;
   bytes: number;
+  durationSeconds?: number;
+  width?: number;
+  height?: number;
+  thumbnailPath?: string;
+  uploadStatus: MediaUploadStatus;
+  provider?: string;
+  originalPreserved?: boolean;
   signedUrlExpiresAt?: string;
+  deletedAt?: string;
 }
 
 export interface LifeEvent {

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { bytesByType, loadArchive, saveArchive, type LocalArchiveState } from './archiveStore';
 import { demoFamily, demoStorage, demoTimeline } from './demoData';
 import { memoryTreeRepository, type CreateMemoryInput, type CreateRelationshipInput, type InviteFamilyMemberInput, type MemoryTreeRepository } from './repository';
+import { supabase } from './supabase';
+import { createSupabaseMediaStorageService, MediaStorageService } from './mediaStorage';
 import { mediaTypeFromFile } from './mediaUpload';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageUsage } from '../types/domain';
 
@@ -51,7 +53,7 @@ export function demoArchiveState(local: LocalArchiveState = loadArchive()): Arch
   });
 }
 
-export function useArchiveData(context: ArchiveContextInput, repository: MemoryTreeRepository = memoryTreeRepository) {
+export function useArchiveData(context: ArchiveContextInput, repository: MemoryTreeRepository = memoryTreeRepository, storageService: MediaStorageService | null = supabase ? createSupabaseMediaStorageService(supabase) : null) {
   const [localArchive, setLocalArchive] = useState<LocalArchiveState>(() => loadArchive());
   const [liveState, setLiveState] = useState<ArchiveDataState | null>(null);
   const [loading, setLoading] = useState(false);
@@ -113,6 +115,8 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
       } satisfies CreateMemoryInput);
       let uploadedMedia: MemoryMedia | null = null;
       if (file) {
+        const quota = await (storageService ?? new MediaStorageService({ id: 'future-cloud', prepareUpload: () => { throw new Error('Storage provider unavailable.'); }, upload: async () => { throw new Error('Storage provider unavailable.'); } })).assertQuota(archive.storage, file.size);
+        if (!quota.allowed) throw new Error(quota.reason ?? 'This upload exceeds the family storage quota.');
         uploadedMedia = await repository.uploadMemoryMedia({
           familyId: context.activeFamily.id,
           memoryId: created.id,
@@ -124,6 +128,10 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
       setLiveState(prev => prev ? buildArchiveState({ ...prev, memories: [created, ...prev.memories], media: uploadedMedia ? [uploadedMedia, ...prev.media] : prev.media }) : prev);
       await reload();
       return created;
+    }
+    if (file) {
+      const quota = await (storageService ?? new MediaStorageService({ id: 'future-cloud', prepareUpload: () => { throw new Error('Storage provider unavailable.'); }, upload: async () => { throw new Error('Storage provider unavailable.'); } })).assertQuota(archive.storage, file.size);
+      if (!quota.allowed) throw new Error(quota.reason ?? 'This upload exceeds the family storage quota.');
     }
     const memory: Memory = {
       ...input,
@@ -138,9 +146,15 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
       id: `media-${crypto.randomUUID()}`,
       memoryId: memory.id,
       familyId: demoFamily.id,
-      storagePath: `demo/private/${memory.id}/${file.name}`,
+      storageBucket: 'family-media',
+      storagePath: `demo/private/${memory.id}/${crypto.randomUUID()}-original.${file.name.split('.').pop() ?? 'bin'}`,
       mediaType: mediaTypeFromFile(file),
-      bytes: file.size
+      mimeType: file.type,
+      originalFileName: file.name,
+      bytes: file.size,
+      uploadStatus: 'completed',
+      provider: 'supabase',
+      originalPreserved: true
     } : null;
     setLocalArchive(prev => ({ ...prev, memories: [memory, ...prev.memories], media: localMedia ? [localMedia, ...prev.media] : prev.media }));
     return memory;

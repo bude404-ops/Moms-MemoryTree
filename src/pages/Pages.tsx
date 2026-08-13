@@ -77,17 +77,19 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
   const [status, setStatus] = useState<PreservationStatus>('draft');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const fd = new FormData(form);
     setBusy(true);
+    setProgress(8);
     setMessage(null);
     setStatus('creating_memory');
     try {
       const file = selectedFile ?? undefined;
-      if (file) setStatus('uploading_media');
+      if (file) { setStatus('uploading_media'); setProgress(72); }
       await onCreate({
         title: String(fd.get('title') || 'Untitled memory'),
         description: String(fd.get('description') || ''),
@@ -99,7 +101,8 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
         privacy: String(fd.get('privacy') || 'private') as PrivacyLevel
       }, file);
       setStatus('preserved');
-      setMessage(file ? 'Memory and private media were preserved together.' : 'Memory preserved without an attached file.');
+      setProgress(100);
+      setMessage(file ? 'Your memory is now stored in your private family cloud vault.' : 'Memory preserved without an attached file.');
       setSelectedFile(null);
       form.reset();
     } catch (error) {
@@ -136,7 +139,7 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
   const statusTone = status === 'preserved' ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : status === 'failed' ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-950';
 
   return <form className="grid gap-3" onSubmit={submit}>
-    <div className={`rounded-2xl border p-4 text-sm ${statusTone}`}><b>{preservationCopy[status].label}</b><p className="mt-1 leading-6">{message ?? preservationCopy[status].detail}</p></div>
+    <div className={`rounded-2xl border p-4 text-sm ${statusTone}`}><b>{preservationCopy[status].label}</b><p className="mt-1 leading-6">{message ?? preservationCopy[status].detail}</p>{busy && <div className="mt-3"><div className="mb-1 flex justify-between text-xs font-bold"><span>Uploading Memory...</span><span>{progress}%</span></div><div className="h-3 rounded-full bg-white/70"><div className="h-3 rounded-full bg-gradient-to-r from-amber-600 to-emerald-600 transition-all" style={{ width: `${progress}%` }} /></div><p className="mt-2 text-xs">Please keep the app open while we finish. If the connection drops, retry/resume support is handled by the storage service boundary.</p></div>}</div>
     <input required name="title" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Memory title" />
     <textarea name="description" disabled={busy} className="min-h-28 rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Tell the story..." />
     <div className="grid gap-3 sm:grid-cols-2"><select name="type" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100"><option value="story">Story</option><option value="photo">Photo</option><option value="video">Video</option><option value="audio">Audio</option><option value="life_lesson">Life Lesson</option><option value="letter">Letter</option></select><select name="privacy" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100"><option value="private">Private</option><option value="family">Family</option><option value="specific_people">Specific people</option><option value="descendants">Descendants</option><option value="legacy">Legacy</option></select></div>

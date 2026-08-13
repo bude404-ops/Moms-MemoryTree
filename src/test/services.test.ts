@@ -1,31 +1,39 @@
 import { describe, expect, it, vi } from 'vitest';
 import { mediaTypeFromFile, prepareMemoryUpload, validateMemoryUpload } from '../lib/mediaUpload';
+import { MediaStorageService } from '../lib/mediaStorage';
 import { getRuntimeReadiness } from '../lib/readiness';
 import { MemoryTreeRepository } from '../lib/repository';
 
 describe('media upload preparation', () => {
-  it('classifies media types from mime type', () => {
+  it('classifies media types from mime type and extension', () => {
     expect(mediaTypeFromFile({ type: 'image/jpeg', name: 'mom.jpg' })).toBe('photo');
     expect(mediaTypeFromFile({ type: 'video/mp4', name: 'story.mp4' })).toBe('video');
     expect(mediaTypeFromFile({ type: 'audio/mpeg', name: 'voice.mp3' })).toBe('audio');
     expect(mediaTypeFromFile({ type: 'application/pdf', name: 'letter.pdf' })).toBe('document');
   });
 
-  it('rejects empty, nameless, unknown uploads', () => {
-    expect(validateMemoryUpload({ name: '', size: 0, type: '' })).toEqual([
+  it('rejects empty, nameless, unsupported, and mismatched uploads', () => {
+    expect(validateMemoryUpload({ name: '', size: 0, type: '' })).toEqual(expect.arrayContaining([
       'File must have a name.',
       'File is empty.',
       'File type could not be detected.'
-    ]);
+    ]));
+    expect(validateMemoryUpload({ name: '../secret.exe', size: 10, type: 'application/octet-stream' })).toEqual(expect.arrayContaining([
+      'File name cannot include path characters.',
+      'File type is not supported for family cloud storage.'
+    ]));
+    expect(validateMemoryUpload({ name: 'story.mp4', size: 10, type: 'image/png' })).toContain('File extension and MIME type do not match an allowed media type.');
   });
 
-  it('prepares private upload metadata without public URL access', () => {
+  it('prepares private UUID-based upload metadata without public URL access', () => {
     const file = new File(['hello'], 'Mom Story.mp4', { type: 'video/mp4' });
-    const upload = prepareMemoryUpload('family-1', 'memory-1', file, 'legacy');
+    const upload = prepareMemoryUpload('family-1', 'memory-1', file, 'legacy', '11111111-1111-4111-8111-111111111111');
     expect(upload.publicUrlAllowed).toBe(false);
-    expect(upload.storagePath).toMatch(/^family\/family-1\/legacy\/memory-1\/\d+-mom-story.mp4$/);
+    expect(upload.storageBucket).toBe('family-media');
+    expect(upload.storagePath).toBe('family/family-1/legacy/memory-1/11111111-1111-4111-8111-111111111111-original.mp4');
     expect(upload.mediaType).toBe('video');
-    expect(upload.bytes).toBe(5);
+    expect(upload.uploadStatus).toBe('pending');
+    expect(upload.resumableRecommended).toBe(true);
   });
 });
 
@@ -34,6 +42,15 @@ describe('runtime readiness', () => {
     const readiness = getRuntimeReadiness();
     expect(readiness.find(item => item.id === 'backup-provider')?.ready).toBe(false);
     expect(readiness.find(item => item.id === 'edge-functions')?.ready).toBe(false);
+  });
+});
+
+describe('storage quotas', () => {
+  it('rejects uploads that exceed remaining family storage', async () => {
+    const service = new MediaStorageService({ id: 'future-cloud', prepareUpload: vi.fn(), upload: vi.fn() });
+    const result = await service.assertQuota({ familyId: 'family-1', videosBytes: 90, photosBytes: 5, audioBytes: 0, documentsBytes: 0, limitBytes: 100 }, 10);
+    expect(result.allowed).toBe(false);
+    expect(result.remainingBytes).toBe(5);
   });
 });
 
@@ -46,10 +63,7 @@ describe('repository service layer', () => {
 
   it('requests expiring signed URLs through the signed-media Edge Function', async () => {
     const invoke = vi.fn().mockResolvedValue({ data: { signedUrl: 'signed://temporary', expiresInSeconds: 300 }, error: null });
-    const fakeClient = {
-      functions: { invoke }
-    };
-    const repo = new MemoryTreeRepository(fakeClient as never);
+    const repo = new MemoryTreeRepository({ functions: { invoke } } as never);
     const access = await repo.createTemporaryMediaAccess('media-row-1');
     expect(invoke).toHaveBeenCalledWith('signed-media-access', { body: { mediaId: 'media-row-1' } });
     expect(access.publicUrlAllowed).toBe(false);
@@ -58,31 +72,25 @@ describe('repository service layer', () => {
   });
 });
 
-
 describe('repository media preservation chain', () => {
-  it('uploads private storage object before writing media metadata', async () => {
+  it('uploads private storage object before writing completed media metadata', async () => {
     const calls: string[] = [];
-    const upload = vi.fn().mockImplementation(() => { calls.push('storage'); return Promise.resolve({ data: { path: 'family/family-1/memories/memory-1/file.txt' }, error: null }); });
-    const insert = vi.fn().mockImplementation(() => { calls.push('metadata'); return { select: () => ({ single: () => Promise.resolve({ data: { id: 'media-1', memory_id: 'memory-1', family_id: 'family-1', storage_path: 'family/family-1/memories/memory-1/file.txt', media_type: 'document', file_size: 5 }, error: null }) }) }; });
-    const fakeClient = {
-      storage: { from: vi.fn().mockReturnValue({ upload }) },
-      from: vi.fn().mockReturnValue({ insert })
-    };
-    const repo = new MemoryTreeRepository(fakeClient as never);
+    const upload = vi.fn().mockImplementation(() => { calls.push('storage'); return Promise.resolve({ data: { path: 'stored' }, error: null }); });
+    const insert = vi.fn().mockImplementation((row) => { calls.push('metadata'); return { select: () => ({ single: () => Promise.resolve({ data: { id: 'media-1', memory_id: 'memory-1', family_id: 'family-1', storage_bucket: 'family-media', storage_path: row.storage_path, media_type: 'document', file_size: 5, upload_status: 'completed', original_file_name: 'file.txt', original_preserved: true }, error: null }) }) }; });
+    const repo = new MemoryTreeRepository({ storage: { from: vi.fn().mockReturnValue({ upload }) }, from: vi.fn().mockReturnValue({ insert }) } as never);
     const media = await repo.uploadMemoryMedia({ familyId: 'family-1', memoryId: 'memory-1', uploaderId: 'user-1', file: new File(['hello'], 'file.txt', { type: 'text/plain' }), mediaType: 'document' });
     expect(calls).toEqual(['storage', 'metadata']);
-    expect(media.id).toBe('media-1');
-    expect(upload).toHaveBeenCalledWith(expect.stringMatching(/^family\/family-1\/memories\/memory-1\/\d+-file.txt$/), expect.any(File), { contentType: 'text/plain', upsert: false });
+    expect(media.uploadStatus).toBe('completed');
+    expect(media.storageBucket).toBe('family-media');
+    expect(media.originalPreserved).toBe(true);
+    expect(upload).toHaveBeenCalledWith(expect.stringMatching(/^family\/family-1\/memories\/memory-1\/[a-f0-9-]+-original.txt$/), expect.any(File), { contentType: 'text/plain', upsert: false });
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({ upload_status: 'completed', original_file_name: 'file.txt', original_preserved: true }));
   });
 
   it('does not write media metadata when storage upload fails', async () => {
     const upload = vi.fn().mockResolvedValue({ data: null, error: new Error('storage denied') });
     const insert = vi.fn();
-    const fakeClient = {
-      storage: { from: vi.fn().mockReturnValue({ upload }) },
-      from: vi.fn().mockReturnValue({ insert })
-    };
-    const repo = new MemoryTreeRepository(fakeClient as never);
+    const repo = new MemoryTreeRepository({ storage: { from: vi.fn().mockReturnValue({ upload }) }, from: vi.fn().mockReturnValue({ insert }) } as never);
     await expect(repo.uploadMemoryMedia({ familyId: 'family-1', memoryId: 'memory-1', uploaderId: 'user-1', file: new File(['hello'], 'file.txt', { type: 'text/plain' }), mediaType: 'document' })).rejects.toThrow('storage denied');
     expect(insert).not.toHaveBeenCalled();
   });

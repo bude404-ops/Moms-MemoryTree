@@ -37,7 +37,7 @@ describe('memory privacy rules', () => {
 
 describe('storage signed URL architecture', () => {
   it('creates private storage paths scoped by family and memory', () => {
-    expect(storagePathFor('family-1', 'memory-1', 'Mom Video!.mp4')).toMatch(/^family\/family-1\/memories\/memory-1\/\d+-mom-video-.mp4$/);
+    expect(storagePathFor('family-1', 'memory-1', 'Mom Video!.mp4', 'memories', '11111111-1111-4111-8111-111111111111')).toBe('family/family-1/memories/memory-1/11111111-1111-4111-8111-111111111111-original.mp4');
   });
 
   it('creates expiring signed URL policies', () => {

@@ -9,7 +9,7 @@ const migration = fs.readdirSync(migrationDir)
   .join('\n');
 const lower = migration.toLowerCase();
 
-const privateTables = ['profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','memory_permissions','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','family_invitations','storage_usage','backup_records','archive_exports','audit_logs'];
+const privateTables = ['profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','memory_permissions','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','family_invitations','storage_usage','storage_plans','backup_records','archive_exports','audit_logs'];
 for (const table of privateTables) {
   const needle = `alter table public.${table} enable row level security`;
   if (!lower.includes(needle)) throw new Error(`Missing RLS enablement for ${table}`);
@@ -33,7 +33,15 @@ const assertions = [
   ['storage insert validates memory family', "where name like ('family/' || m.family_id::text || '/memories/' || m.id::text || '/%')"],
   ['storage read requires memory authorization', 'public.can_view_memory(mm.memory_id)'],
   ['storage usage trigger exists', 'increment_storage_usage_from_media'],
-  ['audit trigger exists', 'audit_memory_created']
+  ['audit trigger exists', 'audit_memory_created'],
+  ['explicit upload status enum exists', 'media_upload_status'],
+  ['completed-only signed media exists', "mm.upload_status = 'completed'"],
+  ['soft delete lifecycle exists', 'soft_delete_memory_media'],
+  ['quota plans exist', 'storage_plans'],
+  ['quota helper exists', 'family_has_storage_capacity'],
+  ['safe original path validation exists', 'invalid family media storage path'],
+  ['private media includes webm support', 'video/webm'],
+  ['public buckets forced private', 'public = false']
 ];
 
 const missing = assertions.filter(([, term]) => !lower.includes(term.toLowerCase())).map(([label]) => label);

@@ -58,8 +58,8 @@ export const demoMemories: Memory[] = [
 ];
 
 export const demoMedia: MemoryMedia[] = [
-  { id: 'media-1', familyId: demoFamily.id, memoryId: 'memory-childhood-home', storagePath: 'family/family-willow/memories/memory-childhood-home/photo-1.jpg', mediaType: 'photo', bytes: 8_200_000 },
-  { id: 'media-2', familyId: demoFamily.id, memoryId: 'memory-grandchildren-advice', storagePath: 'family/family-willow/legacy/memory-grandchildren-advice/video-1.mp4', mediaType: 'video', bytes: 174_000_000 }
+  { id: 'media-1', familyId: demoFamily.id, memoryId: 'memory-childhood-home', storageBucket: 'family-media', storagePath: 'family/family-willow/memories/memory-childhood-home/11111111-1111-4111-8111-111111111111-original.jpg', mediaType: 'photo', mimeType: 'image/jpeg', originalFileName: 'photo-1.jpg', bytes: 8_200_000, uploadStatus: 'completed', provider: 'supabase', originalPreserved: true },
+  { id: 'media-2', familyId: demoFamily.id, memoryId: 'memory-grandchildren-advice', storageBucket: 'family-media', storagePath: 'family/family-willow/legacy/memory-grandchildren-advice/22222222-2222-4222-8222-222222222222-original.mp4', mediaType: 'video', mimeType: 'video/mp4', originalFileName: 'video-1.mp4', bytes: 174_000_000, uploadStatus: 'completed', provider: 'supabase', originalPreserved: true }
 ];
 
 export const demoTimeline: LifeEvent[] = [

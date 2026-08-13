@@ -31,13 +31,16 @@
 - RLS enabled on every private family table.
 - Alignment migration added for frontend/schema drift: memory category, grandparent/grandchild relationships, member permissions, storage usage triggers, and audit triggers.
 - Security helper functions created for family membership, managers, descendant checks, memory visibility, storage access, and signed media authorization.
+- Cloud storage hardening migration added for upload statuses, storage plans, quotas, completed-only signed access, soft-delete media lifecycle, and safe object-path validation.
 - Private Supabase Storage bucket definitions added:
   - `family-media`
   - `family-avatars`
   - `family-exports`
 - Storage object policies added for private family-scoped access.
 - Signed media Edge Function source added.
-- Supabase-facing repository/service layer exists for auth, profile, family, people, relationships, memories, timeline, upload metadata, and signed URL foundations.
+- Supabase-facing repository/service layer exists for auth, profile, family, people, relationships, memories, timeline, upload metadata, completed media listing, and signed URL access.
+- `MediaStorageService` abstraction and `SupabaseStorageProvider` exist so another storage provider can be added later without rewriting the app.
+- Reusable secure `VideoPlayer`, `ImageViewer`, and `AudioPlayer` components exist for temporary signed media access.
 - Dedicated auth service tests cover email normalization, signup profile creation, password reset redirects, signout, and Supabase-disabled fallback.
 - Centralized auth service supports sign up, sign in, sign out, password reset requests, profile creation after signup, and session-change refresh.
 - Mobile UI remains functional in demo mode without Supabase env vars.
@@ -47,7 +50,7 @@
 ## IN PROGRESS
 
 - Live Supabase deployment is pending project credentials and CLI/dashboard execution.
-- Real cloud upload/playback is pending deployed buckets and Edge Function.
+- Real cloud upload/playback requires deployed buckets, migration, and Edge Function in a Supabase project.
 - Family invitation email delivery is architecture-only.
 
 ## PLANNED
@@ -57,7 +60,6 @@
 - Generate TypeScript database types from Supabase CLI.
 - Run real Supabase user isolation tests with Family A / Family B accounts.
 - Wire password reset UI.
-- Build real photo/video upload status UI.
 - Add specific-person permission management UI.
 - Build family archive export worker.
 - Integrate independent backup provider and verification.
@@ -80,9 +82,17 @@
 
 ## STORAGE
 
-- Architecture: private Supabase Storage + metadata in PostgreSQL.
-- Storage usage table tracks video/photo/audio/document totals.
-- Actual cloud upload and playback are not yet verified in this environment.
+- Cloud Storage: IMPLEMENTED in code and migrations for Supabase Storage.
+- Video Upload Status: IMPLEMENTED UI state/progress and provider boundary; true resumable transport depends on deployed provider capability.
+- Private Storage: IMPLEMENTED through private buckets, completed-only signed access, and storage policies.
+- Storage Quotas: IMPLEMENTED through configurable storage plans and quota checks.
+- Actual cloud upload and playback require Supabase deployment before live verification in this environment.
+
+## ARCHIVE EXPORT
+
+FOUNDATION ONLY.
+
+Archive export tracking exists, but no export worker is implemented yet.
 
 ## LEGACY
 

@@ -34,9 +34,11 @@ export function canAccessMedia(memory: Memory, media: MemoryMedia, viewer: Viewe
   return canViewMemory(memory, viewer, allowedSpecificPeople);
 }
 
-export function storagePathFor(familyId: string, memoryId: string, fileName: string, zone: 'memories' | 'people' | 'timeline' | 'legacy' = 'memories'): string {
-  const safeName = fileName.toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
-  return `family/${familyId}/${zone}/${memoryId}/${Date.now()}-${safeName}`;
+export function storagePathFor(familyId: string, memoryId: string, fileName: string, zone: 'memories' | 'people' | 'timeline' | 'legacy' = 'memories', objectId = crypto.randomUUID()): string {
+  const extension = fileName.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? 'bin';
+  const safeObjectId = objectId.toLowerCase().replace(/[^a-f0-9-]/g, '');
+  if (!safeObjectId || safeObjectId.includes('..')) throw new Error('Invalid storage object id.');
+  return `family/${familyId}/${zone}/${memoryId}/${safeObjectId}-original.${extension}`;
 }
 
 export function signedUrlPolicy(storagePath: string, expiresInSeconds = 300) {

@@ -15,10 +15,10 @@ describe('archive data state', () => {
 
   it('normalizes storage usage from actual media bytes', () => {
     const media: MemoryMedia[] = [
-      { id: 'm1', familyId: 'family-1', memoryId: 'memory-1', storagePath: 'a', mediaType: 'video', bytes: 100 },
-      { id: 'm2', familyId: 'family-1', memoryId: 'memory-1', storagePath: 'b', mediaType: 'photo', bytes: 25 },
-      { id: 'm3', familyId: 'family-1', memoryId: 'memory-2', storagePath: 'c', mediaType: 'audio', bytes: 10 },
-      { id: 'm4', familyId: 'family-1', memoryId: 'memory-3', storagePath: 'd', mediaType: 'document', bytes: 5 }
+      { id: 'm1', familyId: 'family-1', memoryId: 'memory-1', storageBucket: 'family-media', storagePath: 'a', mediaType: 'video', bytes: 100, uploadStatus: 'completed' },
+      { id: 'm2', familyId: 'family-1', memoryId: 'memory-1', storageBucket: 'family-media', storagePath: 'b', mediaType: 'photo', bytes: 25, uploadStatus: 'completed' },
+      { id: 'm3', familyId: 'family-1', memoryId: 'memory-2', storageBucket: 'family-media', storagePath: 'c', mediaType: 'audio', bytes: 10, uploadStatus: 'completed' },
+      { id: 'm4', familyId: 'family-1', memoryId: 'memory-3', storageBucket: 'family-media', storagePath: 'd', mediaType: 'document', bytes: 5, uploadStatus: 'completed' }
     ];
     const state = buildArchiveState({ source: 'supabase', family: demoFamily, members: [], people: [], relationships: [], memories: [], media, timeline: [], custodians: [], storage: { ...demoStorage, videosBytes: 0, photosBytes: 0, audioBytes: 0, documentsBytes: 0 } });
     expect(state.storage.videosBytes).toBe(100);
