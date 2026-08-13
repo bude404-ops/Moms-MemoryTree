@@ -1,0 +1,69 @@
+name: Moms MemoryTree Supabase
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_supabase:
+        description: Deploy Supabase migrations and Edge Function after validation
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      run_live_verification:
+        description: Run live Family A / Family B verification after deployment
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run validate
+
+  deploy-supabase:
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_supabase == 'true'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: supabase-production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_LIVE_URL: ${{ secrets.SUPABASE_LIVE_URL }}
+      SUPABASE_LIVE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_LIVE_PUBLISHABLE_KEY }}
+      SUPABASE_LIVE_TEST_PASSWORD: ${{ secrets.SUPABASE_LIVE_TEST_PASSWORD }}
+      SUPABASE_LIVE_TEST_EMAIL_A: ${{ secrets.SUPABASE_LIVE_TEST_EMAIL_A }}
+      SUPABASE_LIVE_TEST_EMAIL_B: ${{ secrets.SUPABASE_LIVE_TEST_EMAIL_B }}
+      SUPABASE_SIGNED_MEDIA_FUNCTION: signed-media-access
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: npm ci
+      - name: Deploy Supabase
+        run: |
+          if [ "${{ inputs.run_live_verification }}" = "true" ]; then
+            npm run deploy:supabase:run
+          else
+            npm run deploy:supabase -- --deploy
+          fi

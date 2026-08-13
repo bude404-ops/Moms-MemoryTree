@@ -131,6 +131,8 @@ Never return permanent public URLs for private memories.
 
 ## Deployment checklist
 
+For full deployment automation, see `docs/SUPABASE_DEPLOYMENT.md`.
+
 - Set environment variables locally/deployment host.
 - Apply migrations in timestamp order.
 - Confirm private buckets exist and are not public.

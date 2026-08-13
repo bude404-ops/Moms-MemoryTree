@@ -39,7 +39,8 @@
 - Signed media Edge Function source added.
 - Supabase-facing repository/service layer exists for auth, profile, family, people, relationships, memories, timeline, upload metadata, and signed URL foundations.
 - Mobile UI remains functional in demo mode without Supabase env vars.
-- Local tests cover privacy helpers, signed URL expiry logic, migration/RLS/static family isolation checks, and local archive persistence.
+- Local tests cover privacy, storage authorization, signed URL expiry logic, migration/RLS/static family isolation checks, and local archive persistence.
+- Supabase deployment preflight script and GitHub Actions workflow added for controlled migrations, Edge Function deployment, and optional live verification.
 
 ## IN PROGRESS
 

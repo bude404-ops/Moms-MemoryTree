@@ -12,10 +12,13 @@
     "test": "vitest run",
     "validate:db": "node scripts/validate-migrations.mjs",
     "validate:secrets": "node scripts/check-secrets.mjs",
-    "validate": "npm run lint && npm run test && npm run validate:db && npm run validate:rls && npm run validate:live-harness && npm run validate:secrets && npm run build",
+    "validate": "npm run lint && npm run test && npm run validate:db && npm run validate:rls && npm run validate:live-harness && npm run validate:deployment && npm run validate:secrets && npm run build",
     "validate:rls": "node scripts/validate-rls.mjs",
     "verify:live-supabase": "node scripts/verify-live-supabase.mjs",
-    "validate:live-harness": "node scripts/validate-live-harness.mjs"
+    "validate:live-harness": "node scripts/validate-live-harness.mjs",
+    "deploy:supabase": "node scripts/deploy-supabase.mjs",
+    "deploy:supabase:run": "node scripts/deploy-supabase.mjs --deploy --verify-live",
+    "validate:deployment": "node scripts/validate-deployment.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.56.0",
