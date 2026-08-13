@@ -55,6 +55,8 @@
 - Stage 2 Supabase-to-Reaper migration map completed in `SUPABASE_TO_REAPER_MIGRATION.md`.
 - Stage 3 provider-independent service contracts added for auth, database, authorization, backup, notification, billing, AI, and queue services.
 - Existing Supabase auth/database/storage behavior now sits behind provider-oriented contracts and a service registry while Reaper-native backend capabilities remain unavailable/unknown.
+- Stage 4 GitHub source-of-truth structure documented in `docs/GITHUB_SOURCE_OF_TRUTH.md`.
+- Reserved source-control directories added for `/assets`, `/public`, `/database`, `/database/migrations`, `/tests`, and `/config` without moving live runtime code.
 
 ## IN PROGRESS
 
