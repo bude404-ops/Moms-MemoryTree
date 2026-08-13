@@ -10,5 +10,6 @@ describe('RecordPage preservation UI', () => {
     expect(html).toContain('Nothing is preserved until you save');
     expect(html).toContain('No success is shown until the chain completes');
     expect(html).toContain('Preserve Memory');
+    expect(html).toContain('private media object and metadata');
   });
 });

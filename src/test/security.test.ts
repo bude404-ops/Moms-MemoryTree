@@ -40,6 +40,12 @@ describe('storage signed URL architecture', () => {
     expect(storagePathFor('family-1', 'memory-1', 'Mom Video!.mp4', 'memories', '11111111-1111-4111-8111-111111111111')).toBe('family/family-1/memories/memory-1/11111111-1111-4111-8111-111111111111-original.mp4');
   });
 
+  it('rejects traversal identifiers before creating storage paths', () => {
+    expect(() => storagePathFor('../family', 'memory-1', 'video.mp4', 'memories', '11111111-1111-4111-8111-111111111111')).toThrow('Invalid family id');
+    expect(() => storagePathFor('family-1', '../memory', 'video.mp4', 'memories', '11111111-1111-4111-8111-111111111111')).toThrow('Invalid target id');
+    expect(() => storagePathFor('family-1', 'memory-1', 'video.mp4', 'memories', '../bad' as `${string}-${string}-${string}-${string}-${string}`)).toThrow('Invalid storage object id');
+  });
+
   it('creates expiring signed URL policies', () => {
     const policy = signedUrlPolicy('family/family-1/memories/memory-1/video.mp4', 60);
     expect(policy.publicUrlAllowed).toBe(false);

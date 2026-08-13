@@ -1,9 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { MemoryTreeAuthService, type AuthSessionState } from './auth';
+import { createSupabaseMediaStorageService, type UploadProgressEvent } from './mediaStorage';
 import { requireSupabase, supabase } from './supabase';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageUsage } from '../types/domain';
 import { demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoTimeline } from './demoData';
-import { storagePathFor } from './security';
 
 export interface CreateFamilyInput {
   name: string;
@@ -47,6 +47,8 @@ export interface UploadMediaInput {
   file: File;
   mediaType: MemoryMedia['mediaType'];
   zone?: 'memories' | 'people' | 'timeline' | 'legacy';
+  signal?: AbortSignal;
+  onProgress?: (event: UploadProgressEvent) => void;
 }
 
 function mapFamily(row: Record<string, unknown>): Family {
@@ -327,21 +329,27 @@ export class MemoryTreeRepository {
 
   async uploadMemoryMedia(input: UploadMediaInput): Promise<MemoryMedia> {
     const client = this.client ?? requireSupabase();
-    const storagePath = storagePathFor(input.familyId, input.memoryId, input.file.name, input.zone ?? 'memories');
-    const upload = await client.storage.from('family-media').upload(storagePath, input.file, { contentType: input.file.type, upsert: false });
-    if (upload.error) throw upload.error;
+    const upload = await createSupabaseMediaStorageService(client).upload({
+      familyId: input.familyId,
+      memoryId: input.memoryId,
+      file: input.file,
+      zone: input.zone ?? 'memories',
+      signal: input.signal,
+      onProgress: input.onProgress
+    });
     const { data, error } = await client.from('memory_media').insert({
       family_id: input.familyId,
       memory_id: input.memoryId,
       uploaded_by: input.uploaderId,
-      media_type: input.mediaType,
-      storage_path: storagePath,
-      file_name: input.file.name,
-      original_file_name: input.file.name,
-      mime_type: input.file.type,
-      file_size: input.file.size,
-      upload_status: 'completed',
-      provider: 'supabase',
+      storage_bucket: upload.storageBucket,
+      media_type: upload.mediaType,
+      storage_path: upload.storagePath,
+      file_name: upload.originalFileName,
+      original_file_name: upload.originalFileName,
+      mime_type: upload.mimeType,
+      file_size: upload.bytes,
+      upload_status: upload.uploadStatus,
+      provider: upload.provider,
       original_preserved: true
     }).select('*').single();
     if (error) throw error;

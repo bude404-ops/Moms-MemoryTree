@@ -38,7 +38,7 @@
   - `family-exports`
 - Storage object policies added for private family-scoped access.
 - Signed media Edge Function source added.
-- Supabase-facing repository/service layer exists for auth, profile, family, people, relationships, memories, timeline, upload metadata, completed media listing, and signed URL access.
+- Supabase-facing repository/service layer exists for auth, profile, family, people, relationships, memories, timeline, provider-routed private media upload, completed media listing, and signed URL access.
 - `MediaStorageService` abstraction and `SupabaseStorageProvider` exist so another storage provider can be added later without rewriting the app.
 - Reusable secure `VideoPlayer`, `ImageViewer`, and `AudioPlayer` components exist for temporary signed media access.
 - Dedicated auth service tests cover email normalization, signup profile creation, password reset redirects, signout, and Supabase-disabled fallback.

@@ -6,6 +6,7 @@ import { useOnboarding } from './lib/onboarding';
 import { OnboardingGate } from './components/OnboardingGate';
 import { useArchiveData } from './lib/archiveData';
 import type { Memory } from './types/domain';
+import type { UploadProgressEvent } from './lib/mediaStorage';
 
 type Tab = 'home' | 'tree' | 'record' | 'memories' | 'family' | 'timeline' | 'legacy';
 
@@ -26,8 +27,8 @@ export default function App() {
 
   const activeTitle = useMemo(() => tabs.find(t => t.id === tab)?.label ?? 'Home', [tab]);
 
-  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File) {
-    const created = await archiveData.createMemory(input, file);
+  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File, options?: { signal?: AbortSignal; onUploadProgress?: (event: UploadProgressEvent) => void }) {
+    const created = await archiveData.createMemory(input, file, options);
     setTab('memories');
     return created;
   }

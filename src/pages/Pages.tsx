@@ -1,6 +1,7 @@
 import { Camera, Clock, FileHeart, Home, LockKeyhole, Mic, ShieldCheck, Upload, UsersRound } from 'lucide-react';
 import { useState } from 'react';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, Person, PrivacyLevel, StorageUsage } from '../types/domain';
+import type { UploadProgressEvent } from '../lib/mediaStorage';
 import { storyQuestions } from '../lib/demoData';
 import { formatBytes } from '../lib/archiveStore';
 import { prepareMemoryUpload, validateMemoryUpload } from '../lib/mediaUpload';
@@ -78,18 +79,21 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [aborter, setAborter] = useState<AbortController | null>(null);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const fd = new FormData(form);
+    const controller = new AbortController();
+    setAborter(controller);
     setBusy(true);
     setProgress(8);
     setMessage(null);
     setStatus('creating_memory');
     try {
       const file = selectedFile ?? undefined;
-      if (file) { setStatus('uploading_media'); setProgress(72); }
+      if (file) { setStatus('uploading_media'); }
       await onCreate({
         title: String(fd.get('title') || 'Untitled memory'),
         description: String(fd.get('description') || ''),
@@ -99,7 +103,14 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
         locationText: String(fd.get('location') || ''),
         category: String(fd.get('category') || 'Life'),
         privacy: String(fd.get('privacy') || 'private') as PrivacyLevel
-      }, file);
+      }, file, {
+        signal: controller.signal,
+        onUploadProgress: (event) => {
+          setStatus(event.status === 'completed' ? 'uploading_media' : event.status === 'failed' ? 'failed' : event.status === 'processing' ? 'uploading_media' : 'uploading_media');
+          setProgress(event.progress);
+          setMessage(`${event.message}${event.resumable ? ' Resumable upload is recommended for this file.' : ''}`);
+        }
+      });
       setStatus('preserved');
       setProgress(100);
       setMessage(file ? 'Your memory is now stored in your private family cloud vault.' : 'Memory preserved without an attached file.');
@@ -110,6 +121,7 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
       setMessage(error instanceof Error ? error.message : 'Unable to preserve this memory.');
     } finally {
       setBusy(false);
+      setAborter(null);
     }
   }
 
@@ -146,10 +158,10 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
     <div className="grid gap-3 sm:grid-cols-3"><select name="person" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100">{people.map(p=><option key={p.id || 'empty'} value={p.id}>{p.displayName}</option>)}</select><input name="date" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Date or approx date" /><input name="location" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Location" /></div>
     <input name="category" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Category e.g. Childhood" />
     <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-stone-600"><Upload className="mb-2" /> Select a file only when you are ready to preserve it. The app now saves the memory row first, then the private media object and metadata. No success is shown until the chain completes.<input disabled={busy} className="mt-3 block w-full text-sm" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onChange={(event)=>chooseFile(event.currentTarget.files?.[0] ?? null, event.currentTarget)} />{selectedFile && <p className="mt-2 font-semibold text-stone-700">Staged: {selectedFile.name}</p>}</div>
-    <button disabled={busy} className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white shadow-lg shadow-stone-900/20 disabled:bg-stone-400">{busy ? preservationCopy[status].label : 'Preserve Memory'}</button>
+    <div className="grid gap-2 sm:grid-cols-[1fr_auto]"><button disabled={busy} className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white shadow-lg shadow-stone-900/20 disabled:bg-stone-400">{busy ? preservationCopy[status].label : 'Preserve Memory'}</button>{busy && <button type="button" onClick={() => aborter?.abort()} className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 font-bold text-red-800">Cancel upload</button>}</div>
   </form>;
 }
-interface RecordPageProps { onCreate: (memory: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File) => Memory | Promise<Memory> }
+interface RecordPageProps { onCreate: (memory: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File, options?: { signal?: AbortSignal; onUploadProgress?: (event: UploadProgressEvent) => void }) => Memory | Promise<Memory> }
 
 export function MemoriesPage({ archive }: { archive: ArchiveDataState }) {
   return <Card><SectionTitle eyebrow="Memories" title="Family stories, not a file drive">Every memory carries privacy, people, dates, and legacy status.</SectionTitle>{archive.memories.length === 0 && <p className="rounded-2xl bg-amber-50 p-4 text-stone-600">No memories yet. Record the first story for this family archive.</p>}<div className="grid gap-4 md:grid-cols-2">{archive.memories.map(memory=><article key={memory.id} className="rounded-3xl border border-amber-100 bg-gradient-to-br from-white to-amber-50 p-4"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">{memory.category}</p><h3 className="text-xl font-semibold text-stone-900">{memory.title}</h3></div><span className="rounded-full bg-stone-900 px-3 py-1 text-xs font-bold text-white">{privacyLabels[memory.privacy]}</span></div><p className="mt-3 text-sm leading-6 text-stone-600">{memory.description}</p><div className="mt-4 flex flex-wrap gap-2 text-xs text-stone-500">{memory.tags.map(t=><span key={t} className="rounded-full bg-white px-3 py-1 ring-1 ring-amber-100">#{t}</span>)}</div></article>)}</div></Card>;

@@ -3,7 +3,7 @@ import { bytesByType, loadArchive, saveArchive, type LocalArchiveState } from '.
 import { demoFamily, demoStorage, demoTimeline } from './demoData';
 import { memoryTreeRepository, type CreateMemoryInput, type CreateRelationshipInput, type InviteFamilyMemberInput, type MemoryTreeRepository } from './repository';
 import { supabase } from './supabase';
-import { createSupabaseMediaStorageService, MediaStorageService } from './mediaStorage';
+import { createSupabaseMediaStorageService, MediaStorageService, type UploadProgressEvent } from './mediaStorage';
 import { mediaTypeFromFile } from './mediaUpload';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageUsage } from '../types/domain';
 
@@ -99,7 +99,7 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
     return { ...demoArchiveState(localArchive), loading, error };
   }, [context.activeFamily, context.mode, error, liveState, loading, localArchive]);
 
-  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File) {
+  async function createMemory(input: Omit<Memory, 'id' | 'createdAt' | 'creatorId' | 'familyId' | 'tags' | 'legacyStatus'>, file?: File, options: { signal?: AbortSignal; onUploadProgress?: (event: UploadProgressEvent) => void } = {}) {
     if (context.mode === 'ready' && context.activeFamily && context.userId) {
       const created = await repository.createMemory({
         familyId: context.activeFamily.id,
@@ -122,7 +122,9 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
           memoryId: created.id,
           uploaderId: context.userId,
           file,
-          mediaType: mediaTypeFromFile(file)
+          mediaType: mediaTypeFromFile(file),
+          signal: options.signal,
+          onProgress: options.onUploadProgress
         });
       }
       setLiveState(prev => prev ? buildArchiveState({ ...prev, memories: [created, ...prev.memories], media: uploadedMedia ? [uploadedMedia, ...prev.media] : prev.media }) : prev);

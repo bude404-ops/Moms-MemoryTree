@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { mediaTypeFromFile, prepareMemoryUpload, validateMemoryUpload } from '../lib/mediaUpload';
-import { MediaStorageService } from '../lib/mediaStorage';
+import { MediaStorageService, SupabaseStorageProvider, type UploadProgressEvent } from '../lib/mediaStorage';
 import { getRuntimeReadiness } from '../lib/readiness';
 import { MemoryTreeRepository } from '../lib/repository';
 
@@ -51,6 +51,35 @@ describe('storage quotas', () => {
     const result = await service.assertQuota({ familyId: 'family-1', videosBytes: 90, photosBytes: 5, audioBytes: 0, documentsBytes: 0, limitBytes: 100 }, 10);
     expect(result.allowed).toBe(false);
     expect(result.remainingBytes).toBe(5);
+  });
+});
+
+
+describe('Supabase media storage provider', () => {
+  it('emits progress and completed events without public URLs', async () => {
+    const events: string[] = [];
+    const upload = vi.fn().mockResolvedValue({ data: { path: 'stored' }, error: null });
+    const provider = new SupabaseStorageProvider({ storage: { from: vi.fn().mockReturnValue({ upload }) } } as never);
+    const result = await provider.upload({
+      familyId: 'family-1',
+      memoryId: 'memory-1',
+      file: new File(['hello'], 'story.mp4', { type: 'video/mp4' }),
+      onProgress: (event: UploadProgressEvent) => events.push(`${event.status}:${event.progress}`)
+    } as never);
+    expect(result.uploadStatus).toBe('completed');
+    expect(result.publicUrlAllowed).toBe(false);
+    expect(events.some(event => event.startsWith('uploading:1'))).toBe(true);
+    expect(events.some(event => event.startsWith('processing:95'))).toBe(true);
+    expect(events.some(event => event.startsWith('completed:100'))).toBe(true);
+  });
+
+  it('cancels before storage upload starts when aborted', async () => {
+    const upload = vi.fn();
+    const controller = new AbortController();
+    controller.abort();
+    const provider = new SupabaseStorageProvider({ storage: { from: vi.fn().mockReturnValue({ upload }) } } as never);
+    await expect(provider.upload({ familyId: 'family-1', memoryId: 'memory-1', file: new File(['hello'], 'story.mp4', { type: 'video/mp4' }), signal: controller.signal })).rejects.toThrow('Upload cancelled');
+    expect(upload).not.toHaveBeenCalled();
   });
 });
 

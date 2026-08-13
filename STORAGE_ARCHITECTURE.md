@@ -70,7 +70,7 @@ Only `completed` media is presented as successfully stored or returned by normal
 
 ## Large video support
 
-The service boundary includes progress, cancellation, retry/resume status, and resumable recommendations. Supabase browser uploads are currently single-request uploads through the JS client, but the provider abstraction is ready for a resumable provider such as TUS/S3-compatible storage without rewriting the app.
+The service boundary includes progress, cancellation, retry/resume status, and resumable recommendations. The real upload path now routes through `MediaStorageService` and `SupabaseStorageProvider`, so UI progress comes from provider events rather than hardcoded percentages. Supabase browser uploads are currently single-request uploads through the JS client, but the provider abstraction is ready for a resumable provider such as TUS/S3-compatible storage without rewriting the app.
 
 The UI uses honest language:
 

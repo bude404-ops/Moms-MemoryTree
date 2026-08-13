@@ -35,9 +35,12 @@ export function canAccessMedia(memory: Memory, media: MemoryMedia, viewer: Viewe
 }
 
 export function storagePathFor(familyId: string, memoryId: string, fileName: string, zone: 'memories' | 'people' | 'timeline' | 'legacy' = 'memories', objectId = crypto.randomUUID()): string {
+  if (!/^[A-Za-z0-9-]+$/.test(familyId) || familyId.includes('..')) throw new Error('Invalid family id for storage path.');
+  if (!/^[A-Za-z0-9-]+$/.test(memoryId) || memoryId.includes('..')) throw new Error('Invalid target id for storage path.');
   const extension = fileName.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? 'bin';
+  if (!/^[a-z0-9]+$/.test(extension)) throw new Error('Invalid file extension for storage path.');
   const safeObjectId = objectId.toLowerCase().replace(/[^a-f0-9-]/g, '');
-  if (!safeObjectId || safeObjectId.includes('..')) throw new Error('Invalid storage object id.');
+  if (!/^[a-f0-9-]{32,36}$/.test(safeObjectId) || safeObjectId.includes('..')) throw new Error('Invalid storage object id.');
   return `family/${familyId}/${zone}/${memoryId}/${safeObjectId}-original.${extension}`;
 }
 

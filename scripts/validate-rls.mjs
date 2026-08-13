@@ -41,10 +41,23 @@ const assertions = [
   ['quota helper exists', 'family_has_storage_capacity'],
   ['safe original path validation exists', 'invalid family media storage path'],
   ['private media includes webm support', 'video/webm'],
-  ['public buckets forced private', 'public = false']
+  ['public buckets forced private', 'public = false'],
+  ['completed media listing enforced', ".eq('upload_status', 'completed')"],
+  ['media storage provider abstraction exists', 'MediaStorageService'],
+  ['supabase provider exists', 'SupabaseStorageProvider'],
+  ['upload cancellation boundary exists', 'AbortSignal'],
+  ['no independent backup overclaim', 'Backup records and export records exist, but no independent backup provider is implemented or verified yet']
 ];
 
-const missing = assertions.filter(([, term]) => !lower.includes(term.toLowerCase())).map(([label]) => label);
+const appSource = [
+  'src/lib/repository.ts',
+  'src/lib/archiveData.ts',
+  'src/lib/mediaStorage.ts',
+  'src/pages/Pages.tsx',
+  'DEVELOPMENT_STATUS.md'
+].map(file => fs.readFileSync(path.join(process.cwd(), file), 'utf8')).join('\n').toLowerCase();
+
+const missing = assertions.filter(([, term]) => !(lower.includes(term.toLowerCase()) || appSource.includes(term.toLowerCase()))).map(([label]) => label);
 if (missing.length) throw new Error(`Missing RLS/storage isolation assertions: ${missing.join(', ')}`);
 
 const forbidden = [/using\s*\(\s*true\s*\)/i, /to\s+authenticated\s+using\s*\(\s*true\s*\)/i, /public\s*=\s*true/i, /create\s+policy[^;]+authenticated[^;]+read[^;]+all/i];
