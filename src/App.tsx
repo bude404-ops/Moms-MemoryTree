@@ -6,6 +6,8 @@ import type { LocalArchiveState } from './lib/archiveStore';
 import type { Memory } from './types/domain';
 import { FamilyPage, HomePage, LegacyPage, MemoriesPage, MemoryTreePage, RecordPage, TimelinePage } from './pages/Pages';
 import { isSupabaseConfigured } from './lib/supabase';
+import { useOnboarding } from './lib/onboarding';
+import { OnboardingGate } from './components/OnboardingGate';
 
 type Tab = 'home' | 'tree' | 'record' | 'memories' | 'family' | 'timeline' | 'legacy';
 
@@ -22,6 +24,7 @@ const tabs: { id: Tab; label: string; icon: typeof Home }[] = [
 export default function App() {
   const [tab, setTab] = useState<Tab>('home');
   const [archive, setArchive] = useState<LocalArchiveState>(() => loadArchive());
+  const onboarding = useOnboarding();
 
   useEffect(() => saveArchive(archive), [archive]);
 
@@ -59,13 +62,17 @@ export default function App() {
 
     <main className="mx-auto max-w-6xl px-4 py-5 pb-28 md:pb-8">
       {!isSupabaseConfigured && <div className="mb-5 rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950"><b>Development mode:</b> Supabase is not configured yet, so the UI uses local seed data. Database migrations, RLS policies, and private storage architecture are included for real Supabase deployment.</div>}
-      {tab === 'home' && <HomePage archive={normalizedArchive} />}
-      {tab === 'tree' && <MemoryTreePage />}
-      {tab === 'record' && <RecordPage onCreate={createMemory} />}
-      {tab === 'memories' && <MemoriesPage archive={normalizedArchive} />}
-      {tab === 'family' && <FamilyPage />}
-      {tab === 'timeline' && <TimelinePage />}
-      {tab === 'legacy' && <LegacyPage />}
+      <OnboardingGate state={onboarding.state} onSignIn={onboarding.actions.signIn} onSignUp={onboarding.actions.signUp} onCreateFamily={onboarding.actions.createFirstFamily} />
+      {(onboarding.state.mode === 'demo' || onboarding.state.mode === 'ready') && <>
+        {onboarding.state.mode === 'ready' && <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950"><span><b>Family archive active:</b> {onboarding.state.activeFamily?.name}</span><button onClick={() => void onboarding.actions.signOut()} className="rounded-full bg-white px-4 py-2 font-bold text-emerald-900 ring-1 ring-emerald-200">Sign out</button></div>}
+        {tab === 'home' && <HomePage archive={normalizedArchive} />}
+        {tab === 'tree' && <MemoryTreePage />}
+        {tab === 'record' && <RecordPage onCreate={createMemory} />}
+        {tab === 'memories' && <MemoriesPage archive={normalizedArchive} />}
+        {tab === 'family' && <FamilyPage />}
+        {tab === 'timeline' && <TimelinePage />}
+        {tab === 'legacy' && <LegacyPage />}
+      </>}
     </main>
 
     <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-amber-100 bg-white/94 px-2 py-2 shadow-[0_-12px_40px_rgba(92,64,35,0.12)] backdrop-blur-xl md:hidden">

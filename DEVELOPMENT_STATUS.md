@@ -31,10 +31,12 @@
 - Supabase project connection remains environment-dependent.
 - Real photo/video upload UI now prepares private storage paths and validates file safety before later Supabase upload.
 - Supabase-facing repository/service layer added for auth, profiles, family creation, people, relationships, memories, timeline, upload metadata, and signed URL creation.
+- Session-aware onboarding gate added for live Supabase sign-up/sign-in and first family creation when env vars are configured.
 
 ## PLANNED
 
 - Supabase Auth screens backed by live project.
+- Real family data loading after live Supabase onboarding.
 - Edge function for signed media URL creation after RLS checks.
 - Real photo upload to private bucket.
 - Video upload with thumbnail generation.

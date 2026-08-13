@@ -24,6 +24,8 @@ This repository contains the Phase 1 foundation:
 - Signed media access policy helper
 - Supabase-facing repository/service layer
 - Upload preparation and private path validation
+- Session-aware sign-up/sign-in onboarding
+- First family archive creation flow
 - Storage usage tracking foundation
 - Legacy custodian data model
 - Legacy permission data model
