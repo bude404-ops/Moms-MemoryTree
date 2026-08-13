@@ -57,7 +57,7 @@ function AuthGate({ state, onSignIn, onSignUp, onRequestPasswordReset }: Pick<On
 }
 
 function CreateFamilyGate({ state, onCreateFamily }: Pick<OnboardingGateProps, 'state' | 'onCreateFamily'>) {
-  const [form, setForm] = useState({ familyName: '', displayName: state.user?.user_metadata?.display_name as string || '' });
+  const [form, setForm] = useState({ familyName: '', displayName: state.user?.userMetadata?.display_name as string || '' });
   async function submit(event: FormEvent) {
     event.preventDefault();
     await onCreateFamily(form);

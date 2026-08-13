@@ -1,25 +1,8 @@
-import type { AuthChangeEvent, Session, SupabaseClient, User } from '@supabase/supabase-js';
+import type { AuthChangeEvent, Session, SupabaseClient } from '@supabase/supabase-js';
 import { requireSupabase, supabase } from './supabase';
+import type { AppUser, AuthService, AuthSessionState, AuthStateHandler, PasswordResetInput, SignUpInput } from './services';
 
-export interface AuthSessionState {
-  configured: boolean;
-  user: User | null;
-}
-
-export interface SignUpInput {
-  email: string;
-  password: string;
-  displayName: string;
-}
-
-export interface PasswordResetInput {
-  email: string;
-  redirectTo?: string;
-}
-
-export type AuthStateHandler = (event: AuthChangeEvent, session: Session | null) => void;
-
-export class MemoryTreeAuthService {
+export class MemoryTreeAuthService implements AuthService {
   constructor(private readonly client: SupabaseClient | null = supabase) {}
 
   isConfigured(): boolean {
@@ -30,12 +13,12 @@ export class MemoryTreeAuthService {
     if (!this.client) return { configured: false, user: null };
     const { data, error } = await this.client.auth.getUser();
     if (error) return { configured: true, user: null };
-    return { configured: true, user: data.user };
+    return { configured: true, user: data.user ? toAppUser(data.user) : null };
   }
 
   onAuthStateChange(handler: AuthStateHandler) {
     if (!this.client) return { unsubscribe: () => undefined };
-    const { data } = this.client.auth.onAuthStateChange(handler);
+    const { data } = this.client.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => handler(event, session));
     return { unsubscribe: () => data.subscription.unsubscribe() };
   }
 
@@ -55,7 +38,7 @@ export class MemoryTreeAuthService {
     if (result.data.user) {
       await client.from('profiles').upsert({ id: result.data.user.id, display_name: displayName });
     }
-    return result;
+    return { ...result, user: result.data.user ? toAppUser(result.data.user) : null };
   }
 
   async requestPasswordReset(input: PasswordResetInput) {
@@ -69,6 +52,10 @@ export class MemoryTreeAuthService {
     const client = this.client ?? requireSupabase();
     return client.auth.signOut();
   }
+}
+
+function toAppUser(user: { id: string; email?: string; user_metadata?: Record<string, unknown> }): AppUser {
+  return { id: user.id, email: user.email, userMetadata: user.user_metadata };
 }
 
 export const memoryTreeAuthService = new MemoryTreeAuthService();

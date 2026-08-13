@@ -1,55 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { MemoryTreeAuthService, type AuthSessionState } from './auth';
-import { createSupabaseMediaStorageService, type UploadProgressEvent } from './mediaStorage';
+import { MemoryTreeAuthService } from './auth';
+import { createSupabaseMediaStorageService } from './mediaStorage';
 import { requireSupabase, supabase } from './supabase';
+import type { AuthSessionState, CreateFamilyInput, CreateMemoryInput, DatabaseService, InviteFamilyMemberInput, CreateRelationshipInput, UploadMediaInput } from './services';
 import type { CostAssumptions, Family, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageAddon, StoragePlan, StorageUsage } from '../types/domain';
 import { demoCostAssumptions, demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoStorageAddons, demoStoragePlans, demoSubscription, demoTimeline } from './demoData';
-
-export interface CreateFamilyInput {
-  name: string;
-  creatorProfileId: string;
-  creatorDisplayName: string;
-}
-
-export interface CreateMemoryInput {
-  familyId: string;
-  creatorId: string;
-  title: string;
-  description?: string;
-  memoryType: Memory['type'];
-  privacy: PrivacyLevel;
-  category?: string;
-  associatedPersonId?: string;
-  approximateDate?: string;
-  locationText?: string;
-}
-
-export interface InviteFamilyMemberInput {
-  familyId: string;
-  personId: string;
-  email?: string;
-  role: FamilyMember['role'];
-  relationshipLabel?: string;
-  permissions?: string[];
-}
-
-export interface CreateRelationshipInput {
-  familyId: string;
-  fromPersonId: string;
-  toPersonId: string;
-  relationshipType: FamilyRelationship['relationshipType'];
-}
-
-export interface UploadMediaInput {
-  familyId: string;
-  memoryId: string;
-  uploaderId: string;
-  file: File;
-  mediaType: MemoryMedia['mediaType'];
-  zone?: 'memories' | 'people' | 'timeline' | 'legacy';
-  signal?: AbortSignal;
-  onProgress?: (event: UploadProgressEvent) => void;
-}
 
 function mapFamily(row: Record<string, unknown>): Family {
   return {
@@ -213,7 +168,7 @@ function mapCostAssumptions(row: Record<string, unknown>): CostAssumptions {
   };
 }
 
-export class MemoryTreeRepository {
+export class MemoryTreeRepository implements DatabaseService {
   constructor(private readonly client: SupabaseClient | null = supabase, authService?: MemoryTreeAuthService) {
     this.authService = authService ?? new MemoryTreeAuthService(client);
   }
@@ -456,7 +411,7 @@ export class MemoryTreeRepository {
     const { data, error } = await client.functions.invoke('signed-media-access', { body: { mediaId } });
     if (error) throw error;
     if (!data?.signedUrl) throw new Error('Signed media access denied or unavailable.');
-    return { signedUrl: String(data.signedUrl), expiresInSeconds: Number(data.expiresInSeconds ?? 300), publicUrlAllowed: false };
+    return { signedUrl: String(data.signedUrl), expiresInSeconds: Number(data.expiresInSeconds ?? 300), publicUrlAllowed: false as const };
   }
 }
 

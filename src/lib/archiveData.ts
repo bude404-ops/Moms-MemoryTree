@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { bytesByType, loadArchive, saveArchive, type LocalArchiveState } from './archiveStore';
 import { demoCostAssumptions, demoFamily, demoStorage, demoStoragePlans, demoSubscription, demoTimeline } from './demoData';
-import { memoryTreeRepository, type CreateMemoryInput, type CreateRelationshipInput, type InviteFamilyMemberInput, type MemoryTreeRepository } from './repository';
+import { memoryTreeRepository, type MemoryTreeRepository } from './repository';
+import type { CreateMemoryInput, CreateRelationshipInput, InviteFamilyMemberInput } from './services';
 import { supabase } from './supabase';
 import { createSupabaseMediaStorageService, createUnavailableMediaStorageService, type MediaStorageService, type UploadProgressEvent } from './mediaStorage';
 import { mediaTypeFromFile } from './mediaUpload';

@@ -50,6 +50,11 @@
 - Cost tracking implemented for configurable infrastructure assumptions, estimated storage/bandwidth/backup/AI/payment costs, and budget thresholds.
 - Creator/Admin cost dashboard implemented for estimated revenue, gross profit, margin, plan profitability, highest-usage families, and forecasting.
 - Subscription architecture foundation implemented with plans, family subscriptions, add-ons, and billing events. Payments are not connected.
+- Stage 0 Reaper platform capability audit completed in `REAPER_PLATFORM_CAPABILITIES.md`.
+- Stage 1 Reaper-first architecture completed in `MOMS_MEMORYTREE_ARCHITECTURE.md`.
+- Stage 2 Supabase-to-Reaper migration map completed in `SUPABASE_TO_REAPER_MIGRATION.md`.
+- Stage 3 provider-independent service contracts added for auth, database, authorization, backup, notification, billing, AI, and queue services.
+- Existing Supabase auth/database/storage behavior now sits behind provider-oriented contracts and a service registry while Reaper-native backend capabilities remain unavailable/unknown.
 
 ## IN PROGRESS
 
@@ -70,9 +75,9 @@
 
 ## BLOCKED
 
-- Supabase CLI is not installed in this execution environment.
-- Supabase cloud project URL/publishable key alone are not present here.
 - Supabase deployment requires project access credentials or dashboard execution.
+- GitHub pushes from this environment require temporary authorization each time credentials are not already present.
+- Reaper Server Apps are not available for this Reaper session, so backend/database/storage/auth replacements cannot be invented inside Mini App frontend code.
 
 ## SECURITY
 

@@ -1,7 +1,7 @@
-import type { User } from '@supabase/supabase-js';
 import { useEffect, useMemo, useState } from 'react';
 import { memoryTreeRepository, type MemoryTreeRepository } from './repository';
-import { isSupabaseConfigured } from './supabase';
+import { serviceRegistry } from './serviceRegistry';
+import type { AppUser } from './services';
 import type { Family } from '../types/domain';
 
 export type OnboardingMode = 'demo' | 'signed_out' | 'needs_family' | 'ready';
@@ -10,7 +10,7 @@ export interface OnboardingState {
   configured: boolean;
   loading: boolean;
   mode: OnboardingMode;
-  user: User | null;
+  user: AppUser | null;
   families: Family[];
   activeFamily: Family | null;
   error: string | null;
@@ -32,7 +32,7 @@ export interface FirstFamilyInput {
   displayName: string;
 }
 
-export function resolveOnboardingMode(configured: boolean, user: User | null, families: Family[]): OnboardingMode {
+export function resolveOnboardingMode(configured: boolean, user: AppUser | null, families: Family[]): OnboardingMode {
   if (!configured) return 'demo';
   if (!user) return 'signed_out';
   if (families.length === 0) return 'needs_family';
@@ -123,5 +123,5 @@ export function useOnboarding(repository: MemoryTreeRepository = memoryTreeRepos
     refresh
   }), [repository, state.user]);
 
-  return { state: { ...state, configured: isSupabaseConfigured || state.configured }, actions };
+  return { state: { ...state, configured: serviceRegistry.providers.auth !== 'unavailable' || state.configured }, actions };
 }
