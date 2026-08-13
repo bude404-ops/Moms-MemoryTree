@@ -1,0 +1,39 @@
+{
+  "name": "moms-memorytree",
+  "version": "0.1.0-phase1",
+  "private": true,
+  "type": "module",
+  "description": "Private family-centered digital legacy platform foundation.",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "validate:db": "node scripts/validate-migrations.mjs",
+    "validate:secrets": "node scripts/check-secrets.mjs",
+    "validate": "npm run lint && npm run test && npm run validate:db && npm run validate:secrets && npm run build"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.56.0",
+    "@tailwindcss/vite": "^4.1.12",
+    "@vitejs/plugin-react": "^5.0.0",
+    "lucide-react": "^0.539.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.12",
+    "vite": "^7.1.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "eslint": "^9.33.0",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.1",
+    "vitest": "^3.2.4"
+  }
+}
