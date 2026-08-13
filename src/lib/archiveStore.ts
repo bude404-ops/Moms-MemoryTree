@@ -1,5 +1,5 @@
-import { demoMedia, demoMemories, demoStorage } from './demoData';
-import type { Memory, MemoryMedia, StorageUsage } from '../types/domain';
+import { demoCustodians, demoMedia, demoMembers, demoMemories, demoPeople, demoRelationships, demoStorage } from './demoData';
+import type { FamilyMember, FamilyRelationship, LegacyCustodian, Memory, MemoryMedia, Person, StorageUsage } from '../types/domain';
 
 const STORAGE_KEY = 'moms-memorytree-phase1';
 
@@ -7,16 +7,30 @@ export interface LocalArchiveState {
   memories: Memory[];
   media: MemoryMedia[];
   storage: StorageUsage;
+  people: Person[];
+  relationships: FamilyRelationship[];
+  members: FamilyMember[];
+  custodians: LegacyCustodian[];
 }
+
+const defaultArchive: LocalArchiveState = {
+  memories: demoMemories,
+  media: demoMedia,
+  storage: demoStorage,
+  people: demoPeople,
+  relationships: demoRelationships,
+  members: demoMembers,
+  custodians: demoCustodians
+};
 
 export function loadArchive(): LocalArchiveState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as LocalArchiveState;
+    if (raw) return { ...defaultArchive, ...JSON.parse(raw) } as LocalArchiveState;
   } catch {
     // If local state is corrupted, fall back to seed data instead of blocking the family archive view.
   }
-  return { memories: demoMemories, media: demoMedia, storage: demoStorage };
+  return defaultArchive;
 }
 
 export function saveArchive(state: LocalArchiveState): void {

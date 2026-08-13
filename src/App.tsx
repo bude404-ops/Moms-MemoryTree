@@ -53,7 +53,7 @@ export default function App() {
         {tab === 'tree' && <MemoryTreePage people={archive.people} relationships={archive.relationships} />}
         {tab === 'record' && <RecordPage archive={archive} onCreate={createMemory} />}
         {tab === 'memories' && <MemoriesPage archive={archive} />}
-        {tab === 'family' && <FamilyPage family={archive.family} members={archive.members} people={archive.people} />}
+        {tab === 'family' && <FamilyPage family={archive.family} members={archive.members} people={archive.people} relationships={archive.relationships} onAddPerson={async (displayName) => { await archiveData.addPerson(displayName); }} onCreateRelationship={async (input) => { await archiveData.createRelationship(input); }} onInviteMember={async (input) => { await archiveData.inviteFamilyMember(input); }} />}
         {tab === 'timeline' && <TimelinePage events={archive.timeline} />}
         {tab === 'legacy' && <LegacyPage custodians={archive.custodians} people={archive.people} />}
       </>}

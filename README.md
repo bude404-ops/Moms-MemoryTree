@@ -27,6 +27,7 @@ This repository contains the Phase 1 foundation:
 - Session-aware sign-up/sign-in onboarding
 - First family archive creation flow
 - Normalized demo/live archive data loading
+- Family management forms for people, relationships, and invite-ready members
 - Storage usage tracking foundation
 - Legacy custodian data model
 - Legacy permission data model

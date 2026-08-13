@@ -33,6 +33,7 @@
 - Supabase-facing repository/service layer added for auth, profiles, family creation, people, relationships, memories, timeline, upload metadata, and signed URL creation.
 - Session-aware onboarding gate added for live Supabase sign-up/sign-in and first family creation when env vars are configured.
 - Demo and live archive data now flow through the same normalized archive state model.
+- Family management forms now support adding people, creating relationships, and preparing invited members in demo/live architecture.
 
 ## PLANNED
 

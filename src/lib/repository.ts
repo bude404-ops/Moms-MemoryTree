@@ -28,6 +28,22 @@ export interface CreateMemoryInput {
   locationText?: string;
 }
 
+export interface InviteFamilyMemberInput {
+  familyId: string;
+  personId: string;
+  email?: string;
+  role: FamilyMember['role'];
+  relationshipLabel?: string;
+  permissions?: string[];
+}
+
+export interface CreateRelationshipInput {
+  familyId: string;
+  fromPersonId: string;
+  toPersonId: string;
+  relationshipType: FamilyRelationship['relationshipType'];
+}
+
 export interface UploadMediaInput {
   familyId: string;
   memoryId: string;
@@ -190,6 +206,38 @@ export class MemoryTreeRepository {
     const { data, error } = await client.from('people').insert({ family_id: familyId, display_name: displayName }).select('*').single();
     if (error) throw error;
     return mapPerson(data);
+  }
+
+  async createRelationship(input: CreateRelationshipInput): Promise<FamilyRelationship> {
+    const client = requireSupabase();
+    const { data, error } = await client.from('family_relationships').insert({
+      family_id: input.familyId,
+      from_person_id: input.fromPersonId,
+      to_person_id: input.toPersonId,
+      relationship_type: input.relationshipType
+    }).select('*').single();
+    if (error) throw error;
+    return {
+      id: String(data.id),
+      familyId: String(data.family_id),
+      fromPersonId: String(data.from_person_id),
+      toPersonId: String(data.to_person_id),
+      relationshipType: data.relationship_type as FamilyRelationship['relationshipType']
+    };
+  }
+
+  async inviteFamilyMember(input: InviteFamilyMemberInput): Promise<FamilyMember> {
+    const client = requireSupabase();
+    const { data, error } = await client.from('family_members').insert({
+      family_id: input.familyId,
+      person_id: input.personId,
+      role: input.role,
+      relationship_label: input.relationshipLabel,
+      status: 'invited',
+      permissions: input.permissions ?? ['memory:create']
+    }).select('*').single();
+    if (error) throw error;
+    return mapMember(data);
   }
 
   async listRelationships(familyId: string): Promise<FamilyRelationship[]> {

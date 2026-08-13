@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { bytesByType, loadArchive, saveArchive, type LocalArchiveState } from './archiveStore';
-import { demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoTimeline } from './demoData';
-import { memoryTreeRepository, type CreateMemoryInput, type MemoryTreeRepository } from './repository';
+import { demoFamily, demoStorage, demoTimeline } from './demoData';
+import { memoryTreeRepository, type CreateMemoryInput, type CreateRelationshipInput, type InviteFamilyMemberInput, type MemoryTreeRepository } from './repository';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageUsage } from '../types/domain';
 
 export interface ArchiveDataState {
@@ -39,13 +39,13 @@ export function demoArchiveState(local: LocalArchiveState = loadArchive()): Arch
   return buildArchiveState({
     source: 'demo',
     family: demoFamily,
-    members: demoMembers,
-    people: demoPeople,
-    relationships: demoRelationships,
+    members: local.members,
+    people: local.people,
+    relationships: local.relationships,
     memories: local.memories,
     media: local.media,
     timeline: demoTimeline,
-    custodians: demoCustodians,
+    custodians: local.custodians,
     storage: local.storage
   });
 }
@@ -127,5 +127,49 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
     return memory;
   }
 
-  return { archive, createMemory, reload };
+  async function addPerson(displayName: string) {
+    if (context.mode === 'ready' && context.activeFamily) {
+      const person = await repository.addPerson(context.activeFamily.id, displayName);
+      setLiveState(prev => prev ? buildArchiveState({ ...prev, people: [...prev.people, person] }) : prev);
+      await reload();
+      return person;
+    }
+    const person: Person = { id: `person-${crypto.randomUUID()}`, familyId: demoFamily.id, displayName };
+    setLocalArchive(prev => ({ ...prev, people: [...prev.people, person] }));
+    return person;
+  }
+
+  async function createRelationship(input: Omit<CreateRelationshipInput, 'familyId'>) {
+    if (context.mode === 'ready' && context.activeFamily) {
+      const relationship = await repository.createRelationship({ ...input, familyId: context.activeFamily.id });
+      setLiveState(prev => prev ? buildArchiveState({ ...prev, relationships: [...prev.relationships, relationship] }) : prev);
+      await reload();
+      return relationship;
+    }
+    const relationship: FamilyRelationship = { id: `relationship-${crypto.randomUUID()}`, familyId: demoFamily.id, ...input };
+    setLocalArchive(prev => ({ ...prev, relationships: [...prev.relationships, relationship] }));
+    return relationship;
+  }
+
+  async function inviteFamilyMember(input: Omit<InviteFamilyMemberInput, 'familyId'>) {
+    if (context.mode === 'ready' && context.activeFamily) {
+      const member = await repository.inviteFamilyMember({ ...input, familyId: context.activeFamily.id });
+      setLiveState(prev => prev ? buildArchiveState({ ...prev, members: [...prev.members, member] }) : prev);
+      await reload();
+      return member;
+    }
+    const member: FamilyMember = {
+      id: `member-${crypto.randomUUID()}`,
+      familyId: demoFamily.id,
+      personId: input.personId,
+      role: input.role,
+      relationshipLabel: input.relationshipLabel,
+      status: 'invited',
+      permissions: input.permissions ?? ['memory:create']
+    };
+    setLocalArchive(prev => ({ ...prev, members: [...prev.members, member] }));
+    return member;
+  }
+
+  return { archive, createMemory, addPerson, createRelationship, inviteFamilyMember, reload };
 }
