@@ -56,7 +56,8 @@ function mapFamily(row: Record<string, unknown>): Family {
     id: String(row.id),
     name: String(row.name),
     createdBy: String(row.created_by),
-    storageLimitBytes: Number(row.storage_limit_bytes ?? 0)
+    storageLimitBytes: Number(row.storage_limit_bytes ?? 0),
+    storagePlanId: row.storage_plan_id ? String(row.storage_plan_id) : undefined
   };
 }
 
@@ -143,7 +144,10 @@ function mapStorageUsage(row: Record<string, unknown>, familyId: string, fallbac
     photosBytes: Number(row.photo_bytes ?? row.photos_bytes ?? 0),
     audioBytes: Number(row.audio_bytes ?? 0),
     documentsBytes: Number(row.document_bytes ?? row.documents_bytes ?? 0),
-    limitBytes: Number(row.storage_limit_bytes ?? fallbackLimit)
+    thumbnailBytes: Number(row.thumbnail_bytes ?? 0),
+    archiveBytes: Number(row.archive_bytes ?? 0),
+    bandwidthBytes: Number(row.bandwidth_bytes ?? 0),
+    limitBytes: Number(row.storage_limit_bytes ?? row.limit_bytes ?? fallbackLimit)
   };
 }
 

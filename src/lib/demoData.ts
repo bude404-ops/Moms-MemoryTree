@@ -1,4 +1,5 @@
-import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageUsage, StoryQuestion, UserProfile } from '../types/domain';
+import type { CostAssumptions, Family, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageUsage, StoryQuestion, StorageAddon, StoragePlan, UserProfile } from '../types/domain';
+import { defaultCostAssumptions, storagePlans } from './storageEconomics';
 
 const now = new Date().toISOString();
 
@@ -12,6 +13,7 @@ export const demoFamily: Family = {
   id: 'family-willow',
   name: 'The Willow Family',
   storageLimitBytes: 500 * 1024 * 1024 * 1024,
+  storagePlanId: 'family_plus',
   createdBy: demoUser.id
 };
 
@@ -81,5 +83,34 @@ export const demoStorage: StorageUsage = {
   photosBytes: 8_200_000,
   audioBytes: 0,
   documentsBytes: 0,
+  thumbnailBytes: 0,
+  archiveBytes: 0,
+  bandwidthBytes: 19_000_000,
   limitBytes: demoFamily.storageLimitBytes
+};
+
+export const demoStoragePlans: StoragePlan[] = storagePlans;
+
+export const demoSubscription: FamilySubscription = {
+  id: 'subscription-family-willow',
+  familyId: demoFamily.id,
+  planId: 'family_plus',
+  status: 'trial',
+  cancelAtPeriodEnd: false,
+  paymentsConnected: false
+};
+
+export const demoStorageAddons: StorageAddon[] = [
+  { id: 'addon-extra-100gb', familyId: demoFamily.id, label: 'Additional 100 GB', additionalBytes: 100 * 1024 ** 3, monthlyPriceCents: 399, currency: 'USD', status: 'trial' }
+];
+
+export const demoCostAssumptions: CostAssumptions = {
+  ...defaultCostAssumptions,
+  storageCostPerGbMonth: 0.021,
+  bandwidthCostPerGb: 0.09,
+  backupCostPerGbMonth: 0.01,
+  aiCostPerMinute: 0.006,
+  paymentProcessingPercentage: 2.9,
+  paymentProcessingFixedFeeCents: 30,
+  monthlyBudgetCents: 50_000
 };

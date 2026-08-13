@@ -1,6 +1,6 @@
-import { BookOpenText, Clock3, FileHeart, Home, PlusCircle, ShieldCheck, TreePine, UsersRound } from 'lucide-react';
+import { BarChart3, BookOpenText, Clock3, Database, FileHeart, Home, PlusCircle, ShieldCheck, TreePine, UsersRound } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { FamilyPage, HomePage, LegacyPage, MemoriesPage, MemoryTreePage, RecordPage, TimelinePage } from './pages/Pages';
+import { FamilyPage, HomePage, LegacyPage, MemoriesPage, MemoryTreePage, RecordPage, TimelinePage, StoragePanel, CreatorCostDashboardPage } from './pages/Pages';
 import { isSupabaseConfigured } from './lib/supabase';
 import { useOnboarding } from './lib/onboarding';
 import { OnboardingGate } from './components/OnboardingGate';
@@ -8,7 +8,7 @@ import { useArchiveData } from './lib/archiveData';
 import type { Memory } from './types/domain';
 import type { UploadProgressEvent } from './lib/mediaStorage';
 
-type Tab = 'home' | 'tree' | 'record' | 'memories' | 'family' | 'timeline' | 'legacy';
+type Tab = 'home' | 'tree' | 'record' | 'memories' | 'family' | 'timeline' | 'legacy' | 'storage' | 'creator';
 
 const tabs: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: 'home', label: 'Home', icon: Home },
@@ -16,8 +16,10 @@ const tabs: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: 'record', label: 'Record', icon: PlusCircle },
   { id: 'memories', label: 'Memories', icon: FileHeart },
   { id: 'family', label: 'Family', icon: UsersRound },
+  { id: 'storage', label: 'Storage', icon: Database },
   { id: 'timeline', label: 'Timeline', icon: Clock3 },
-  { id: 'legacy', label: 'Legacy', icon: ShieldCheck }
+  { id: 'legacy', label: 'Legacy', icon: ShieldCheck },
+  { id: 'creator', label: 'Creator', icon: BarChart3 }
 ];
 
 export default function App() {
@@ -56,8 +58,10 @@ export default function App() {
         {tab === 'record' && <RecordPage archive={archive} onCreate={createMemory} />}
         {tab === 'memories' && <MemoriesPage archive={archive} />}
         {tab === 'family' && <FamilyPage family={archive.family} members={archive.members} people={archive.people} relationships={archive.relationships} onAddPerson={async (displayName) => { await archiveData.addPerson(displayName); }} onCreateRelationship={async (input) => { await archiveData.createRelationship(input); }} onInviteMember={async (input) => { await archiveData.inviteFamilyMember(input); }} />}
+        {tab === 'storage' && <StoragePanel archive={archive} />}
         {tab === 'timeline' && <TimelinePage events={archive.timeline} />}
         {tab === 'legacy' && <LegacyPage custodians={archive.custodians} people={archive.people} />}
+        {tab === 'creator' && <CreatorCostDashboardPage archive={archive} />}
       </>}
     </main>
 

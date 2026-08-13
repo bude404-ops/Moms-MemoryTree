@@ -1,5 +1,5 @@
-import { demoCustodians, demoMedia, demoMembers, demoMemories, demoPeople, demoRelationships, demoStorage } from './demoData';
-import type { FamilyMember, FamilyRelationship, LegacyCustodian, Memory, MemoryMedia, Person, StorageUsage } from '../types/domain';
+import { demoCostAssumptions, demoCustodians, demoMedia, demoMembers, demoMemories, demoPeople, demoRelationships, demoStorage, demoStorageAddons, demoStoragePlans, demoSubscription } from './demoData';
+import type { CostAssumptions, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, Memory, MemoryMedia, Person, StorageAddon, StoragePlan, StorageUsage } from '../types/domain';
 
 const STORAGE_KEY = 'moms-memorytree-phase1';
 
@@ -11,6 +11,10 @@ export interface LocalArchiveState {
   relationships: FamilyRelationship[];
   members: FamilyMember[];
   custodians: LegacyCustodian[];
+  storagePlans: StoragePlan[];
+  subscription: FamilySubscription;
+  storageAddons: StorageAddon[];
+  costAssumptions: CostAssumptions;
 }
 
 const defaultArchive: LocalArchiveState = {
@@ -20,7 +24,11 @@ const defaultArchive: LocalArchiveState = {
   people: demoPeople,
   relationships: demoRelationships,
   members: demoMembers,
-  custodians: demoCustodians
+  custodians: demoCustodians,
+  storagePlans: demoStoragePlans,
+  subscription: demoSubscription,
+  storageAddons: demoStorageAddons,
+  costAssumptions: demoCostAssumptions
 };
 
 export function loadArchive(): LocalArchiveState {
@@ -40,13 +48,14 @@ export function saveArchive(state: LocalArchiveState): void {
 export function bytesByType(media: MemoryMedia[]) {
   return media.reduce(
     (acc, item) => {
+      if (item.uploadStatus !== 'completed' || item.deletedAt) return acc;
       if (item.mediaType === 'video') acc.videosBytes += item.bytes;
       if (item.mediaType === 'photo') acc.photosBytes += item.bytes;
       if (item.mediaType === 'audio') acc.audioBytes += item.bytes;
       if (item.mediaType === 'document') acc.documentsBytes += item.bytes;
       return acc;
     },
-    { videosBytes: 0, photosBytes: 0, audioBytes: 0, documentsBytes: 0 }
+    { videosBytes: 0, photosBytes: 0, audioBytes: 0, documentsBytes: 0, thumbnailBytes: 0, archiveBytes: 0, bandwidthBytes: 0 }
   );
 }
 

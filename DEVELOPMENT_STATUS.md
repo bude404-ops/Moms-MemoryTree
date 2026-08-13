@@ -46,6 +46,10 @@
 - Mobile UI remains functional in demo mode without Supabase env vars.
 - Local tests cover privacy, storage authorization, signed URL expiry logic, migration/RLS/static family isolation checks, and local archive persistence.
 - Supabase deployment preflight script and GitHub Actions workflow added for controlled migrations, Edge Function deployment, and optional live verification.
+- Storage management system implemented for configurable plans, quotas, warning thresholds, add-ons, and active usage calculations.
+- Cost tracking implemented for configurable infrastructure assumptions, estimated storage/bandwidth/backup/AI/payment costs, and budget thresholds.
+- Creator/Admin cost dashboard implemented for estimated revenue, gross profit, margin, plan profitability, highest-usage families, and forecasting.
+- Subscription architecture foundation implemented with plans, family subscriptions, add-ons, and billing events. Payments are not connected.
 
 ## IN PROGRESS
 
@@ -93,6 +97,17 @@
 FOUNDATION ONLY.
 
 Archive export tracking exists, but no export worker is implemented yet.
+
+## STORAGE ECONOMICS
+
+- STORAGE MANAGEMENT: IMPLEMENTED
+- COST TRACKING: IMPLEMENTED
+- SUBSCRIPTION ARCHITECTURE: FOUNDATION ONLY
+- PAYMENTS: NOT CONNECTED
+- BACKUPS: FOUNDATION ONLY
+- ARCHIVE EXPORT: FOUNDATION ONLY
+
+`STORAGE_COST_ARCHITECTURE.md` documents plans, quotas, provider abstraction, cost assumptions, billing foundation, forecasts, alerts, retention, and security.
 
 ## LEGACY
 

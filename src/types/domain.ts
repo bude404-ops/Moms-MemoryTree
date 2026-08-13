@@ -14,7 +14,107 @@ export interface Family {
   id: string;
   name: string;
   storageLimitBytes: number;
+  storagePlanId?: string;
   createdBy: string;
+}
+
+export interface StoragePlan {
+  id: string;
+  label: string;
+  monthlyPriceCents: number;
+  currency: string;
+  quotaBytes: number;
+  maxFileBytes?: number;
+  maxVideoBytes?: number;
+  aiTranscriptionMinutes: number;
+  backupAllowanceBytes: number;
+  maxFamilyMembers?: number;
+  features: string[];
+  active: boolean;
+}
+
+export interface FamilySubscription {
+  id: string;
+  familyId: string;
+  planId: string;
+  status: 'trial' | 'active' | 'cancelled' | 'past_due' | 'expired';
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd: boolean;
+  paymentsConnected: boolean;
+}
+
+export interface StorageAddon {
+  id: string;
+  familyId: string;
+  label: string;
+  additionalBytes: number;
+  monthlyPriceCents: number;
+  currency: string;
+  status: FamilySubscription['status'];
+}
+
+export interface CostAssumptions {
+  storageCostPerGbMonth: number;
+  bandwidthCostPerGb: number;
+  backupCostPerGbMonth: number;
+  requestCostPer1000: number;
+  aiCostPerMinute: number;
+  aiCostPerGb: number;
+  paymentProcessingPercentage: number;
+  paymentProcessingFixedFeeCents: number;
+  monthlyBudgetCents: number;
+  budgetWarningPct: number;
+  budgetCriticalPct: number;
+  budgetEmergencyPct: number;
+  currency: string;
+}
+
+export interface StorageWarningThreshold {
+  id: string;
+  percentUsed: number;
+  severity: 'info' | 'warning' | 'critical' | 'urgent' | 'blocked';
+  message: string;
+}
+
+export interface StorageCostSummary {
+  usedBytes: number;
+  allowedBytes: number;
+  remainingBytes: number;
+  percentUsed: number;
+  estimatedStorageCostCents: number;
+  estimatedBandwidthCostCents: number;
+  estimatedBackupCostCents: number;
+  estimatedAiCostCents: number;
+  estimatedPaymentProcessingCents: number;
+  estimatedTotalCostCents: number;
+  monthlyRevenueCents: number;
+  estimatedGrossProfitCents: number;
+  estimatedMarginPct: number | null;
+  warning?: StorageWarningThreshold;
+}
+
+export interface CreatorCostDashboard {
+  totalFamilies: number;
+  freeFamilies: number;
+  paidFamilies: number;
+  totalStorageBytes: number;
+  videoBytes: number;
+  photoBytes: number;
+  audioBytes: number;
+  documentBytes: number;
+  bandwidthBytes: number;
+  monthlyRevenueCents: number;
+  estimatedInfrastructureCostCents: number;
+  estimatedGrossProfitCents: number;
+  estimatedMarginPct: number | null;
+  storageCostPerFamilyCents: number;
+  averageStoragePerPaidFamilyBytes: number;
+  averageStoragePerFreeFamilyBytes: number;
+  highestStorageFamilies: Array<{ familyId: string; familyName: string; usedBytes: number; planId: string }>;
+  approachingLimits: Array<{ familyId: string; familyName: string; percentUsed: number }>;
+  planProfitability: Array<{ planId: string; revenueCents: number; averageStorageBytes: number; estimatedCostCents: number; marginCents: number }>;
+  forecast: { currentBytes: number; thirtyDayGrowthBytes: number; ninetyDayGrowthBytes: number; oneYearProjectionBytes: number; threeYearProjectionBytes: number };
+  alerts: string[];
 }
 
 export interface FamilyMember {
@@ -119,5 +219,8 @@ export interface StorageUsage {
   photosBytes: number;
   audioBytes: number;
   documentsBytes: number;
+  thumbnailBytes?: number;
+  archiveBytes?: number;
+  bandwidthBytes?: number;
   limitBytes: number;
 }

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { bytesByType, loadArchive, saveArchive, type LocalArchiveState } from './archiveStore';
-import { demoFamily, demoStorage, demoTimeline } from './demoData';
+import { demoCostAssumptions, demoFamily, demoStorage, demoStoragePlans, demoSubscription, demoTimeline } from './demoData';
 import { memoryTreeRepository, type CreateMemoryInput, type CreateRelationshipInput, type InviteFamilyMemberInput, type MemoryTreeRepository } from './repository';
 import { supabase } from './supabase';
 import { createSupabaseMediaStorageService, MediaStorageService, type UploadProgressEvent } from './mediaStorage';
 import { mediaTypeFromFile } from './mediaUpload';
-import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageUsage } from '../types/domain';
+import type { CostAssumptions, Family, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageAddon, StoragePlan, StorageUsage } from '../types/domain';
 
 export interface ArchiveDataState {
   source: 'demo' | 'supabase';
@@ -20,6 +20,10 @@ export interface ArchiveDataState {
   timeline: LifeEvent[];
   custodians: LegacyCustodian[];
   storage: StorageUsage;
+  storagePlans: StoragePlan[];
+  subscription: FamilySubscription;
+  storageAddons: StorageAddon[];
+  costAssumptions: CostAssumptions;
 }
 
 export interface ArchiveContextInput {
@@ -49,7 +53,11 @@ export function demoArchiveState(local: LocalArchiveState = loadArchive()): Arch
     media: local.media,
     timeline: demoTimeline,
     custodians: local.custodians,
-    storage: local.storage
+    storage: local.storage,
+    storagePlans: local.storagePlans,
+    subscription: local.subscription,
+    storageAddons: local.storageAddons,
+    costAssumptions: local.costAssumptions
   });
 }
 
@@ -81,7 +89,7 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
         repository.listLegacyCustodians(context.activeFamily.id),
         repository.getStorageUsage(context.activeFamily.id)
       ]);
-      setLiveState(buildArchiveState({ source: 'supabase', family: context.activeFamily, members, people, relationships, memories, media, timeline, custodians, storage }));
+      setLiveState(buildArchiveState({ source: 'supabase', family: context.activeFamily, members, people, relationships, memories, media, timeline, custodians, storage, storagePlans: demoStoragePlans, subscription: { ...demoSubscription, familyId: context.activeFamily.id, planId: context.activeFamily.storagePlanId ?? demoSubscription.planId }, storageAddons: [], costAssumptions: demoCostAssumptions }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load family archive data.');
     } finally {
@@ -94,7 +102,7 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
   const archive = useMemo(() => {
     if (context.mode === 'ready' && liveState) return { ...liveState, loading, error };
     if (context.mode === 'ready' && context.activeFamily) {
-      return buildArchiveState({ source: 'supabase', family: context.activeFamily, members: [], people: [], relationships: [], memories: [], media: [], timeline: [], custodians: [], storage: { ...demoStorage, familyId: context.activeFamily.id, limitBytes: context.activeFamily.storageLimitBytes || demoStorage.limitBytes }, loading, error });
+      return buildArchiveState({ source: 'supabase', family: context.activeFamily, members: [], people: [], relationships: [], memories: [], media: [], timeline: [], custodians: [], storage: { ...demoStorage, familyId: context.activeFamily.id, limitBytes: context.activeFamily.storageLimitBytes || demoStorage.limitBytes }, storagePlans: demoStoragePlans, subscription: { ...demoSubscription, familyId: context.activeFamily.id, planId: context.activeFamily.storagePlanId ?? demoSubscription.planId }, storageAddons: [], costAssumptions: demoCostAssumptions, loading, error });
     }
     return { ...demoArchiveState(localArchive), loading, error };
   }, [context.activeFamily, context.mode, error, liveState, loading, localArchive]);

@@ -9,7 +9,7 @@ const migration = fs.readdirSync(migrationDir)
   .join('\n');
 const lower = migration.toLowerCase();
 
-const privateTables = ['profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','memory_permissions','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','family_invitations','storage_usage','storage_plans','backup_records','archive_exports','audit_logs'];
+const privateTables = ['profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','memory_permissions','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','family_invitations','storage_usage','storage_plans','family_subscriptions','storage_addons','billing_events','cost_assumptions','storage_warning_thresholds','storage_usage_snapshots','storage_alerts','retention_policies','backup_records','archive_exports','audit_logs'];
 for (const table of privateTables) {
   const needle = `alter table public.${table} enable row level security`;
   if (!lower.includes(needle)) throw new Error(`Missing RLS enablement for ${table}`);
@@ -46,13 +46,24 @@ const assertions = [
   ['media storage provider abstraction exists', 'MediaStorageService'],
   ['supabase provider exists', 'SupabaseStorageProvider'],
   ['upload cancellation boundary exists', 'AbortSignal'],
-  ['no independent backup overclaim', 'Backup records and export records exist, but no independent backup provider is implemented or verified yet']
+  ['no independent backup overclaim', 'Backup records and export records exist, but no independent backup provider is implemented or verified yet'],
+  ['subscription architecture exists', 'family_subscriptions'],
+  ['storage add-ons exist', 'storage_addons'],
+  ['billing events exist', 'billing_events'],
+  ['cost assumptions are configurable', 'storage_cost_per_gb_month'],
+  ['storage warning thresholds exist', 'storage_warning_thresholds'],
+  ['usage snapshots support forecasting', 'storage_usage_snapshots'],
+  ['retention policies exist', 'retention_policies'],
+  ['payments not connected is explicit', 'payments not yet connected'],
+  ['estimated cost labeling exists', 'estimated storage cost'],
+  ['creator cost dashboard exists', 'CreatorCostDashboardPage']
 ];
 
 const appSource = [
   'src/lib/repository.ts',
   'src/lib/archiveData.ts',
   'src/lib/mediaStorage.ts',
+  'src/lib/storageEconomics.ts',
   'src/pages/Pages.tsx',
   'DEVELOPMENT_STATUS.md'
 ].map(file => fs.readFileSync(path.join(process.cwd(), file), 'utf8')).join('\n').toLowerCase();
