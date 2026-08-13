@@ -2,8 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { MemoryTreeAuthService, type AuthSessionState } from './auth';
 import { createSupabaseMediaStorageService, type UploadProgressEvent } from './mediaStorage';
 import { requireSupabase, supabase } from './supabase';
-import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageUsage } from '../types/domain';
-import { demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoTimeline } from './demoData';
+import type { CostAssumptions, Family, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageAddon, StoragePlan, StorageUsage } from '../types/domain';
+import { demoCostAssumptions, demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoStorageAddons, demoStoragePlans, demoSubscription, demoTimeline } from './demoData';
 
 export interface CreateFamilyInput {
   name: string;
@@ -148,6 +148,68 @@ function mapStorageUsage(row: Record<string, unknown>, familyId: string, fallbac
     archiveBytes: Number(row.archive_bytes ?? 0),
     bandwidthBytes: Number(row.bandwidth_bytes ?? 0),
     limitBytes: Number(row.storage_limit_bytes ?? row.limit_bytes ?? fallbackLimit)
+  };
+}
+
+function mapStoragePlan(row: Record<string, unknown>): StoragePlan {
+  const features = row.features && typeof row.features === 'object' && !Array.isArray(row.features)
+    ? Object.entries(row.features as Record<string, unknown>).filter(([, value]) => Boolean(value)).map(([key]) => key.replaceAll('_', ' '))
+    : [];
+  return {
+    id: String(row.id),
+    label: String(row.label ?? row.id),
+    monthlyPriceCents: Number(row.monthly_price_cents ?? 0),
+    currency: String(row.currency ?? 'USD'),
+    quotaBytes: Number(row.quota_bytes ?? 0),
+    maxFileBytes: row.max_file_bytes == null ? undefined : Number(row.max_file_bytes),
+    maxVideoBytes: row.max_video_bytes == null ? undefined : Number(row.max_video_bytes),
+    aiTranscriptionMinutes: Number(row.ai_transcription_minutes ?? 0),
+    backupAllowanceBytes: Number(row.backup_allowance_bytes ?? 0),
+    maxFamilyMembers: row.max_family_members == null ? undefined : Number(row.max_family_members),
+    features,
+    active: row.active == null ? true : Boolean(row.active)
+  };
+}
+
+function mapSubscription(row: Record<string, unknown>): FamilySubscription {
+  return {
+    id: String(row.id),
+    familyId: String(row.family_id),
+    planId: String(row.plan_id),
+    status: row.status as FamilySubscription['status'],
+    currentPeriodEnd: row.current_period_end ? String(row.current_period_end) : undefined,
+    cancelAtPeriodEnd: Boolean(row.cancel_at_period_end),
+    paymentsConnected: Boolean(row.payment_provider || row.payment_subscription_ref)
+  };
+}
+
+function mapStorageAddon(row: Record<string, unknown>): StorageAddon {
+  return {
+    id: String(row.id),
+    familyId: String(row.family_id),
+    label: String(row.label),
+    additionalBytes: Number(row.additional_bytes),
+    monthlyPriceCents: Number(row.monthly_price_cents ?? 0),
+    currency: String(row.currency ?? 'USD'),
+    status: row.status as StorageAddon['status']
+  };
+}
+
+function mapCostAssumptions(row: Record<string, unknown>): CostAssumptions {
+  return {
+    storageCostPerGbMonth: Number(row.storage_cost_per_gb_month ?? 0),
+    bandwidthCostPerGb: Number(row.bandwidth_cost_per_gb ?? 0),
+    backupCostPerGbMonth: Number(row.backup_cost_per_gb_month ?? 0),
+    requestCostPer1000: Number(row.request_cost_per_1000 ?? 0),
+    aiCostPerMinute: Number(row.ai_cost_per_minute ?? 0),
+    aiCostPerGb: Number(row.ai_cost_per_gb ?? 0),
+    paymentProcessingPercentage: Number(row.payment_processing_percentage ?? 0),
+    paymentProcessingFixedFeeCents: Number(row.payment_processing_fixed_fee_cents ?? 0),
+    monthlyBudgetCents: Number(row.monthly_budget_cents ?? 0),
+    budgetWarningPct: Number(row.budget_warning_pct ?? 75),
+    budgetCriticalPct: Number(row.budget_critical_pct ?? 90),
+    budgetEmergencyPct: Number(row.budget_emergency_pct ?? 100),
+    currency: String(row.currency ?? 'USD')
   };
 }
 
@@ -329,6 +391,35 @@ export class MemoryTreeRepository {
     if (data) return mapStorageUsage(data, familyId, demoStorage.limitBytes);
     const { data: family } = await this.client.from('families').select('storage_limit_bytes').eq('id', familyId).maybeSingle();
     return { ...demoStorage, familyId, limitBytes: Number(family?.storage_limit_bytes ?? demoStorage.limitBytes), videosBytes: 0, photosBytes: 0, audioBytes: 0, documentsBytes: 0 };
+  }
+
+  async listStoragePlans(): Promise<StoragePlan[]> {
+    if (!this.client) return demoStoragePlans;
+    const { data, error } = await this.client.from('storage_plans').select('*').eq('active', true).order('sort_order');
+    if (error) throw error;
+    return (data ?? []).map(mapStoragePlan);
+  }
+
+  async getFamilySubscription(familyId: string): Promise<FamilySubscription> {
+    if (!this.client) return { ...demoSubscription, familyId };
+    const { data, error } = await this.client.from('family_subscriptions').select('*').eq('family_id', familyId).maybeSingle();
+    if (error) throw error;
+    if (data) return mapSubscription(data);
+    return { ...demoSubscription, familyId };
+  }
+
+  async listStorageAddons(familyId: string): Promise<StorageAddon[]> {
+    if (!this.client) return demoStorageAddons.filter(addon => addon.familyId === familyId);
+    const { data, error } = await this.client.from('storage_addons').select('*').eq('family_id', familyId).in('status', ['trial', 'active']).order('created_at');
+    if (error) throw error;
+    return (data ?? []).map(mapStorageAddon);
+  }
+
+  async getCostAssumptions(): Promise<CostAssumptions> {
+    if (!this.client) return demoCostAssumptions;
+    const { data, error } = await this.client.from('cost_assumptions').select('*').eq('is_active', true).order('updated_at', { ascending: false }).limit(1).maybeSingle();
+    if (error) return demoCostAssumptions;
+    return data ? mapCostAssumptions(data) : demoCostAssumptions;
   }
 
   async uploadMemoryMedia(input: UploadMediaInput): Promise<MemoryMedia> {

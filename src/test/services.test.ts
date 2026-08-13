@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { mediaTypeFromFile, prepareMemoryUpload, validateMemoryUpload } from '../lib/mediaUpload';
-import { MediaStorageService, SupabaseStorageProvider, type UploadProgressEvent } from '../lib/mediaStorage';
+import { MediaStorageService, SupabaseStorageProvider, UnavailableStorageProvider, type UploadProgressEvent } from '../lib/mediaStorage';
 import { getRuntimeReadiness } from '../lib/readiness';
 import { MemoryTreeRepository } from '../lib/repository';
 
@@ -47,7 +47,7 @@ describe('runtime readiness', () => {
 
 describe('storage quotas', () => {
   it('rejects uploads that exceed remaining family storage', async () => {
-    const service = new MediaStorageService({ id: 'future-cloud', prepareUpload: vi.fn(), upload: vi.fn() });
+    const service = new MediaStorageService(new UnavailableStorageProvider());
     const result = await service.assertQuota({ familyId: 'family-1', videosBytes: 90, photosBytes: 5, audioBytes: 0, documentsBytes: 0, limitBytes: 100 }, 10);
     expect(result.allowed).toBe(false);
     expect(result.remainingBytes).toBe(5);

@@ -56,7 +56,14 @@ const assertions = [
   ['retention policies exist', 'retention_policies'],
   ['payments not connected is explicit', 'payments not yet connected'],
   ['estimated cost labeling exists', 'estimated storage cost'],
-  ['creator cost dashboard exists', 'CreatorCostDashboardPage']
+  ['creator cost dashboard exists', 'CreatorCostDashboardPage'],
+  ['admin dashboard not in mobile family nav', 'slice(0,5)'],
+  ['provider signed url method exists', 'createSignedUrl(bucket: string, path: string'],
+  ['provider delete method exists', 'delete(bucket: string, path: string'],
+  ['provider metadata method exists', 'getMetadata(bucket: string, path: string'],
+  ['provider usage method exists', 'getUsage(prefix: string)'],
+  ['provider move method exists', 'move(bucket: string, fromPath: string, toPath: string)'],
+  ['provider copy method exists', 'copy(bucket: string, fromPath: string, toPath: string)']
 ];
 
 const appSource = [
@@ -65,10 +72,16 @@ const appSource = [
   'src/lib/mediaStorage.ts',
   'src/lib/storageEconomics.ts',
   'src/pages/Pages.tsx',
+  'src/App.tsx',
   'DEVELOPMENT_STATUS.md'
 ].map(file => fs.readFileSync(path.join(process.cwd(), file), 'utf8')).join('\n').toLowerCase();
 
-const missing = assertions.filter(([, term]) => !(lower.includes(term.toLowerCase()) || appSource.includes(term.toLowerCase()))).map(([label]) => label);
+const compactAppSource = appSource.replace(/\s+/g, '');
+const missing = assertions.filter(([, term]) => {
+  const needle = term.toLowerCase();
+  if (needle === 'slice(0,5)') return !compactAppSource.includes('tabs.slice(0,5)');
+  return !(lower.includes(needle) || appSource.includes(needle));
+}).map(([label]) => label);
 if (missing.length) throw new Error(`Missing RLS/storage isolation assertions: ${missing.join(', ')}`);
 
 const forbidden = [/using\s*\(\s*true\s*\)/i, /to\s+authenticated\s+using\s*\(\s*true\s*\)/i, /public\s*=\s*true/i, /create\s+policy[^;]+authenticated[^;]+read[^;]+all/i];
