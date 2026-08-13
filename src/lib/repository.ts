@@ -2,7 +2,7 @@ import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { requireSupabase, supabase } from './supabase';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageUsage } from '../types/domain';
 import { demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoTimeline } from './demoData';
-import { signedUrlPolicy, storagePathFor } from './security';
+import { storagePathFor } from './security';
 
 export interface AuthSessionState {
   configured: boolean;
@@ -333,12 +333,12 @@ export class MemoryTreeRepository {
     return mapMedia(data);
   }
 
-  async createTemporaryMediaAccess(storagePath: string, expiresInSeconds = 300) {
+  async createTemporaryMediaAccess(mediaId: string) {
     const client = this.client ?? requireSupabase();
-    const policy = signedUrlPolicy(storagePath, expiresInSeconds);
-    const { data, error } = await client.storage.from('family-media').createSignedUrl(storagePath, expiresInSeconds);
+    const { data, error } = await client.functions.invoke('signed-media-access', { body: { mediaId } });
     if (error) throw error;
-    return { ...policy, signedUrl: data.signedUrl };
+    if (!data?.signedUrl) throw new Error('Signed media access denied or unavailable.');
+    return { signedUrl: String(data.signedUrl), expiresInSeconds: Number(data.expiresInSeconds ?? 300), publicUrlAllowed: false };
   }
 }
 

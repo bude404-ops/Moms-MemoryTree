@@ -44,16 +44,16 @@ describe('repository service layer', () => {
     await expect(repo.getAuthState()).resolves.toEqual({ configured: false, user: null });
   });
 
-  it('requests expiring signed URLs through private bucket when configured', async () => {
-    const createSignedUrl = vi.fn().mockResolvedValue({ data: { signedUrl: 'signed://temporary' }, error: null });
+  it('requests expiring signed URLs through the signed-media Edge Function', async () => {
+    const invoke = vi.fn().mockResolvedValue({ data: { signedUrl: 'signed://temporary', expiresInSeconds: 300 }, error: null });
     const fakeClient = {
-      storage: { from: vi.fn(() => ({ createSignedUrl })) }
+      functions: { invoke }
     };
     const repo = new MemoryTreeRepository(fakeClient as never);
-    const access = await repo.createTemporaryMediaAccess('family/family-1/memories/memory-1/video.mp4', 120);
-    expect(fakeClient.storage.from).toHaveBeenCalledWith('family-media');
-    expect(createSignedUrl).toHaveBeenCalledWith('family/family-1/memories/memory-1/video.mp4', 120);
+    const access = await repo.createTemporaryMediaAccess('media-row-1');
+    expect(invoke).toHaveBeenCalledWith('signed-media-access', { body: { mediaId: 'media-row-1' } });
     expect(access.publicUrlAllowed).toBe(false);
     expect(access.signedUrl).toBe('signed://temporary');
+    expect(access.expiresInSeconds).toBe(300);
   });
 });

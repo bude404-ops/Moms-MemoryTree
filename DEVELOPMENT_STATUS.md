@@ -29,6 +29,7 @@
   - Archive exports
   - Audit logs
 - RLS enabled on every private family table.
+- Alignment migration added for frontend/schema drift: memory category, grandparent/grandchild relationships, member permissions, storage usage triggers, and audit triggers.
 - Security helper functions created for family membership, managers, descendant checks, memory visibility, storage access, and signed media authorization.
 - Private Supabase Storage bucket definitions added:
   - `family-media`

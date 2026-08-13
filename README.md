@@ -32,11 +32,13 @@ This repository is the source of truth for:
 - Memory creation and listing architecture
 - Private storage path generation and upload metadata model
 - Signed media access helper and Edge Function source
+- Frontend signed media access routed through Edge Function by media row ID
 - Private buckets in migration:
   - `family-media`
   - `family-avatars`
   - `family-exports`
 - Full migration-backed schema with RLS
+- Alignment migration for memory category, grandparent/grandchild relationships, storage usage triggers, and audit triggers
 - Legacy custodian and legacy permission foundation
 - Backup and portable archive export foundations
 - Audit log foundation

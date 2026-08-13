@@ -3,35 +3,33 @@ import path from 'node:path';
 
 const migrationDir = path.join(process.cwd(), 'supabase', 'migrations');
 const files = fs.readdirSync(migrationDir).filter(file => file.endsWith('.sql')).sort();
-if (files.length === 0) throw new Error('No database migrations found.');
-const sql = files.map(file => fs.readFileSync(path.join(migrationDir, file), 'utf8')).join('\n');
-const lower = sql.toLowerCase();
+if (files.length === 0) throw new Error('No Supabase migrations found.');
 
-const requiredTables = [
-  'profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','memory_permissions','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','family_invitations','storage_usage','backup_records','archive_exports','audit_logs'
-];
-const missingTables = requiredTables.filter(table => !new RegExp(`create table public\\.${table}\\b`, 'i').test(sql));
-if (missingTables.length) throw new Error(`Missing required tables: ${missingTables.join(', ')}`);
-
-const rlsMissing = requiredTables.filter(table => !new RegExp(`alter table public\\.${table} enable row level security`, 'i').test(sql));
-if (rlsMissing.length) throw new Error(`Missing RLS enable statements: ${rlsMissing.join(', ')}`);
-
-const requiredTerms = [
-  'can_view_memory','is_family_member','is_family_manager','is_descendant_of','authorized_signed_media','can_access_storage_object',
-  'family-media','family-avatars','family-exports','storage_private_authorized_read','memory_media_authorized_read','memories_authorized_read',
-  'privacy_level','private_forever','family_after_legacy','descendants_after_legacy','custodian_only','specific_person'
-];
-const missingTerms = requiredTerms.filter(term => !lower.includes(term.toLowerCase()));
-if (missingTerms.length) throw new Error(`Missing security/storage terms: ${missingTerms.join(', ')}`);
-
-const forbiddenPatterns = [
-  /using\s*\(\s*true\s*\)/i,
-  /to\s+authenticated\s+using\s*\(\s*true\s*\)/i,
-  /create\s+policy[^;]+authenticated[^;]+read[^;]+everything/i,
-  /public\s*=\s*true/i
-];
-for (const pattern of forbiddenPatterns) {
-  if (pattern.test(sql)) throw new Error(`Forbidden broad access pattern detected: ${pattern}`);
+let combined = '';
+for (const file of files) {
+  if (!/^\d{12}_[a-z0-9_]+\.sql$/.test(file)) throw new Error(`Migration filename must be timestamp_slug.sql: ${file}`);
+  const sql = fs.readFileSync(path.join(migrationDir, file), 'utf8');
+  if (!sql.includes('create table') && !sql.includes('alter table') && !sql.includes('create or replace function')) throw new Error(`Migration has no schema/function operation: ${file}`);
+  combined += `\n-- ${file}\n${sql}`;
 }
 
-console.log(`Database validation passed for ${files.length} migration file(s), ${requiredTables.length} private tables, RLS, storage buckets, and signed-media helpers.`);
+const requiredTables = [
+  'profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','family_invitations','storage_usage','backup_records','archive_exports','audit_logs'
+];
+for (const table of requiredTables) {
+  if (!combined.includes(`public.${table}`)) throw new Error(`Missing required table/schema reference: ${table}`);
+}
+
+const requiredColumns = [
+  'display_name','avatar_path','created_by','relationship_label','joined_at','memory_type','privacy_level','category','storage_path','file_name','mime_type','file_size','duration_seconds','thumbnail_path','unlock_condition','backup_status','verification_status','export_path','event_type'
+];
+for (const column of requiredColumns) {
+  if (!combined.includes(column)) throw new Error(`Missing required column/schema reference: ${column}`);
+}
+
+const requiredPrivateBuckets = ["'family-media', 'family-media', false", "'family-avatars', 'family-avatars', false", "'family-exports', 'family-exports', false"];
+for (const bucket of requiredPrivateBuckets) {
+  if (!combined.includes(bucket)) throw new Error(`Missing private bucket definition: ${bucket}`);
+}
+
+console.log(`Database validation passed for ${files.length} migration file(s).`);

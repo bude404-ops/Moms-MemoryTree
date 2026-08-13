@@ -2,6 +2,12 @@
 
 This repository contains the Moms MemoryTree Supabase foundation. GitHub remains the source of truth for application code, migrations, RLS policies, storage definitions, Edge Functions, and documentation.
 
+## Connection status
+
+Repository integration is configured. Live cloud deployment still requires Supabase project credentials/project access.
+
+This environment does not currently contain a Supabase project ref, access token, or local Supabase CLI binary, so migrations and Edge Functions are committed and ready but not applied to a cloud project from here.
+
 ## Required project services
 
 Enable/configure in Supabase:
@@ -23,34 +29,44 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 
 Values come from Supabase Project Settings → API.
 
-Never expose or commit:
-
-- Service-role keys
-- Secret keys
-- Database passwords
-- GitHub tokens
-- `.env` or `.env.local`
+Never expose or commit service-role keys, secret keys, database passwords, GitHub tokens, `.env`, or `.env.local`.
 
 ## Migrations
 
-Migration file:
+Migrations live in:
 
 ```text
-supabase/migrations/202608120001_phase1_foundation.sql
+supabase/migrations/
 ```
 
-It creates:
+Current migrations create and align:
 
-- Core family archive tables
-- Private media metadata tables
-- Legacy architecture tables
-- Backup/export/audit foundations
-- RLS helpers
-- RLS policies
+- Profiles
+- Families
+- People
+- Family members
+- Family relationships
+- Memories
+- Memory media
+- Memory people
+- Memory tags
+- Memory permissions
+- Life events
+- Story questions
+- Legacy messages
+- Legacy custodians
+- Legacy permissions
+- Family invitations
+- Storage usage
+- Backup records
+- Archive exports
+- Audit logs
+- RLS helpers and policies
 - Private storage buckets
 - Storage object policies
 - Signed media authorization RPC
 - Story question seed prompts
+- Storage usage/audit triggers
 
 Apply with Supabase CLI when available:
 
@@ -60,7 +76,7 @@ supabase db push
 supabase functions deploy signed-media-access
 ```
 
-If CLI is unavailable, apply the migration SQL through the Supabase SQL editor, then deploy the Edge Function through the Supabase dashboard/CLI from the repository source.
+If CLI is unavailable, apply migration SQL through the Supabase SQL editor in timestamp order, then deploy the Edge Function through the dashboard or CLI from repository source.
 
 ## Authentication
 
@@ -107,18 +123,20 @@ Flow:
 
 1. Authenticate user.
 2. Request media row by ID.
-3. Run `authorized_signed_media(media_row_id)`.
-4. RLS/helper verifies family membership and memory permission.
-5. Return short-lived signed URL.
+3. Edge Function runs `authorized_signed_media(media_row_id)`.
+4. Database verifies `can_view_memory(memory_id)`.
+5. Edge Function returns a short-lived signed URL.
 
 Never return permanent public URLs for private memories.
 
 ## Deployment checklist
 
 - Set environment variables locally/deployment host.
-- Apply migration.
+- Apply migrations in timestamp order.
 - Confirm private buckets exist and are not public.
 - Deploy Edge Function.
 - Run app validation.
 - Run real user isolation tests in Supabase.
 - Confirm Family A cannot access Family B data.
+- Confirm private memories are creator-only unless granted.
+- Confirm storage upload paths reject wrong-family paths.
