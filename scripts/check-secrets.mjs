@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const forbidden = [/service_role/i, /supabase_service_role/i, /password\s*=\s*['"][^'"]+/i, /sk_live_/i, /ghp_[A-Za-z0-9_]+/];
-const allowedFiles = new Set(['scripts/check-secrets.mjs']);
+const allowedFiles = new Set(['scripts/check-secrets.mjs', 'scripts/validate-env.mjs']);
 const allowed = new Set(['node_modules', 'dist', '.git']);
 const hits = [];
 function walk(dir) {

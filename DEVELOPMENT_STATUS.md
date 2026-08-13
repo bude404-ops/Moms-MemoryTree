@@ -57,6 +57,8 @@
 - Existing Supabase auth/database/storage behavior now sits behind provider-oriented contracts and a service registry while Reaper-native backend capabilities remain unavailable/unknown.
 - Stage 4 GitHub source-of-truth structure documented in `docs/GITHUB_SOURCE_OF_TRUTH.md`.
 - Reserved source-control directories added for `/assets`, `/public`, `/database`, `/database/migrations`, `/tests`, and `/config` without moving live runtime code.
+- Stage 5 environment management documented in `docs/ENVIRONMENT_MANAGEMENT.md` with development/staging/production separation.
+- `.env.example` is placeholder-only, and `npm run validate:env` now enforces environment template safety.
 
 ## IN PROGRESS
 
