@@ -59,6 +59,13 @@
 - Reserved source-control directories added for `/assets`, `/public`, `/database`, `/database/migrations`, `/tests`, and `/config` without moving live runtime code.
 - Stage 5 environment management documented in `docs/ENVIRONMENT_MANAGEMENT.md` with development/staging/production separation.
 - `.env.example` is placeholder-only, and `npm run validate:env` now enforces environment template safety.
+- Stage 6 security baseline documented in `docs/STAGE_06_SECURITY_BASELINE.md`.
+- Stage 7 data model baseline documented in `docs/STAGE_07_DATA_MODEL_BASELINE.md`.
+- Stage 8 media pipeline baseline documented in `docs/STAGE_08_MEDIA_PIPELINE_BASELINE.md`.
+- Stage 9 legacy and archive baseline documented in `docs/STAGE_09_LEGACY_AND_ARCHIVE_BASELINE.md`.
+- Stage 10 backup and recovery baseline documented in `docs/STAGE_10_BACKUP_AND_RECOVERY_BASELINE.md`.
+- Stage 11 deployment readiness documented in `docs/STAGE_11_DEPLOYMENT_READINESS.md`.
+- Stage 12 pre-dashboard handoff documented in `docs/STAGE_12_PRE_DASHBOARD_HANDOFF.md`.
 
 ## IN PROGRESS
 
