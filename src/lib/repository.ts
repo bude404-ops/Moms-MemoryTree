@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { memoryTreeAuthService, type AuthSessionState, type MemoryTreeAuthService } from './auth';
+import { MemoryTreeAuthService, type AuthSessionState } from './auth';
 import { requireSupabase, supabase } from './supabase';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageUsage } from '../types/domain';
 import { demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoTimeline } from './demoData';
@@ -135,7 +135,11 @@ function mapStorageUsage(row: Record<string, unknown>, familyId: string, fallbac
 }
 
 export class MemoryTreeRepository {
-  constructor(private readonly client: SupabaseClient | null = supabase, private readonly authService: MemoryTreeAuthService = memoryTreeAuthService) {}
+  constructor(private readonly client: SupabaseClient | null = supabase, authService?: MemoryTreeAuthService) {
+    this.authService = authService ?? new MemoryTreeAuthService(client);
+  }
+
+  private readonly authService: MemoryTreeAuthService;
 
   isConfigured(): boolean {
     return Boolean(this.client);

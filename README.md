@@ -45,6 +45,7 @@ This repository is the source of truth for:
 - Audit log foundation
 - Local tests for privacy, storage authorization, signed URL expiry, and migration/RLS protections
 - Supabase deployment preflight and GitHub Actions workflow for migrations, Edge Function deployment, and optional live verification
+- Centralized Supabase Auth service for email/password signup, login, logout, password reset, session refresh, profile creation, and demo-mode fallback
 
 ## Local development
 

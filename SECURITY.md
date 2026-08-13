@@ -5,9 +5,11 @@ Moms MemoryTree is designed around one principle: family memories must not becom
 ## Authentication
 
 - Supabase Auth handles credentials.
-- The app supports email/password signup, sign-in, sign-out, and persistent sessions.
+- The app supports email/password signup, sign-in, sign-out, password reset, auth-state subscriptions, and persistent sessions.
 - Passwords are never stored in application tables.
+- Signup creates/updates a private profile row tied to the Supabase Auth user ID.
 - Profile rows contain display metadata only.
+- The repository uses one centralized auth service so session handling does not scatter across UI components.
 
 ## Secret handling
 
