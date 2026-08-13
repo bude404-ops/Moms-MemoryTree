@@ -22,6 +22,8 @@ This repository contains the Phase 1 foundation:
 - Timeline model
 - Private media metadata model
 - Signed media access policy helper
+- Supabase-facing repository/service layer
+- Upload preparation and private path validation
 - Storage usage tracking foundation
 - Legacy custodian data model
 - Legacy permission data model

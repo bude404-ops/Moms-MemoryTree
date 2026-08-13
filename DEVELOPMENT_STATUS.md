@@ -29,12 +29,12 @@
 ## IN PROGRESS
 
 - Supabase project connection remains environment-dependent.
-- Real photo/video upload UI is architected but not connected to a live bucket in this environment.
-- Authentication UI is ready for Supabase connection but Phase 1 demo mode uses local seed state until env vars are configured.
+- Real photo/video upload UI now prepares private storage paths and validates file safety before later Supabase upload.
+- Supabase-facing repository/service layer added for auth, profiles, family creation, people, relationships, memories, timeline, upload metadata, and signed URL creation.
 
 ## PLANNED
 
-- Supabase Auth screens and profile onboarding backed by live project.
+- Supabase Auth screens backed by live project.
 - Edge function for signed media URL creation after RLS checks.
 - Real photo upload to private bucket.
 - Video upload with thumbnail generation.

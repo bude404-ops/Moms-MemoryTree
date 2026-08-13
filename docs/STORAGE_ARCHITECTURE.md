@@ -12,6 +12,8 @@ Moms MemoryTree media is private by default.
   - `family/{family_id}/legacy/{memory_id}/{timestamp}-{safe_file_name}`
 - Public permanent media URLs are not used.
 - Signed URL policy helpers are implemented in `src/lib/security.ts`.
+- Upload preparation and file classification are implemented in `src/lib/mediaUpload.ts`.
+- Supabase upload and signed URL calls are centralized in `src/lib/repository.ts`.
 
 ## Authorization flow
 

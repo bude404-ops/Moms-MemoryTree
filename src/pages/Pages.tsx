@@ -2,6 +2,8 @@ import { Camera, Clock, FileHeart, Home, LockKeyhole, Mic, ShieldCheck, Upload, 
 import type { Memory, PrivacyLevel } from '../types/domain';
 import { demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoTimeline, storyQuestions } from '../lib/demoData';
 import { formatBytes } from '../lib/archiveStore';
+import { prepareMemoryUpload, validateMemoryUpload } from '../lib/mediaUpload';
+import { getRuntimeReadiness } from '../lib/readiness';
 import type { LocalArchiveState } from '../lib/archiveStore';
 
 const privacyLabels: Record<PrivacyLevel, string> = {
@@ -43,6 +45,7 @@ export function HomePage({ archive }: { archive: LocalArchiveState }) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">{['Childhood','Family','Love','Career','Parenthood','Life Lessons'].map(x=><a key={x} href="#record" className="rounded-2xl bg-amber-50 px-4 py-4 text-center font-semibold text-stone-800 ring-1 ring-amber-100 transition hover:bg-amber-100">{x}</a>)}</div>
     </Card>
     <StoragePanel archive={archive} />
+    <ReadinessPanel />
   </div>;
 }
 
@@ -57,7 +60,7 @@ function MemoryForm({ onCreate }: { onCreate: RecordPageProps['onCreate'] }) {
     <div className="grid gap-3 sm:grid-cols-2"><select name="type" className="rounded-2xl border border-amber-200 bg-white px-4 py-3"><option value="story">Story</option><option value="photo">Photo</option><option value="video">Video</option><option value="audio">Audio</option><option value="life_lesson">Life Lesson</option><option value="letter">Letter</option></select><select name="privacy" className="rounded-2xl border border-amber-200 bg-white px-4 py-3"><option value="private">Private</option><option value="family">Family</option><option value="specific_people">Specific people</option><option value="descendants">Descendants</option><option value="legacy">Legacy</option></select></div>
     <div className="grid gap-3 sm:grid-cols-3"><select name="person" className="rounded-2xl border border-amber-200 bg-white px-4 py-3">{demoPeople.map(p=><option key={p.id} value={p.id}>{p.displayName}</option>)}</select><input name="date" className="rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Date or approx date" /><input name="location" className="rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Location" /></div>
     <input name="category" className="rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Category e.g. Childhood" />
-    <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-stone-600"><Upload className="mb-2" /> Photo/video upload foundation: selected files will use private Supabase Storage paths and signed URL access once Supabase is configured.</div>
+    <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-stone-600"><Upload className="mb-2" /> Photo/video upload foundation: selected files will use private Supabase Storage paths and signed URL access once Supabase is configured.<input className="mt-3 block w-full text-sm" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onChange={(event)=>{ const file = event.currentTarget.files?.[0]; if (!file) return; const errors = validateMemoryUpload(file); if (errors.length) event.currentTarget.setCustomValidity(errors.join(' ')); else { prepareMemoryUpload('family-willow','pending-memory',file); event.currentTarget.setCustomValidity(''); } }} /></div>
     <button className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white shadow-lg shadow-stone-900/20">Save Memory</button>
   </form>;
 }
@@ -86,4 +89,8 @@ export function LegacyPage() {
 export function StoragePanel({ archive }: { archive: LocalArchiveState }) {
   const total = archive.media.reduce((sum,item)=>sum+item.bytes,0); const pct = Math.min(100, total / archive.storage.limitBytes * 100);
   return <Card><SectionTitle eyebrow="Private family media vault" title="Family Archive storage" /> <div className="mb-3 flex justify-between text-sm"><span>{formatBytes(total)} / {formatBytes(archive.storage.limitBytes)}</span><span>{pct.toFixed(2)}%</span></div><div className="h-3 rounded-full bg-amber-100"><div className="h-3 rounded-full bg-gradient-to-r from-amber-600 to-emerald-600" style={{width:`${pct}%`}} /></div><div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">{[['Videos',archive.storage.videosBytes,Camera],['Photos',archive.storage.photosBytes,FileHeart],['Audio',archive.storage.audioBytes,Mic],['Documents',archive.storage.documentsBytes,Clock]].map(([label,bytes,Icon])=>{const I=Icon as typeof Camera; return <div key={String(label)} className="rounded-2xl bg-amber-50 p-3"><I className="mb-2 text-amber-700" /><b>{formatBytes(Number(bytes))}</b><p className="text-sm text-stone-500">{String(label)}</p></div>;})}</div></Card>;
+}
+
+export function ReadinessPanel() {
+  return <Card><SectionTitle eyebrow="Deployment readiness" title="What is live vs what needs configuration">This prevents the archive from pretending unfinished infrastructure exists.</SectionTitle><div className="grid gap-3 md:grid-cols-2">{getRuntimeReadiness().map(item => <div key={item.id} className="rounded-2xl bg-white p-4 ring-1 ring-amber-100"><div className="flex items-center justify-between gap-3"><b>{item.label}</b><span className={`rounded-full px-3 py-1 text-xs font-bold ${item.ready ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}`}>{item.ready ? 'Ready' : 'Needs setup'}</span></div><p className="mt-2 text-sm leading-6 text-stone-600">{item.detail}</p></div>)}</div></Card>;
 }
