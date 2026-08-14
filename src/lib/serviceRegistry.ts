@@ -1,4 +1,9 @@
 import { memoryTreeAuthService } from './auth';
+import {
+  DatabaseFamilyServiceAdapter,
+  DatabaseLegacyServiceAdapter,
+  DatabaseMemoryServiceAdapter
+} from './providers';
 import { memoryTreeRepository } from './repository';
 import {
   ReaperAIProvider,
@@ -15,6 +20,9 @@ import type {
   BackupService,
   BillingService,
   DatabaseService,
+  FamilyService,
+  LegacyService,
+  MemoryService,
   NotificationService,
   QueueService
 } from './services';
@@ -24,6 +32,9 @@ export type ActiveProviderId = 'reaper-mini-apps' | 'supabase-external' | 'unava
 export interface ServiceRegistry {
   auth: AuthService;
   database: DatabaseService;
+  family: FamilyService;
+  memory: MemoryService;
+  legacy: LegacyService;
   authorization: AuthorizationService;
   backup: BackupService;
   notification: NotificationService;
@@ -34,6 +45,9 @@ export interface ServiceRegistry {
     runtime: ActiveProviderId;
     auth: ActiveProviderId;
     database: ActiveProviderId;
+    family: ActiveProviderId;
+    memory: ActiveProviderId;
+    legacy: ActiveProviderId;
     authorization: ActiveProviderId;
     storage: ActiveProviderId;
     backup: ActiveProviderId;
@@ -47,6 +61,9 @@ export interface ServiceRegistry {
 export const serviceRegistry: ServiceRegistry = {
   auth: memoryTreeAuthService,
   database: memoryTreeRepository,
+  family: new DatabaseFamilyServiceAdapter(memoryTreeRepository),
+  memory: new DatabaseMemoryServiceAdapter(memoryTreeRepository),
+  legacy: new DatabaseLegacyServiceAdapter(memoryTreeRepository),
   authorization: new ReaperAuthorizationProvider(),
   backup: new ReaperBackupProvider(),
   notification: new ReaperNotificationProvider(),
@@ -57,6 +74,9 @@ export const serviceRegistry: ServiceRegistry = {
     runtime: 'reaper-mini-apps',
     auth: memoryTreeAuthService.isConfigured() ? 'supabase-external' : 'unavailable',
     database: memoryTreeRepository.isConfigured() ? 'supabase-external' : 'unavailable',
+    family: memoryTreeRepository.isConfigured() ? 'supabase-external' : 'unavailable',
+    memory: memoryTreeRepository.isConfigured() ? 'supabase-external' : 'unavailable',
+    legacy: memoryTreeRepository.isConfigured() ? 'supabase-external' : 'unavailable',
     authorization: memoryTreeRepository.isConfigured() ? 'supabase-external' : 'unavailable',
     storage: memoryTreeRepository.isConfigured() ? 'supabase-external' : 'unavailable',
     backup: 'unavailable',

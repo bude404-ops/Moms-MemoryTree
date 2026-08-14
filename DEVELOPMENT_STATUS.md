@@ -68,13 +68,20 @@
 - Stage 12 pre-dashboard handoff documented in `docs/STAGE_12_PRE_DASHBOARD_HANDOFF.md`.
 - Master development plan captured in `MOMS_MEMORYTREE_MASTER_DEVELOPMENT_PLAN.md`.
 - Stage 1 platform audit report added in `docs/STAGE_01_PLATFORM_AUDIT_REPORT.md`.
-- GitHub Actions CI prepared locally for install, lint, tests, migration validation, authorization validation, environment validation, deployment safety, secret scan, and build; push requires GitHub authorization with workflow scope.
+- GitHub Actions CI added for install, lint, tests, migration validation, authorization validation, environment validation, deployment safety, secret scan, and build.
+- Stage 2 architecture alignment completed in `docs/STAGE_02_ARCHITECTURE_ALIGNMENT_REPORT.md`.
+- Family, Memory, and Legacy are now explicit service boundaries alongside Auth, Database, MediaStorage, Notification, Billing, Backup, AI, and Queue.
+- GitHub Actions CI pushed after workflow-scoped authorization was provided.
+- Stage 2 architecture alignment documented in `docs/STAGE_02_ARCHITECTURE_ALIGNMENT.md` and `docs/STAGE_02_ARCHITECTURE_ALIGNMENT_REPORT.md`.
+- Portable service-contract strategy locked for Auth, Database, Family, Memory, Media Storage, Legacy, Notification, Billing, Backup, and AI services.
 
 ## IN PROGRESS
 
-- Live Supabase deployment is pending project credentials and CLI/dashboard execution.
-- Real cloud upload/playback requires deployed buckets, migration, and Edge Function in a Supabase project.
+- Stage 3 GitHub application shell is next.
+- Live production provider deployment remains pending provider selection/credentials.
+- Real cloud upload/playback requires an approved production storage/backend provider.
 - Family invitation email delivery is architecture-only.
+- Stage 3 GitHub application shell work is next.
 
 ## PLANNED
 
