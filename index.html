@@ -386,6 +386,38 @@
     .memory-list { display: grid; gap: 12px; }
     .memory-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, .6); border: 1px solid var(--line); }
     .avatar { width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; background: var(--sage); color: var(--pine); font-weight: 900; flex: 0 0 auto; font-family: Georgia, serif; }
+    .record-choice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .record-choice {
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(244,232,211,.72));
+      box-shadow: 0 14px 36px rgba(92, 64, 35, .08);
+    }
+    .record-choice .big-icon { display: block; margin-bottom: 12px; font-size: 52px; }
+    .record-choice h3 { font-size: 28px; margin-bottom: 8px; }
+    .tree-editor { display: grid; gap: 14px; }
+    .tree-form { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 10px; align-items: end; }
+    .tree-field { display: grid; gap: 6px; }
+    .tree-field label { color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .tree-field input, .tree-field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,.9);
+      color: var(--ink);
+      outline: none;
+    }
+    .tree-visual { display: grid; gap: 10px; margin-top: 6px; }
+    .tree-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .tree-node { min-width: 130px; padding: 12px 14px; border-radius: 18px; text-align: center; background: #fffdf9; border: 1px solid var(--line); box-shadow: 0 8px 20px rgba(92, 64, 35, .05); }
+    .tree-node strong { display: block; color: var(--ink); }
+    .tree-node span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .save-note { color: var(--pine); font-size: 13px; font-weight: 850; min-height: 18px; }
     
     .progress { height: 10px; border-radius: 999px; background: #f2e2cb; overflow: hidden; }
     .progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--honey), var(--pine)); }
@@ -421,6 +453,7 @@
       .hero-copy { padding: 20px; border-radius: 20px; }
       .hero-copy h1 { font-size: 38px; }
       .app-status-row, .mobile-grid { grid-template-columns: 1fr; }
+      .record-choice-grid, .tree-form { grid-template-columns: 1fr; }
       .footer .card { align-items: flex-start; flex-direction: column; }
     }
   </style>
@@ -472,8 +505,8 @@
           <p>This view is for the family using the app: record stories, browse people, protect photos and videos, and prepare legacy messages for the right loved ones.</p>
         </div>
         <div class="grid four">
-          <article class="card"><span class="icon">🎙️</span><h3>Record stories</h3><p>Capture voice, written memories, dates, places, categories, and the family members connected to each moment.</p></article>
-          <article class="card"><span class="icon">🌳</span><h3>Build the tree</h3><p>Organize family around people and relationships, so memories are found through Mom, children, grandchildren, and milestones.</p></article>
+          <article class="card"><span class="icon">🎥</span><h3>Video or audio</h3><p>Choose one clear recording path: video when they want to be seen, audio when they only want their voice preserved.</p></article>
+          <article class="card"><span class="icon">🌳</span><h3>Save family tree</h3><p>Enter family members, choose their roles, connect them together, and save the tree for the archive.</p></article>
           <article class="card"><span class="icon">🔐</span><h3>Protect media</h3><p>Keep private photos, videos, and keepsakes inside a family-first vault instead of scattering them across folders.</p></article>
           <article class="card"><span class="icon">💌</span><h3>Leave legacy</h3><p>Prepare future messages, lessons, and wishes for trusted loved ones without losing the warmth of the story.</p></article>
         </div>
@@ -483,31 +516,39 @@
         <article class="card">
           <div class="section-title">
             <p class="eyebrow">memorytree</p>
-            <h2>Family relationships first.</h2>
-            <p>Our product model centers people and cherished connections, allowing memories to be explored naturally through Mom, children, grandchildren, places, and milestones — rather than flat directories.</p>
+            <h2>Your family tree.</h2>
+            <p>Enter the people in your family, choose how they are connected, and save the tree so memories stay attached to the right loved ones.</p>
           </div>
-          <div class="memory-list">
-            <div class="memory-item"><span class="avatar">M</span><div><strong>Mom</strong><p>Anchor profile for personal stories, life lessons, cherished keepsakes, and future legacy messages.</p></div></div>
-            <div class="memory-item"><span class="avatar">C</span><div><strong>Children and grandchildren</strong><p>Family members can be modeled with custom roles and relations before live invitations are enabled.</p></div></div>
-            <div class="memory-item"><span class="avatar">♡</span><div><strong>People tied to stories</strong><p>Every memory can carry person tags, exact dates, locations, categories, and private context.</p></div></div>
+          <div class="tree-editor">
+            <div class="tree-form" aria-label="Add family member">
+              <div class="tree-field"><label for="tree-name">Name</label><input id="tree-name" placeholder="Mom" /></div>
+              <div class="tree-field"><label for="tree-role">Role</label><select id="tree-role"><option>Mother</option><option>Father</option><option>Child</option><option>Grandchild</option><option>Partner</option><option>Other</option></select></div>
+              <div class="tree-field"><label for="tree-connection">Connected to</label><input id="tree-connection" placeholder="Family root" /></div>
+              <button class="btn primary" id="save-tree" type="button">Save</button>
+            </div>
+            <p class="save-note" id="tree-save-note" aria-live="polite"></p>
+            <div class="tree-visual" aria-label="Saved family tree preview">
+              <div class="tree-row"><div class="tree-node"><strong>Mom</strong><span>Family root</span></div></div>
+              <div class="tree-row" id="tree-members"><div class="tree-node"><strong>Add a person</strong><span>Your tree appears here</span></div></div>
+            </div>
           </div>
         </article>
-        <article class="card"><span class="icon">🌲</span><h3>Tree view</h3><p>Generations can grow naturally from one loved one to the next, keeping every branch tied to real stories.</p><div style="margin-top:20px" class="progress"><span style="width:74%"></span></div></article>
+        <article class="card"><span class="icon">🌲</span><h3>Save the tree</h3><p>This screen stays focused on one thing: entering family members and keeping their relationships saved for the archive.</p></article>
       </section>
 
       <section class="panel-grid" data-view="record">
         <article class="card">
           <div class="section-title">
             <p class="eyebrow">record a memory</p>
-            <h2>A warm, story-first capture flow.</h2>
-            <p>Designed for capturing real family context effortlessly: prompt categories, dates, locations, associated family members, tags, privacy settings, and private media metadata.</p>
+            <h2>Record video or audio.</h2>
+            <p>Keep this screen simple: choose video when they want to be seen, or audio when they only want their voice saved.</p>
           </div>
-          <div class="grid two">
-            <div class="card"><h3>Prompt</h3><p>“Tell us about the day this photo was taken under the pines.”</p></div>
-            <div class="card"><h3>Privacy</h3><p>Family-only by default, with private media securely guarded behind signed access boundaries.</p></div>
+          <div class="record-choice-grid">
+            <button class="record-choice" type="button"><span><span class="big-icon">🎥</span><h3>Record video</h3><p>Save a face, a voice, and the moment together.</p></span></button>
+            <button class="record-choice" type="button"><span><span class="big-icon">🎙️</span><h3>Record audio</h3><p>Save the story in their own voice.</p></span></button>
           </div>
         </article>
-        <article class="card"><span class="icon">🎙️</span><h3>Memory path</h3><p>Story → person → privacy → keepsakes → family archive. A simple path for preserving what matters.</p></article>
+        <article class="card"><span class="icon">🔴</span><h3>One clear choice</h3><p>No extra fields on this page. Just video or audio, then save the recording to the family archive.</p></article>
       </section>
 
       <section class="panel-grid" data-view="legacy">
@@ -528,8 +569,8 @@
 
       <section class="grid four" aria-label="App screens">
         <article class="card screen-card"><div><span class="icon">🏠</span><h3>Home</h3><p>Storybook logo header and warm entry point for the family archive.</p></div><footer><span>Start here</span><span>Welcome</span></footer></article>
-        <article class="card screen-card"><div><span class="icon">🎙️</span><h3>Stories</h3><p>Capture memories with prompts, people, places, dates, and privacy.</p></div><footer><span>Create</span><span>Preserve</span></footer></article>
-        <article class="card screen-card"><div><span class="icon">🌳</span><h3>MemoryTree</h3><p>Explore loved ones and relationships through a family-first lens.</p></div><footer><span>Connect</span><span>Remember</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🎙️</span><h3>Record</h3><p>Only video or audio, with a clean choice before saving.</p></div><footer><span>Create</span><span>Preserve</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🌳</span><h3>MemoryTree</h3><p>Enter and save the family tree in one focused view.</p></div><footer><span>Connect</span><span>Save</span></footer></article>
         <article class="card screen-card"><div><span class="icon">💌</span><h3>Legacy</h3><p>Leave lessons, wishes, and future messages for trusted loved ones.</p></div><footer><span>Prepare</span><span>Share</span></footer></article>
       </section>
 
@@ -555,11 +596,11 @@
       },
       tree: {
         title: 'MemoryTree',
-        html: '<div class="mobile-feature"><small>Family graph</small><h3>People, relationships, and stories stay connected.</h3><p>Mom becomes the center of a living archive, not another directory.</p></div><div class="mobile-card"><h3>Relationships</h3><div class="stage-row"><span>Mom</span><span>Anchor</span></div><div class="stage-row"><span>Children</span><span>Linked</span></div><div class="stage-row"><span>Grandchildren</span><span>Modeled</span></div></div>'
+        html: '<div class="mobile-feature"><small>Family tree</small><h3>Enter family members and save the tree.</h3><p>One focused place for names, roles, and connections.</p></div><div class="mobile-card"><h3>Saved tree</h3><div class="stage-row"><span>Mom</span><span>Root</span></div><div class="stage-row"><span>Children</span><span>Add</span></div><div class="stage-row"><span>Grandchildren</span><span>Add</span></div></div>'
       },
       record: {
         title: 'Record',
-        html: '<div class="mobile-feature"><small>Story capture</small><h3>Preserve context while the memory is fresh.</h3><p>Capture category, person, privacy, date, place, tags, and media metadata.</p></div><div class="mobile-card"><h3>Capture flow</h3><div class="stage-row"><span>Story</span><span class="pill green">Ready</span></div><div class="stage-row"><span>Private media</span><span class="pill amber">Verify</span></div></div>'
+        html: '<div class="mobile-feature"><small>Record</small><h3>Choose video or audio.</h3><p>No extra clutter — just save the memory in the format they want.</p></div><div class="mobile-grid"><button class="mobile-card"><h3>🎥 Video</h3><p>Record with camera.</p></button><button class="mobile-card"><h3>🎙️ Audio</h3><p>Record voice only.</p></button></div>'
       },
       legacy: {
         title: 'Legacy',
@@ -571,6 +612,45 @@
     const mobileContent = document.getElementById('mobile-content');
     const controls = Array.from(document.querySelectorAll('[data-tab]'));
     const views = Array.from(document.querySelectorAll('[data-view]'));
+    const treeName = document.getElementById('tree-name');
+    const treeRole = document.getElementById('tree-role');
+    const treeConnection = document.getElementById('tree-connection');
+    const saveTree = document.getElementById('save-tree');
+    const treeMembers = document.getElementById('tree-members');
+    const treeSaveNote = document.getElementById('tree-save-note');
+    const savedTree = JSON.parse(localStorage.getItem('moms-memorytree-family-tree') || '[]');
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    }
+
+    function renderTree() {
+      if (!treeMembers) return;
+      if (!savedTree.length) {
+        treeMembers.innerHTML = '<div class="tree-node"><strong>Add a person</strong><span>Your tree appears here</span></div>';
+        return;
+      }
+      treeMembers.innerHTML = savedTree.map((member) => `<div class="tree-node"><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.role)} · ${escapeHtml(member.connection)}</span></div>`).join('');
+    }
+
+    if (saveTree) {
+      saveTree.addEventListener('click', () => {
+        const name = (treeName.value || '').trim();
+        const role = treeRole.value;
+        const connection = (treeConnection.value || 'Family root').trim();
+        if (!name) {
+          treeSaveNote.textContent = 'Enter a name before saving.';
+          treeName.focus();
+          return;
+        }
+        savedTree.push({ name, role, connection });
+        localStorage.setItem('moms-memorytree-family-tree', JSON.stringify(savedTree));
+        treeName.value = '';
+        treeConnection.value = '';
+        treeSaveNote.textContent = `${name} saved to your family tree.`;
+        renderTree();
+      });
+    }
 
     function setTab(tab) {
       const selected = copy[tab] ? tab : 'home';
@@ -584,6 +664,7 @@
     }
 
     controls.forEach((control) => control.addEventListener('click', () => setTab(control.dataset.tab)));
+    renderTree();
     setTab((window.location.hash || '#home').replace('#', ''));
   </script>
 </body>
