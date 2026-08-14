@@ -9,7 +9,7 @@ const migration = fs.readdirSync(migrationDir)
   .join('\n');
 const lower = migration.toLowerCase();
 
-const privateTables = ['profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','memory_permissions','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','family_invitations','storage_usage','storage_plans','family_subscriptions','storage_addons','billing_events','cost_assumptions','storage_warning_thresholds','storage_usage_snapshots','storage_alerts','retention_policies','backup_records','archive_exports','audit_logs'];
+const privateTables = ['profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','memory_permissions','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','legacy_profiles','legacy_custodians_v2','legacy_events','legacy_locks','memorial_media','legacy_audit_logs','family_invitations','storage_usage','storage_plans','family_subscriptions','storage_addons','billing_events','cost_assumptions','storage_warning_thresholds','storage_usage_snapshots','storage_alerts','retention_policies','backup_records','archive_exports','audit_logs'];
 for (const table of privateTables) {
   const needle = `alter table public.${table} enable row level security`;
   if (!lower.includes(needle)) throw new Error(`Missing RLS enablement for ${table}`);
@@ -64,6 +64,15 @@ const assertions = [
   ['provider usage method exists', 'getUsage(prefix: string)'],
   ['provider move method exists', 'move(bucket: string, fromPath: string, toPath: string)'],
   ['provider copy method exists', 'copy(bucket: string, fromPath: string, toPath: string)']
+  ,['legacy memory lock tables exist', 'legacy_locks']
+  ,['legacy account states exist', 'account_state']
+  ,['immutable original guard exists', 'prevent_legacy_lock_mutation']
+  ,['original story preservation RPC exists', 'preserve_original_story']
+  ,['controlled legacy request RPC exists', 'request_legacy_status']
+  ,['controlled legacy approval RPC exists', 'approve_legacy_status']
+  ,['memorial media is separate', 'memorial_media']
+  ,['legacy audit logs are append only', 'legacy_audit_logs_no_user_write']
+  ,['no update or delete policy for legacy locks', 'No UPDATE or DELETE policy exists for legacy_locks']
 ];
 
 const appSource = [

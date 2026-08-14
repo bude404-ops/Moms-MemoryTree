@@ -14,14 +14,14 @@ for (const file of files) {
 }
 
 const requiredTables = [
-  'profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','family_invitations','storage_usage','backup_records','archive_exports','audit_logs'
+  'profiles','families','people','family_members','family_relationships','memories','memory_media','memory_people','memory_tags','life_events','story_questions','legacy_messages','legacy_custodians','legacy_permissions','legacy_profiles','legacy_custodians_v2','legacy_events','legacy_locks','memorial_media','legacy_audit_logs','family_invitations','storage_usage','backup_records','archive_exports','audit_logs'
 ];
 for (const table of requiredTables) {
   if (!combined.includes(`public.${table}`)) throw new Error(`Missing required table/schema reference: ${table}`);
 }
 
 const requiredColumns = [
-  'display_name','avatar_path','created_by','relationship_label','joined_at','memory_type','privacy_level','category','storage_path','file_name','mime_type','file_size','duration_seconds','thumbnail_path','unlock_condition','backup_status','verification_status','export_path','event_type'
+  'display_name','avatar_path','created_by','relationship_label','joined_at','memory_type','privacy_level','category','storage_path','file_name','mime_type','file_size','duration_seconds','thumbnail_path','unlock_condition','backup_status','verification_status','export_path','event_type','account_state','original_story','preserved_at','content_hash','creator_id','original_version','memorial_date','contributors'
 ];
 for (const column of requiredColumns) {
   if (!combined.includes(column)) throw new Error(`Missing required column/schema reference: ${column}`);

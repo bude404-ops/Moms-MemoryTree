@@ -299,7 +299,51 @@ export function TimelinePage({ events }: { events: LifeEvent[] }) {
 }
 
 export function LegacyPage({ custodians, people }: { custodians: LegacyCustodian[]; people: Person[] }) {
-  return <div className="space-y-5"><Card><SectionTitle eyebrow="Legacy custody" title="Architecture is present, access is not prematurely granted">Custodians control future workflow requests. They do not automatically receive private memories.</SectionTitle><div className="grid gap-3 md:grid-cols-2">{custodians.map(c=>{const p=people.find(x=>x.id===c.custodianPersonId); return <div key={c.id} className="rounded-2xl bg-white p-4 ring-1 ring-amber-100"><ShieldCheck className="mb-2 text-emerald-700" /><b>{c.priority.toUpperCase()} Custodian</b><p>{p?.displayName ?? 'Person pending'}</p><p className="text-sm text-stone-500">Status: {c.status}</p></div>;})}</div>{custodians.length === 0 && <p className="rounded-2xl bg-amber-50 p-4 text-stone-600">No legacy custodians configured yet.</p>}</Card><Card><SectionTitle eyebrow="Backup & archive export" title="Designed, not overstated">Primary storage is Supabase Storage once configured. Independent backup and family archive exports have data models and roadmap tasks, but redundancy is not claimed in Phase 1.</SectionTitle></Card></div>;
+  const [story, setStory] = useState('');
+  const [preservedStory, setPreservedStory] = useState<string | null>(null);
+  const creator = people[0]?.displayName ?? 'Original Creator';
+  const preservedAt = preservedStory ? new Date().toLocaleDateString() : null;
+
+  return <div className="space-y-5">
+    <Card className="bg-gradient-to-br from-stone-950 via-stone-900 to-emerald-950 text-white">
+      <SectionTitle eyebrow="Legacy Memory Lock" title="Preserve what the person said.">Let the family add what they remember. Never rewrite history.</SectionTitle>
+      <div className="grid gap-3 md:grid-cols-4">
+        {['ACTIVE', 'LEGACY_PENDING', 'LEGACY', 'ARCHIVED'].map(state => <div key={state} className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/10"><p className="text-xs uppercase tracking-[0.18em] text-amber-200">Account state</p><b>{state}</b></div>)}
+      </div>
+    </Card>
+
+    <Card>
+      <SectionTitle eyebrow="Original life story" title={preservedStory ? 'Original Story — Preserved' : 'Create your personal life story'}>{preservedStory ? `Recorded by ${creator}` : 'Before preservation, the owner may edit their own story. After preservation, the original becomes locked.'}</SectionTitle>
+      {preservedStory ? <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+        <div className="mb-3 flex flex-wrap items-center gap-2"><span className="rounded-full bg-stone-900 px-3 py-1 text-xs font-bold text-white">🔒 Preserved</span><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-emerald-900 ring-1 ring-emerald-200">Recorded by {creator}</span><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-stone-700 ring-1 ring-emerald-200">Preserved {preservedAt}</span></div>
+        <p className="whitespace-pre-wrap text-stone-800">{preservedStory}</p>
+        <p className="mt-4 rounded-2xl bg-white p-3 text-sm font-semibold text-stone-700 ring-1 ring-emerald-100">No family member, Next of Kin, Legacy Custodian, or administrator can silently edit, replace, or delete this preserved original.</p>
+      </div> : <form className="grid gap-3" onSubmit={(event) => { event.preventDefault(); if (story.trim()) setPreservedStory(story.trim()); }}>
+        <textarea value={story} onChange={(event) => setStory(event.target.value)} className="min-h-44 rounded-2xl border border-amber-200 bg-white px-4 py-3" placeholder="Write your original life story in your own words..." />
+        <div className="grid gap-2 sm:grid-cols-2"><button type="button" className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 font-bold text-stone-900">Save Draft</button><button className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white">Preserve My Story</button></div>
+      </form>}
+    </Card>
+
+    <Card>
+      <SectionTitle eyebrow="Next of kin" title="Designate controlled legacy helpers">Designated people receive legacy-management functions only after the Legacy transition. They do not receive full account ownership.</SectionTitle>
+      <div className="grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100"><b>Primary Next of Kin</b><p className="text-sm text-stone-600">First authorized legacy helper.</p></div>
+        <div className="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100"><b>Backup Next of Kin</b><p className="text-sm text-stone-600">Secondary helper if needed.</p></div>
+        <div className="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100"><b>Legacy Custodian</b><p className="text-sm text-stone-600">Manages memorial functions after transition.</p></div>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">{custodians.map(c=>{const p=people.find(x=>x.id===c.custodianPersonId); return <div key={c.id} className="rounded-2xl bg-white p-4 ring-1 ring-amber-100"><ShieldCheck className="mb-2 text-emerald-700" /><b>{c.priority.toUpperCase()} Custodian</b><p>{p?.displayName ?? 'Person pending'}</p><p className="text-sm text-stone-500">Status: {c.status}</p></div>;})}</div>
+    </Card>
+
+    <Card>
+      <SectionTitle eyebrow="Controlled Legacy Mode" title="Request, then approve">Ordinary family members cannot instantly declare another person deceased. Legacy Mode requires the configured authorization process.</SectionTitle>
+      <div className="grid gap-3 md:grid-cols-3"><button className="rounded-2xl bg-amber-500 px-5 py-4 font-bold text-stone-950">Request Legacy Status</button><button className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white">Approve Legacy Mode</button><button className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 font-bold text-emerald-900">Add Funeral / Memorial Video</button></div>
+    </Card>
+
+    <Card>
+      <SectionTitle eyebrow="Memorial timeline" title="Every contribution keeps its author">Original words stay separate from family memories, tributes, and memorial video.</SectionTitle>
+      <div className="grid gap-3 md:grid-cols-4">{['Life Story', 'Life Memories', 'Funeral & Memorial', 'Family Memories After Passing'].map((section, index) => <div key={section} className="rounded-2xl bg-white p-4 ring-1 ring-amber-100"><b>{section}</b><p className="mt-2 text-sm text-stone-600">{index === 0 ? `Original preserved story. Recorded by ${creator}.` : index === 2 ? 'Memorial Video. Added by Next of Kin or Legacy Custodian.' : 'Separate family contributions with contributor and date.'}</p></div>)}</div>
+    </Card>
+  </div>;
 }
 
 export function StoragePanel({ archive }: { archive: ArchiveDataState }) {
