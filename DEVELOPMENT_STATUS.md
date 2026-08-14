@@ -66,6 +66,9 @@
 - Stage 10 backup and recovery baseline documented in `docs/STAGE_10_BACKUP_AND_RECOVERY_BASELINE.md`.
 - Stage 11 deployment readiness documented in `docs/STAGE_11_DEPLOYMENT_READINESS.md`.
 - Stage 12 pre-dashboard handoff documented in `docs/STAGE_12_PRE_DASHBOARD_HANDOFF.md`.
+- Master development plan captured in `MOMS_MEMORYTREE_MASTER_DEVELOPMENT_PLAN.md`.
+- Stage 1 platform audit report added in `docs/STAGE_01_PLATFORM_AUDIT_REPORT.md`.
+- GitHub Actions CI prepared locally for install, lint, tests, migration validation, authorization validation, environment validation, deployment safety, secret scan, and build; push requires GitHub authorization with workflow scope.
 
 ## IN PROGRESS
 
@@ -89,6 +92,7 @@
 - Supabase deployment requires project access credentials or dashboard execution.
 - GitHub pushes from this environment require temporary authorization each time credentials are not already present.
 - Reaper Server Apps are not available for this Reaper session, so backend/database/storage/auth replacements cannot be invented inside Mini App frontend code.
+- Supabase runtime removal remains a staged migration; do not delete working provider code until replacement service gates pass.
 
 ## SECURITY
 
