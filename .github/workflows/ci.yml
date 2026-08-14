@@ -1,0 +1,54 @@
+name: Moms MemoryTree CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Install, lint, test, validate, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Validate migrations
+        run: npm run validate:db
+
+      - name: Validate authorization rules
+        run: npm run validate:rls
+
+      - name: Validate environment template
+        run: npm run validate:env
+
+      - name: Validate live harness safety
+        run: npm run validate:live-harness
+
+      - name: Validate deployment automation
+        run: npm run validate:deployment
+
+      - name: Secret scan
+        run: npm run validate:secrets
+
+      - name: Build
+        run: npm run build
