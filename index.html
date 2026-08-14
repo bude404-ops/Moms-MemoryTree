@@ -8,22 +8,22 @@
   <style>
     :root {
       color-scheme: light;
-      --ink: #241811;
-      --ink-soft: #5f4a3c;
-      --muted: #806d5c;
-      --paper: #fff8e8;
-      --paper-2: #fffdf6;
-      --cream: #f7e6c6;
-      --honey: #d99435;
-      --honey-2: #f3c979;
-      --bark: #6e3824;
-      --pine: #34523f;
-      --pine-2: #496c50;
-      --sage: #e3ead6;
-      --rose: #f1d0bd;
-      --line: rgba(110, 56, 36, .16);
-      --shadow: 0 22px 70px rgba(64, 39, 23, .14);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --ink: #2b1d14;
+      --ink-soft: #5c4333;
+      --muted: #7a6352;
+      --paper: #fbf7ee;
+      --paper-2: #fffdf9;
+      --cream: #f4e8d3;
+      --honey: #c88429;
+      --honey-2: #e8b059;
+      --bark: #5c3220;
+      --pine: #2e4a38;
+      --pine-2: #435e49;
+      --sage: #e3ebd6;
+      --rose: #eec4b0;
+      --line: rgba(92, 50, 32, .14);
+      --shadow: 0 20px 60px rgba(50, 30, 18, .10);
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--paper);
       color: var(--ink);
     }
@@ -35,21 +35,22 @@
       min-height: 100vh;
       overflow-x: hidden;
       background:
-        radial-gradient(circle at 18% -8%, rgba(217, 148, 53, .32), transparent 34rem),
-        radial-gradient(circle at 92% 8%, rgba(73, 108, 80, .22), transparent 32rem),
-        linear-gradient(135deg, #fff8e8 0%, #fffdf6 48%, #eef3df 100%);
+        radial-gradient(circle at 15% -10%, rgba(200, 132, 41, .18), transparent 36rem),
+        radial-gradient(circle at 88% 5%, rgba(67, 94, 73, .14), transparent 34rem),
+        linear-gradient(135deg, #fbf7ee 0%, #fffdf9 50%, #edf3e3 100%);
     }
 
     a { color: inherit; }
     button, input, textarea, select { font: inherit; }
     button { cursor: pointer; }
-    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .shell { width: min(1200px, calc(100% - 32px)); margin: 0 auto; }
+    
     .topbar {
       position: sticky;
       top: 0;
       z-index: 50;
-      backdrop-filter: blur(20px);
-      background: rgba(255, 248, 232, .9);
+      backdrop-filter: blur(16px);
+      background: rgba(251, 247, 238, 0.88);
       border-bottom: 1px solid var(--line);
     }
     .nav {
@@ -57,253 +58,303 @@
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      padding: 12px 0;
+      padding: 14px 0;
     }
-    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; min-width: 250px; }
+    .brand { display: flex; align-items: center; gap: 14px; text-decoration: none; min-width: 270px; }
     .brand-logo {
-      width: 70px;
-      height: 48px;
+      width: 58px;
+      height: 42px;
       object-fit: cover;
-      border-radius: 18px;
-      border: 2px solid rgba(110,56,36,.2);
-      box-shadow: 0 12px 30px rgba(80, 49, 28, .16);
+      border-radius: 12px;
+      border: 1px solid rgba(92, 50, 32, .2);
+      box-shadow: 0 8px 20px rgba(80, 49, 28, .12);
       background: var(--cream);
     }
-    .brand small { display: block; color: var(--bark); font-weight: 900; letter-spacing: .18em; text-transform: uppercase; font-size: 10px; }
-    .brand strong { display: block; font-size: 19px; letter-spacing: -.02em; }
-    .nav-center { display: flex; justify-content: center; gap: 8px; flex: 1; }
+    .brand small { display: block; color: var(--bark); font-weight: 800; letter-spacing: .16em; text-transform: uppercase; font-size: 10px; }
+    .brand strong { display: block; font-size: 20px; letter-spacing: -.02em; font-family: Georgia, serif; color: var(--ink); }
+    
+    .nav-center { display: flex; justify-content: center; gap: 6px; flex: 1; }
     .nav-pill {
       border: 0;
       text-decoration: none;
       font-size: 13px;
-      font-weight: 900;
+      font-weight: 800;
       color: var(--ink-soft);
-      padding: 10px 13px;
+      padding: 9px 16px;
       border-radius: 999px;
       background: transparent;
+      transition: all .2s ease;
     }
-    .nav-pill:hover, .nav-pill.active { background: rgba(217, 148, 53, .16); color: var(--bark); }
-    .nav-actions { display: flex; justify-content: flex-end; gap: 8px; min-width: 190px; }
+    .nav-pill:hover, .nav-pill.active { background: rgba(200, 132, 41, .12); color: var(--bark); }
+    .nav-actions { display: flex; justify-content: flex-end; gap: 8px; min-width: 170px; }
 
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 9px;
-      padding: 13px 17px;
-      border-radius: 18px;
+      padding: 12px 20px;
+      border-radius: 14px;
       border: 1px solid var(--line);
       text-decoration: none;
-      font-weight: 950;
-      box-shadow: 0 16px 40px rgba(92,64,35,.10);
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 10px 30px rgba(92, 64, 35, .08);
       transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
     }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 20px 48px rgba(92,64,35,.14); }
-    .btn.primary { background: var(--ink); color: white; border-color: var(--ink); }
-    .btn.secondary { background: rgba(255,255,255,.78); color: var(--ink); }
-    .btn.ghost { background: rgba(255,255,255,.48); color: var(--ink-soft); box-shadow: none; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 14px 36px rgba(92, 64, 35, .12); }
+    .btn.primary { background: var(--pine); color: white; border-color: var(--pine); }
+    .btn.primary:hover { background: var(--pine-2); }
+    .btn.secondary { background: rgba(255, 255, 255, .9); color: var(--ink); border-color: rgba(92, 50, 32, .2); }
+    .btn.ghost { background: rgba(255, 255, 255, .5); color: var(--ink-soft); box-shadow: none; border: 1px solid var(--line); }
 
     .app-shell {
       display: grid;
-      grid-template-columns: 76px minmax(0, 1fr);
+      grid-template-columns: 72px minmax(0, 1fr);
       gap: 20px;
-      padding: 24px 0 44px;
+      padding: 28px 0 48px;
     }
+    
     .rail {
       position: sticky;
-      top: 92px;
-      height: calc(100vh - 112px);
+      top: 96px;
+      height: calc(100vh - 120px);
       display: grid;
       align-content: start;
       gap: 10px;
       padding: 12px;
-      border-radius: 30px;
-      background: rgba(255,255,255,.64);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, .75);
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
     }
     .rail button {
-      width: 52px;
-      height: 52px;
+      width: 48px;
+      height: 48px;
       border: 1px solid transparent;
-      border-radius: 20px;
+      border-radius: 16px;
       background: transparent;
       color: var(--muted);
-      font-size: 21px;
-      font-weight: 900;
+      font-size: 20px;
+      display: grid;
+      place-items: center;
+      transition: all .2s ease;
     }
     .rail button:hover, .rail button.active {
-      background: var(--ink);
+      background: var(--pine);
       color: white;
-      border-color: var(--ink);
-      box-shadow: 0 14px 28px rgba(36,24,17,.2);
+      border-color: var(--pine);
+      box-shadow: 0 10px 24px rgba(46, 74, 56, .25);
     }
 
-    .workspace { display: grid; gap: 18px; min-width: 0; }
+    .workspace { display: grid; gap: 20px; min-width: 0; }
+    
     .home-panel {
       overflow: hidden;
-      border-radius: 38px;
-      background: rgba(255,255,255,.72);
+      border-radius: 32px;
+      background: rgba(255, 255, 255, .8);
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
     }
     .home-hero {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(320px, 470px);
-      gap: 28px;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 420px);
+      gap: 24px;
       align-items: stretch;
       padding: 24px;
     }
+    
     .hero-copy {
-      min-height: 570px;
+      min-height: 560px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: clamp(20px, 4vw, 38px);
-      border-radius: 30px;
-      background:
-        linear-gradient(135deg, rgba(36,24,17,.94), rgba(52,82,63,.92)),
-        url('assets/memorytree-logo.svg') center/cover no-repeat;
+      padding: clamp(24px, 4vw, 42px);
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(43, 29, 20, .96), rgba(46, 74, 56, .94));
       color: white;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 20px 50px rgba(43, 29, 20, .2);
     }
+    
+    /* Immersive Banner Header styling inside hero copy */
+    .hero-banner-art {
+      width: 100%;
+      height: 180px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, .25);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .hero-banner-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .hero-copy::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 80% 20%, rgba(243,201,121,.24), transparent 20rem);
+      background: radial-gradient(circle at 80% 20%, rgba(232, 176, 89, .15), transparent 20rem);
       pointer-events: none;
     }
     .hero-copy > * { position: relative; z-index: 1; }
+    
     .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin: 0 0 14px;
+      margin: 0 0 10px;
       color: var(--honey-2);
-      font-size: 12px;
-      font-weight: 950;
+      font-size: 11px;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: .24em;
+      letter-spacing: .22em;
     }
+    
     .hero-copy h1 {
       margin: 0;
-      max-width: 720px;
-      font-size: clamp(42px, 7vw, 82px);
-      line-height: .92;
-      letter-spacing: -.065em;
+      max-width: 680px;
+      font-size: clamp(36px, 5.5vw, 64px);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      font-family: Georgia, serif;
     }
-    .hero-copy p { max-width: 650px; margin: 18px 0 0; color: rgba(255,255,255,.84); font-size: 18px; line-height: 1.72; }
+    .hero-copy p { max-width: 600px; margin: 14px 0 0; color: rgba(255, 255, 255, .85); font-size: 16px; line-height: 1.65; }
+    
     .quote {
       display: inline-block;
-      margin-top: 22px;
-      padding: 14px 18px;
-      border-radius: 22px;
-      background: rgba(255,255,255,.12);
-      border: 1px solid rgba(255,255,255,.18);
-      color: #fff7df;
-      backdrop-filter: blur(10px);
+      margin-top: 18px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .15);
+      color: #fdf6e2;
+      font-style: italic;
+      font-family: Georgia, serif;
+      font-size: 15px;
+      backdrop-filter: blur(8px);
     }
-    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
-    .app-status-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 26px; }
+    
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+    
+    .app-status-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 22px; }
     .status-chip {
-      padding: 14px;
-      border-radius: 22px;
-      background: rgba(255,255,255,.12);
-      border: 1px solid rgba(255,255,255,.14);
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .12);
     }
-    .status-chip span { display:block; color: rgba(255,255,255,.66); font-size: 12px; font-weight: 800; }
-    .status-chip b { display:block; margin-top: 5px; font-size: 24px; }
+    .status-chip span { display: block; color: rgba(255, 255, 255, .65); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+    .status-chip b { display: block; margin-top: 4px; font-size: 20px; font-family: Georgia, serif; }
 
     .phone {
-      border-radius: 46px;
-      padding: 14px;
-      background: linear-gradient(145deg, #211813, #5c3b2d);
-      box-shadow: 0 32px 88px rgba(36,24,17,.26);
-      transform: rotate(.7deg);
+      border-radius: 40px;
+      padding: 12px;
+      background: linear-gradient(145deg, #2b1d14, #5c3b2d);
+      box-shadow: 0 24px 60px rgba(43, 29, 20, .22);
     }
     .phone-screen {
-      min-height: 630px;
+      min-height: 580px;
       overflow: hidden;
-      border-radius: 34px;
-      background: linear-gradient(135deg, #fff8e8, #fffdf6, #eef3df);
-      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 30px;
+      background: linear-gradient(135deg, #fbf7ee, #fffdf9, #edf3e3);
+      border: 1px solid rgba(255, 255, 255, .4);
       display: flex;
       flex-direction: column;
     }
     .mobile-header {
-      padding: 18px;
-      background: rgba(255,248,232,.92);
+      padding: 16px;
+      background: rgba(251, 247, 238, .92);
       border-bottom: 1px solid var(--line);
     }
-    .mobile-brand { display:flex; align-items:center; gap:10px; }
-    .mobile-brand img { width: 74px; height: 48px; object-fit: cover; border-radius: 16px; border: 1px solid var(--line); }
-    .mobile-brand h2 { margin:0; font-size: 25px; letter-spacing:-.04em; }
-    .mobile-brand small { display:block; color: var(--bark); font-weight:900; letter-spacing:.14em; text-transform:uppercase; font-size:9px; }
-    .mobile-content { padding: 14px; display: grid; gap: 12px; flex: 1; }
+    .mobile-brand { display: flex; align-items: center; gap: 10px; }
+    .mobile-brand img { width: 44px; height: 32px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+    .mobile-brand h2 { margin: 0; font-size: 20px; letter-spacing: -.02em; font-family: Georgia, serif; }
+    .mobile-brand small { display: block; color: var(--bark); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 8px; }
+    
+    .mobile-content { padding: 14px; display: grid; gap: 12px; flex: 1; overflow-y: auto; }
     .mobile-card {
-      padding: 15px;
-      border-radius: 24px;
-      background: rgba(255,255,255,.82);
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .85);
       border: 1px solid var(--line);
-      box-shadow: 0 14px 30px rgba(92,64,35,.06);
+      box-shadow: 0 8px 20px rgba(92, 64, 35, .04);
     }
     .mobile-feature {
       color: white;
-      padding: 20px;
-      border-radius: 28px;
+      padding: 18px;
+      border-radius: 20px;
       background: linear-gradient(135deg, var(--pine), var(--ink));
     }
-    .mobile-feature small { color: var(--honey-2); font-weight: 950; letter-spacing: .18em; text-transform: uppercase; font-size: 10px; }
-    .mobile-feature h3 { margin: 8px 0; font-size: 27px; line-height: 1.05; }
-    .mobile-feature p { margin: 0; color: rgba(255,255,255,.78); font-size: 13px; line-height: 1.55; }
+    .mobile-feature small { color: var(--honey-2); font-weight: 900; letter-spacing: .16em; text-transform: uppercase; font-size: 9px; }
+    .mobile-feature h3 { margin: 6px 0; font-size: 22px; font-family: Georgia, serif; line-height: 1.1; }
+    .mobile-feature p { margin: 0; color: rgba(255, 255, 255, .8); font-size: 12px; line-height: 1.5; }
     .mobile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .metric span { display:block; color: var(--muted); font-size: 12px; font-weight: 750; }
-    .metric b { display:block; margin-top: 5px; font-size: 23px; color: var(--ink); }
-    .pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 6px 10px; font-size: 11px; font-weight: 950; white-space: nowrap; }
+    
+    .metric span { display: block; color: var(--muted); font-size: 11px; font-weight: 750; }
+    .metric b { display: block; margin-top: 4px; font-size: 20px; color: var(--ink); font-family: Georgia, serif; }
+    
+    .pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 800; white-space: nowrap; }
     .pill.green { background: #dcefdc; color: #245b37; }
     .pill.amber { background: #ffedc7; color: #8a4c16; }
     .pill.dark { background: var(--ink); color: white; }
-    .stage-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; }
+    
+    .stage-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 12px; }
     .stage-row:first-of-type { border-top: 0; }
-    .mobile-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; padding: 0 14px 14px; }
-    .mobile-tabs button { border: 0; text-align: center; padding: 10px 4px; border-radius: 14px; font-size: 10px; font-weight: 950; color: var(--muted); background: rgba(255,255,255,.7); }
-    .mobile-tabs button.active { color: white; background: var(--ink); }
+    
+    .mobile-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 0 12px 12px; }
+    .mobile-tabs button { border: 0; text-align: center; padding: 8px 2px; border-radius: 12px; font-size: 9px; font-weight: 800; color: var(--muted); background: rgba(255, 255, 255, .7); }
+    .mobile-tabs button.active { color: white; background: var(--pine); }
 
-    .panel-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; }
+    .panel-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 20px; }
+    
     .card {
-      border-radius: 30px;
-      padding: 22px;
-      background: rgba(255,255,255,.78);
+      border-radius: 24px;
+      padding: 24px;
+      background: rgba(255, 255, 255, .82);
       border: 1px solid var(--line);
-      box-shadow: 0 18px 60px rgba(92,64,35,.08);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
     }
-    .card h2, .card h3 { margin: 0 0 10px; color: var(--ink); letter-spacing: -.035em; }
-    .card h2 { font-size: clamp(30px, 4vw, 48px); }
-    .card h3 { font-size: 22px; }
-    .card p { color: var(--muted); line-height: 1.65; margin: 0; }
-    .card .icon { font-size: 26px; margin-bottom: 12px; display: inline-block; }
+    .card h2, .card h3 { margin: 0 0 10px; color: var(--ink); letter-spacing: -.02em; font-family: Georgia, serif; }
+    .card h2 { font-size: clamp(26px, 3.5vw, 40px); }
+    .card h3 { font-size: 20px; }
+    .card p { color: var(--muted); line-height: 1.65; margin: 0; font-size: 15px; }
+    .card .icon { font-size: 24px; margin-bottom: 12px; display: inline-block; }
+    
     .section-title { margin-bottom: 16px; }
-    .section-title h2 { margin: 0; color: var(--ink); font-size: clamp(30px, 4vw, 48px); letter-spacing: -.045em; }
-    .section-title p { color: var(--muted); line-height: 1.7; max-width: 760px; }
+    .section-title h2 { margin: 0; color: var(--ink); font-size: clamp(28px, 3.5vw, 40px); font-family: Georgia, serif; }
+    .section-title p { color: var(--muted); line-height: 1.65; max-width: 720px; margin-top: 6px; }
+    
     .grid { display: grid; gap: 16px; }
     .grid.four { grid-template-columns: repeat(4, 1fr); }
     .grid.three { grid-template-columns: repeat(3, 1fr); }
     .grid.two { grid-template-columns: repeat(2, 1fr); }
-    .screen-card { min-height: 190px; display: flex; flex-direction: column; justify-content: space-between; }
-    .screen-card footer { margin-top: 18px; display:flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--bark); font-weight: 950; font-size: 13px; }
+    
+    .screen-card { min-height: 180px; display: flex; flex-direction: column; justify-content: space-between; }
+    .screen-card footer { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--bark); font-weight: 800; font-size: 12px; }
+    
     .matrix { overflow: hidden; padding: 0; }
-    .matrix-row { display: grid; grid-template-columns: 1fr 1fr 145px; gap: 0; border-top: 1px solid var(--line); }
+    .matrix-row { display: grid; grid-template-columns: 1fr 1fr 130px; gap: 0; border-top: 1px solid var(--line); }
     .matrix-row:first-child { border-top: 0; }
-    .matrix-row > div { padding: 16px; }
-    .matrix-row strong { display:block; margin-bottom: 5px; }
-    .memory-list { display:grid; gap: 12px; }
-    .memory-item { display:flex; gap: 13px; align-items:flex-start; padding: 14px; border-radius: 22px; background: rgba(255,255,255,.58); border: 1px solid var(--line); }
-    .avatar { width:42px; height:42px; border-radius:16px; display:grid; place-items:center; background: var(--sage); color: var(--pine); font-weight:950; flex:0 0 auto; }
-    .progress { height: 12px; border-radius: 999px; background: #f5dfad; overflow: hidden; }
-    .progress span { display:block; height:100%; border-radius:inherit; background: linear-gradient(90deg, var(--honey), var(--pine-2)); }
-    .footer { padding: 10px 0 60px; color: var(--muted); }
+    .matrix-row > div { padding: 14px 18px; }
+    .matrix-row strong { display: block; margin-bottom: 4px; color: var(--ink); }
+    
+    .memory-list { display: grid; gap: 12px; }
+    .memory-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, .6); border: 1px solid var(--line); }
+    .avatar { width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; background: var(--sage); color: var(--pine); font-weight: 900; flex: 0 0 auto; font-family: Georgia, serif; }
+    
+    .progress { height: 10px; border-radius: 999px; background: #f2e2cb; overflow: hidden; }
+    .progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--honey), var(--pine)); }
+    
+    .footer { padding: 10px 0 50px; color: var(--muted); }
     .footer .card { display: flex; justify-content: space-between; gap: 20px; align-items: center; }
 
     [data-view] { display: none; }
@@ -311,7 +362,7 @@
 
     @media (max-width: 1080px) {
       .home-hero, .panel-grid { grid-template-columns: 1fr; }
-      .phone { width: min(470px, 100%); margin: 0 auto; }
+      .phone { width: min(440px, 100%); margin: 0 auto; }
       .grid.four, .grid.three { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 820px) {
@@ -319,18 +370,18 @@
       .brand, .nav-actions { min-width: 0; }
       .nav-center { flex-wrap: wrap; justify-content: flex-start; }
       .app-shell { grid-template-columns: 1fr; }
-      .rail { position: static; height: auto; display: flex; overflow-x: auto; border-radius: 24px; }
-      .rail button { flex: 0 0 52px; }
+      .rail { position: static; height: auto; display: flex; overflow-x: auto; border-radius: 20px; }
+      .rail button { flex: 0 0 48px; }
       .hero-copy { min-height: auto; }
       .app-status-row { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 640px) {
-      .shell { width: min(100% - 22px, 1180px); }
+      .shell { width: min(100% - 20px, 1200px); }
       .grid.four, .grid.three, .grid.two { grid-template-columns: 1fr; }
       .matrix-row { grid-template-columns: 1fr; }
       .home-hero { padding: 12px; }
-      .hero-copy { padding: 24px; border-radius: 26px; }
-      .hero-copy h1 { font-size: 46px; }
+      .hero-copy { padding: 20px; border-radius: 20px; }
+      .hero-copy h1 { font-size: 38px; }
       .app-status-row, .mobile-grid { grid-template-columns: 1fr; }
       .footer .card { align-items: flex-start; flex-direction: column; }
     }
@@ -340,7 +391,7 @@
   <header class="topbar">
     <nav class="shell nav" aria-label="Primary navigation">
       <a class="brand" href="#top" aria-label="Moms MemoryTree home">
-        <img class="brand-logo" src="assets/memorytree-logo.svg" alt="Moms MemoryTree storybook family tree logo" />
+        <img class="brand-logo" src="1000016553.png" alt="Moms MemoryTree storybook family tree logo" />
         <span><small>Private family archive</small><strong>Moms MemoryTree</strong></span>
       </a>
       <div class="nav-center" aria-label="Dashboard sections">
@@ -370,9 +421,12 @@
         <div class="home-hero">
           <div class="hero-copy">
             <div>
+              <div class="hero-banner-art">
+                <img src="1000016553.png" alt="Moms MemoryTree Storybook Illustration Header" />
+              </div>
               <p class="eyebrow">🌳 app home</p>
               <h1>Visit Mom, not folders.</h1>
-              <p>Moms MemoryTree turns family history into an app-like home: stories, people, private media, relationships, and legacy messages are organized around the people your family loves.</p>
+              <p>Moms MemoryTree turns family history into a warm, app-like home: stories, generations, private media, relationships, and legacy messages are lovingly organized around the people who matter most.</p>
               <span class="quote">“Don't just leave your family pictures. Leave them your story.”</span>
               <div class="cta-row">
                 <button class="btn primary" data-tab="dashboard">Open dashboard</button>
@@ -391,7 +445,7 @@
             <div class="phone-screen">
               <div class="mobile-header">
                 <div class="mobile-brand">
-                  <img src="assets/memorytree-logo.svg" alt="Moms MemoryTree logo" />
+                  <img src="1000016553.png" alt="Moms MemoryTree logo" />
                   <div><small>Family archive</small><h2 id="mobile-title">Home</h2></div>
                 </div>
               </div>
@@ -409,48 +463,64 @@
       </section>
 
       <section class="card" data-view="dashboard">
-        <div class="section-title"><p class="eyebrow">operator dashboard</p><h2>Everything honest, visible, and ready for iteration.</h2><p>This GitHub root now behaves like the product dashboard: tabbed surfaces, app-style navigation, provider status, storage economics, and production boundaries.</p></div>
+        <div class="section-title">
+          <p class="eyebrow">operator dashboard</p>
+          <h2>Everything honest, visible, and ready for iteration.</h2>
+          <p>This GitHub root behaves like a thoughtful product dashboard: tabbed surfaces, app-style navigation, provider status, storage economics, and production boundaries.</p>
+        </div>
         <div class="grid four">
-          <article class="card"><span class="icon">✅</span><h3>13/13 foundation</h3><p>Local app shell, models, storage boundaries, tests, migrations, and validation gates are complete.</p></article>
-          <article class="card"><span class="icon">🔐</span><h3>Private media</h3><p>Signed access and metadata boundaries are represented without pretending live provider setup is finished.</p></article>
-          <article class="card"><span class="icon">💾</span><h3>Storage economics</h3><p>Usage, quota, addon, cost, revenue, and margin remain visible before scale.</p></article>
+          <article class="card"><span class="icon">✅</span><h3>13/13 foundation</h3><p>Local app shell, data models, storage boundaries, tests, migrations, and validation gates are complete.</p></article>
+          <article class="card"><span class="icon">🔐</span><h3>Private media</h3><p>Signed access and metadata boundaries are securely represented without pretending live provider setup is finished.</p></article>
+          <article class="card"><span class="icon">💾</span><h3>Storage economics</h3><p>Usage, quota, addon, cost, revenue, and family margin remain transparent before scale.</p></article>
           <article class="card"><span class="icon">🚧</span><h3>9 known blockers</h3><p>Provider-live work remains intentionally marked until connected and verified.</p></article>
         </div>
       </section>
 
       <section class="panel-grid" data-view="tree">
         <article class="card">
-          <div class="section-title"><p class="eyebrow">memorytree</p><h2>Family relationships first.</h2><p>The product model centers people and connections, so memories can be explored through Mom, children, grandchildren, places, and moments — not flat folders.</p></div>
+          <div class="section-title">
+            <p class="eyebrow">memorytree</p>
+            <h2>Family relationships first.</h2>
+            <p>Our product model centers people and cherished connections, allowing memories to be explored naturally through Mom, children, grandchildren, places, and milestones — rather than flat directories.</p>
+          </div>
           <div class="memory-list">
-            <div class="memory-item"><span class="avatar">M</span><div><strong>Mom</strong><p>Anchor profile for stories, life lessons, memories, and future legacy messages.</p></div></div>
-            <div class="memory-item"><span class="avatar">C</span><div><strong>Children and grandchildren</strong><p>Family members can be modeled with roles and relationships before live invitations are enabled.</p></div></div>
-            <div class="memory-item"><span class="avatar">♡</span><div><strong>People tied to stories</strong><p>Every memory can carry person, date, location, category, tags, and privacy context.</p></div></div>
+            <div class="memory-item"><span class="avatar">M</span><div><strong>Mom</strong><p>Anchor profile for personal stories, life lessons, cherished keepsakes, and future legacy messages.</p></div></div>
+            <div class="memory-item"><span class="avatar">C</span><div><strong>Children and grandchildren</strong><p>Family members can be modeled with custom roles and relations before live invitations are enabled.</p></div></div>
+            <div class="memory-item"><span class="avatar">♡</span><div><strong>People tied to stories</strong><p>Every memory can carry person tags, exact dates, locations, categories, and private context.</p></div></div>
           </div>
         </article>
-        <article class="card"><span class="icon">🌲</span><h3>Tree readiness</h3><p>Unlimited-generation data modeling is present. The live graph view can be expanded from this foundation.</p><div style="margin-top:20px" class="progress"><span style="width:74%"></span></div></article>
+        <article class="card"><span class="icon">🌲</span><h3>Tree readiness</h3><p>Unlimited-generation data modeling is present out-of-the-box. The live graph view can easily expand from this robust foundation.</p><div style="margin-top:20px" class="progress"><span style="width:74%"></span></div></article>
       </section>
 
       <section class="panel-grid" data-view="record">
         <article class="card">
-          <div class="section-title"><p class="eyebrow">record a memory</p><h2>A story-first capture flow.</h2><p>The app supports memory category, date, location, associated person, tags, privacy, and private media metadata — built for recording real family context.</p></div>
+          <div class="section-title">
+            <p class="eyebrow">record a memory</p>
+            <h2>A warm, story-first capture flow.</h2>
+            <p>Designed for capturing real family context effortlessly: prompt categories, dates, locations, associated family members, tags, privacy settings, and private media metadata.</p>
+          </div>
           <div class="grid two">
-            <div class="card"><h3>Prompt</h3><p>“Tell us about the day this photo was taken.”</p></div>
-            <div class="card"><h3>Privacy</h3><p>Family-only by default, with private media guarded behind signed access boundaries.</p></div>
+            <div class="card"><h3>Prompt</h3><p>“Tell us about the day this photo was taken under the pines.”</p></div>
+            <div class="card"><h3>Privacy</h3><p>Family-only by default, with private media securely guarded behind signed access boundaries.</p></div>
           </div>
         </article>
-        <article class="card"><span class="icon">🎙️</span><h3>Capture chain</h3><p>Story → person → privacy → media metadata → archive. Live media providers stay marked until verified.</p></article>
+        <article class="card"><span class="icon">🎙️</span><h3>Capture chain</h3><p>Story → person → privacy → media metadata → archive. Live media providers stay marked until fully verified.</p></article>
       </section>
 
       <section class="panel-grid" data-view="legacy">
         <article class="card">
-          <div class="section-title"><p class="eyebrow">legacy custody</p><h2>Future access without premature exposure.</h2><p>Custodians can be modeled now, while private memories remain protected until verified activation workflows exist.</p></div>
+          <div class="section-title">
+            <p class="eyebrow">legacy custody</p>
+            <h2>Future access without premature exposure.</h2>
+            <p>Trusted custodians can be modeled securely today, while private memories remain completely protected until verified activation workflows are triggered.</p>
+          </div>
           <div class="card matrix" role="table" aria-label="Provider status matrix">
-            <div class="matrix-row" role="row"><div><strong>React runtime</strong><span>Primary app shell and dashboard UI.</span></div><div>Reaper + React/Vite</div><div><span class="pill green">Ready</span></div></div>
+            <div class="matrix-row" role="row"><div><strong>React runtime</strong><span>Primary app shell and dashboard UI.</span></div><div>React/Vite</div><div><span class="pill green">Ready</span></div></div>
             <div class="matrix-row" role="row"><div><strong>Auth and database</strong><span>Provider abstraction, migrations, RLS, and boundaries exist.</span></div><div>Supabase</div><div><span class="pill amber">Needs setup</span></div></div>
             <div class="matrix-row" role="row"><div><strong>Private media</strong><span>Storage paths, metadata, buckets, and signed function source exist.</span></div><div>Supabase Storage</div><div><span class="pill amber">Needs verify</span></div></div>
           </div>
         </article>
-        <article class="card"><span class="icon">🛡️</span><h3>Boundary</h3><p>The dashboard shows what is real now and what still requires live provider connection. No false production claims.</p></article>
+        <article class="card"><span class="icon">🛡️</span><h3>Boundary</h3><p>The dashboard clearly shows what is real today and what still requires live provider connection. No false production claims.</p></article>
       </section>
 
       <section class="grid four" aria-label="App screens">
@@ -481,15 +551,15 @@ npm run validate</code></pre></article>
     const copy = {
       home: {
         title: 'Home',
-        html: '<div class="mobile-feature"><small>App home</small><h3>Visit Mom, not folders.</h3><p>Enter through people, stories, and relationships — with the storybook tree as the family mark.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Foundation</span><b>13/13</b></div><div class="mobile-card metric"><span>Memories</span><b>3</b></div></div><div class="mobile-card"><h3>Today\'s prompt</h3><p>Tell us about the day this photo was taken.</p></div>'
+        html: '<div class="mobile-feature"><small>App home</small><h3>Visit Mom, not folders.</h3><p>Enter through people, stories, and relationships — with the storybook tree as the warm family mark.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Foundation</span><b>13/13</b></div><div class="mobile-card metric"><span>Memories</span><b>3</b></div></div><div class="mobile-card"><h3>Today\'s prompt</h3><p>Tell us about the day this photo was taken under the pines.</p></div>'
       },
       dashboard: {
         title: 'Dashboard',
-        html: '<div class="mobile-feature"><small>Operator view</small><h3>Foundation complete. Provider gates visible.</h3><p>Ready for product UI iteration without false live-provider claims.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Private media</span><b>174 MB</b></div><div class="mobile-card metric"><span>Blockers</span><b>9</b></div></div><div class="mobile-card"><h3>Provider matrix</h3><div class="stage-row"><span>Runtime</span><span class="pill green">Ready</span></div><div class="stage-row"><span>Storage</span><span class="pill amber">Setup</span></div><div class="stage-row"><span>Backups / AI / payments</span><span class="pill dark">Foundation</span></div></div>'
+        html: '<div class="mobile-feature"><small>Operator view</small><h3>Foundation complete. Provider gates visible.</h3><p>Ready for product UI iteration without false live-provider claims.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Private media</span><b>174 MB</b></div><div class="mobile-card metric"><span>Blockers</span><b>9</b></div></div><div class="mobile-card"><h3>Provider matrix</h3><div class="stage-row"><span>Runtime</span><span class="pill green">Ready</span></div><div class="stage-row"><span>Storage</span><span class="pill amber">Setup</span></div><div class="stage-row"><span>Backups / AI</span><span class="pill dark">Foundation</span></div></div>'
       },
       tree: {
         title: 'MemoryTree',
-        html: '<div class="mobile-feature"><small>Family graph</small><h3>People, relationships, and stories stay connected.</h3><p>Mom becomes the center of a living archive, not another folder.</p></div><div class="mobile-card"><h3>Relationships</h3><div class="stage-row"><span>Mom</span><span>Anchor</span></div><div class="stage-row"><span>Children</span><span>Linked</span></div><div class="stage-row"><span>Grandchildren</span><span>Modeled</span></div></div>'
+        html: '<div class="mobile-feature"><small>Family graph</small><h3>People, relationships, and stories stay connected.</h3><p>Mom becomes the center of a living archive, not another directory.</p></div><div class="mobile-card"><h3>Relationships</h3><div class="stage-row"><span>Mom</span><span>Anchor</span></div><div class="stage-row"><span>Children</span><span>Linked</span></div><div class="stage-row"><span>Grandchildren</span><span>Modeled</span></div></div>'
       },
       record: {
         title: 'Record',
