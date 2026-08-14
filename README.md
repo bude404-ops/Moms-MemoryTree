@@ -12,6 +12,8 @@ Moms MemoryTree is a private family-centered digital legacy app. It helps famili
 
 **Written app index:** [`docs/APP_INDEX.md`](docs/APP_INDEX.md)
 
+**Repository structure:** [`docs/REPOSITORY_STRUCTURE.md`](docs/REPOSITORY_STRUCTURE.md)
+
 The working dashboard, coded demo mirror, and app index show:
 
 - what Moms MemoryTree is
@@ -67,11 +69,11 @@ The current app opens to a dashboard that separates:
 This repository is the source of truth for:
 
 - React + TypeScript + Vite application code
-- Supabase provider configuration
+- provider configuration kept behind service boundaries
 - database migrations
 - Row Level Security policies
 - private storage bucket definitions
-- signed media Edge Function source
+- signed media access function source
 - provider abstractions
 - validation scripts
 - documentation

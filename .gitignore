@@ -1,10 +1,46 @@
-node_modules
-dist
+# dependencies
+node_modules/
+
+# builds and test output
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# environment and credentials
 .env
 .env.local
 .env.*.local
-coverage
+*.pem
+*.key
+*.p12
+*.pfx
+
+# provider local state
+.vercel/
+.supabase/
+
+# private/generated media must never be committed
+uploads/
+media/
+private-media/
+user-media/
+*.webm
+*.mp4
+*.mov
+*.m4v
+*.mp3
+*.m4a
+*.wav
+
+# local artifacts
 .DS_Store
+Thumbs.db
 *.log
-.vercel
-.supabase
+*.tmp
+*.bak
+*.swp
+*.swo
+screenshots/
+playwright-report/
+test-results/
