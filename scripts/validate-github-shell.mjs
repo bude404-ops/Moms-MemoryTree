@@ -46,6 +46,32 @@ for (const phrase of requiredPrinciples) {
 
 expect(html.includes('localStorage'), 'GitHub Pages shell must keep browser-side persistence ready for mock services.');
 expect(html.includes('moms-memorytree-family-tree'), 'Family tree persistence key must remain stable for the mock shell.');
+expect(html.includes('moms-memorytree-stage4-prototype'), 'Stage 4 prototype state key must remain stable.');
+
+const interactiveIds = [
+  'mock-create-account',
+  'mock-reset',
+  'send-invite',
+  'save-memory',
+  'memory-list',
+  'timeline-list',
+  'prototype-status'
+];
+for (const id of interactiveIds) {
+  expect(html.includes(`id="${id}"`), `Stage 4 interactive shell must include #${id}.`);
+}
+
+const stage4Phrases = [
+  'Create preview account',
+  'Save invitation',
+  'Save memory',
+  'Upload simulation',
+  'saved to your family tree'
+];
+for (const phrase of stage4Phrases) {
+  expect(html.includes(phrase), `Stage 4 shell must include interaction text: ${phrase}.`);
+}
+
 expect(!/supabase\.|@supabase|SUPABASE_/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
 
 if (failures.length) {

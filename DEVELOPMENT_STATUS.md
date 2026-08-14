@@ -78,10 +78,12 @@
 - Stage 3 GitHub application shell completed in `docs/STAGE_03_GITHUB_APPLICATION_SHELL_REPORT.md`.
 - Root `index.html` now follows the app navigation shell: Home, Memories, Family, Record, Timeline, Legacy.
 - `npm run validate:github-shell` added to enforce GitHub Pages shell requirements.
+- Stage 4 interactive prototype completed in `docs/STAGE_04_INTERACTIVE_PROTOTYPE_REPORT.md`.
+- Root `index.html` now supports browser-local mock account setup, family tree persistence, invitations, memory creation, upload simulation, and generated timeline rendering.
 
 ## IN PROGRESS
 
-- Stage 4 `index.html` interactive prototype is next.
+- Stage 5 mock service layer hardening is next.
 - Live production provider deployment remains pending provider selection/credentials.
 - Real cloud upload/playback requires an approved production storage/backend provider.
 - Family invitation email delivery is architecture-only.
