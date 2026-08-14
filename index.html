@@ -165,6 +165,42 @@
       align-items: stretch;
       padding: 24px;
     }
+    .simple-home {
+      padding: 18px;
+    }
+    .photo-home {
+      min-height: min(72vh, 720px);
+      border-radius: 26px;
+      overflow: hidden;
+      position: relative;
+      display: grid;
+      align-items: end;
+      background: var(--cream);
+      box-shadow: 0 20px 50px rgba(43, 29, 20, .16);
+    }
+    .uploaded-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .photo-home::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(43,29,20,.02) 20%, rgba(43,29,20,.28) 62%, rgba(43,29,20,.72) 100%);
+      pointer-events: none;
+    }
+    .photo-actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: clamp(20px, 4vw, 36px);
+    }
     
     .hero-copy {
       min-height: 560px;
@@ -380,6 +416,8 @@
       .grid.four, .grid.three, .grid.two { grid-template-columns: 1fr; }
       .matrix-row { grid-template-columns: 1fr; }
       .home-hero { padding: 12px; }
+      .simple-home { padding: 10px; }
+      .photo-home { min-height: 68vh; border-radius: 20px; }
       .hero-copy { padding: 20px; border-radius: 20px; }
       .hero-copy h1 { font-size: 38px; }
       .app-status-row, .mobile-grid { grid-template-columns: 1fr; }
@@ -417,48 +455,13 @@
     </aside>
 
     <div class="workspace">
-      <section class="home-panel" data-view="home">
-        <div class="home-hero">
-          <div class="hero-copy">
-            <div>
-              <div class="hero-banner-art">
-                <img src="1000016553.png" alt="Moms MemoryTree Storybook Illustration Header" />
-              </div>
-              <p class="eyebrow">🌳 app home</p>
-              <h1>Visit Mom, not folders.</h1>
-              <p>Moms MemoryTree turns family history into a warm, app-like home: stories, generations, private media, relationships, and legacy messages are lovingly organized around the people who matter most.</p>
-              <span class="quote">“Don't just leave your family pictures. Leave them your story.”</span>
-              <div class="cta-row">
-                <button class="btn primary" data-tab="dashboard">Explore features</button>
-                <button class="btn secondary" data-tab="record">Record a memory</button>
-              </div>
-            </div>
-            <div class="app-status-row">
-              <div class="status-chip"><span>Stories</span><b>Record</b></div>
-              <div class="status-chip"><span>Family Tree</span><b>Connect</b></div>
-              <div class="status-chip"><span>Media Vault</span><b>Protect</b></div>
-              <div class="status-chip"><span>Legacy</span><b>Share</b></div>
-            </div>
+      <section class="home-panel simple-home" data-view="home">
+        <div class="photo-home" aria-label="Uploaded family memory photo">
+          <img class="uploaded-photo" src="1000016553.png" alt="Uploaded family memory" />
+          <div class="photo-actions" aria-label="Home actions">
+            <button class="btn primary" data-tab="record">Record a memory</button>
+            <button class="btn secondary" data-tab="dashboard">View features</button>
           </div>
-
-          <aside class="phone" aria-label="Moms MemoryTree mobile app preview">
-            <div class="phone-screen">
-              <div class="mobile-header">
-                <div class="mobile-brand">
-                  <img src="1000016553.png" alt="Moms MemoryTree logo" />
-                  <div><small>Family archive</small><h2 id="mobile-title">Home</h2></div>
-                </div>
-              </div>
-              <div class="mobile-content" id="mobile-content"></div>
-              <div class="mobile-tabs">
-                <button class="active" data-tab="home">Home</button>
-                <button data-tab="dashboard">Features</button>
-                <button data-tab="tree">Tree</button>
-                <button data-tab="record">Record</button>
-                <button data-tab="legacy">Legacy</button>
-              </div>
-            </div>
-          </aside>
         </div>
       </section>
 
@@ -573,8 +576,10 @@
       const selected = copy[tab] ? tab : 'home';
       controls.forEach((control) => control.classList.toggle('active', control.dataset.tab === selected));
       views.forEach((view) => view.classList.toggle('active', view.dataset.view === selected));
-      mobileTitle.textContent = copy[selected].title;
-      mobileContent.innerHTML = copy[selected].html;
+      if (mobileTitle && mobileContent) {
+        mobileTitle.textContent = copy[selected].title;
+        mobileContent.innerHTML = copy[selected].html;
+      }
       window.history.replaceState(null, '', `#${selected}`);
     }
 
