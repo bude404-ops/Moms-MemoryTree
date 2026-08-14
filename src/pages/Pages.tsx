@@ -1,4 +1,4 @@
-import { AlertTriangle, Camera, Clock, CreditCard, Database, FileHeart, Home, LockKeyhole, Mic, ShieldCheck, TrendingUp, Upload, UsersRound } from 'lucide-react';
+import { AlertTriangle, Camera, CheckCircle2, Clock, CreditCard, Database, FileHeart, Gauge, GitBranch, Home, LockKeyhole, Mic, Server, ShieldCheck, TrendingUp, Upload, UsersRound, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, Person, PrivacyLevel } from '../types/domain';
 import type { UploadProgressEvent } from '../lib/mediaStorage';
@@ -23,6 +23,110 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
 
 function SectionTitle({ eyebrow, title, children }: { eyebrow: string; title: string; children?: React.ReactNode }) {
   return <div className="mb-4"><p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-700">{eyebrow}</p><h2 className="text-2xl font-semibold text-stone-900">{title}</h2>{children && <p className="mt-1 text-sm leading-6 text-stone-600">{children}</p>}</div>;
+}
+
+
+const foundationStages = [
+  ['0', 'Reaper platform capability audit', 'Complete'],
+  ['1', 'Reaper-first architecture', 'Complete'],
+  ['2', 'Supabase to Reaper migration map', 'Complete'],
+  ['3', 'Provider abstraction', 'Complete'],
+  ['4', 'GitHub source of truth', 'Complete'],
+  ['5', 'Environment management', 'Complete'],
+  ['6', 'Security baseline', 'Complete'],
+  ['7', 'Data model baseline', 'Complete'],
+  ['8', 'Media pipeline baseline', 'Complete'],
+  ['9', 'Legacy and archive baseline', 'Complete'],
+  ['10', 'Backup and recovery baseline', 'Complete'],
+  ['11', 'Deployment readiness', 'Complete'],
+  ['12', 'Pre-dashboard handoff', 'Complete']
+] as const;
+
+const providerMatrix = [
+  ['Mini App runtime', 'Reaper', 'Ready', 'Primary app shell and hosted runtime.'],
+  ['Auth', 'Supabase provider', 'Needs live config', 'Behind AuthService; Reaper-native replacement unavailable here.'],
+  ['Database', 'Supabase PostgreSQL/RLS', 'Needs live deployment', 'Behind DatabaseService and AuthorizationService.'],
+  ['Private media', 'Supabase Storage', 'Needs buckets/function', 'Behind MediaStorageService with signed access rules.'],
+  ['Backups', 'Unavailable placeholder', 'Foundation only', 'Do not claim backup protection until jobs and restore pass.'],
+  ['Payments', 'Unavailable placeholder', 'Foundation only', 'Plans exist; cards and checkout are not connected.'],
+  ['AI processing', 'Unavailable placeholder', 'Foundation only', 'Transcription/summaries require a future provider.'],
+  ['Queue/jobs', 'Unavailable placeholder', 'Foundation only', 'Needed for archive export, thumbnails, backups, and AI.']
+] as const;
+
+const securityGates = [
+  'No secrets committed',
+  'Placeholder-only environment example',
+  'RLS/static family isolation validation',
+  'Private media requires signed access',
+  'Live Family A / Family B testing still required before production'
+];
+
+const dashboardNextActions = [
+  'Push dashboard commit with temporary GitHub authorization.',
+  'Deploy Supabase migrations and signed media function when provider credentials exist.',
+  'Run live cross-family isolation tests.',
+  'Keep dashboard copy honest for foundation-only services.',
+  'Design creator/operator controls after the status panels are stable.'
+];
+
+export function AppDashboardPage({ archive, mode }: { archive: ArchiveDataState; mode: string }) {
+  const runtime = getRuntimeReadiness();
+  const completedStages = foundationStages.filter(([, , status]) => status === 'Complete').length;
+  const blockers = runtime.filter(item => !item.ready).length + 5;
+  const totalBytes = archive.media.reduce((sum, item) => sum + item.bytes, 0);
+  const plan = archive.storagePlans.find(item => item.id === archive.subscription.planId) ?? planForFamily(archive.family, archive.storagePlans);
+  const summary = calculateStorageCostSummary({ usage: archive.storage, plan, addons: archive.storageAddons, assumptions: archive.costAssumptions });
+
+  return <div className="space-y-5">
+    <Card className="overflow-hidden bg-gradient-to-br from-stone-950 via-stone-900 to-emerald-950 text-white">
+      <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-amber-200"><Gauge size={16} /> App dashboard</p>
+          <h1 className="mt-2 text-4xl font-semibold tracking-tight">Foundation is complete. Dashboard phase is live.</h1>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-200">This panel separates what is ready, what is provider-blocked, and what must not be overstated before production. Quiet truth beats fragile claims.</p>
+        </div>
+        <div className="rounded-3xl bg-white/10 p-4 ring-1 ring-white/15">
+          <p className="text-xs uppercase tracking-[0.2em] text-amber-200">Current mode</p>
+          <b className="text-2xl capitalize">{mode}</b>
+          <p className="mt-1 text-xs text-stone-300">Data source: {archive.source}</p>
+        </div>
+      </div>
+    </Card>
+
+    <div className="grid gap-4 md:grid-cols-4">
+      <Card><CheckCircle2 className="mb-3 text-emerald-700" /><p className="text-sm text-stone-500">Foundation stages</p><b className="text-3xl text-stone-900">{completedStages}/13</b><p className="mt-1 text-xs text-stone-500">Stages 0–12 complete.</p></Card>
+      <Card><FileHeart className="mb-3 text-rose-700" /><p className="text-sm text-stone-500">Memories tracked</p><b className="text-3xl text-stone-900">{archive.memories.length}</b><p className="mt-1 text-xs text-stone-500">Demo or live provider data.</p></Card>
+      <Card><Database className="mb-3 text-amber-700" /><p className="text-sm text-stone-500">Private media tracked</p><b className="text-3xl text-stone-900">{formatBytes(totalBytes)}</b><p className="mt-1 text-xs text-stone-500">Not a backup claim.</p></Card>
+      <Card><AlertTriangle className="mb-3 text-orange-700" /><p className="text-sm text-stone-500">Known blockers</p><b className="text-3xl text-stone-900">{blockers}</b><p className="mt-1 text-xs text-stone-500">Mostly provider/live gates.</p></Card>
+    </div>
+
+    <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+      <Card><SectionTitle eyebrow="Foundation index" title="Every stage is closed before dashboard work">These are source-controlled foundations, not production launch claims.</SectionTitle>
+        <div className="grid gap-2 sm:grid-cols-2">{foundationStages.map(([stage, label, status]) => <div key={stage} className="flex items-center justify-between gap-3 rounded-2xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-100"><div><b>Stage {stage}</b><p className="text-sm text-stone-600">{label}</p></div><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">{status}</span></div>)}</div>
+      </Card>
+      <Card><SectionTitle eyebrow="Storage economics" title="Costs stay visible early">Numbers are estimates from configured assumptions, not invoices.</SectionTitle>
+        <div className="rounded-3xl bg-stone-950 p-5 text-white"><p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-200">{plan.label}</p><b className="mt-2 block text-3xl">{summary.percentUsed.toFixed(1)}% used</b><div className="mt-4 h-4 rounded-full bg-white/20"><div className="h-4 rounded-full bg-gradient-to-r from-amber-400 to-emerald-300" style={{ width: `${summary.percentUsed}%` }} /></div><p className="mt-3 text-sm text-stone-200">{formatBytes(summary.usedBytes)} of {formatBytes(summary.allowedBytes)}</p></div>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2"><div className="rounded-2xl bg-amber-50 p-4"><p className="text-sm text-stone-500">Estimated monthly cost</p><b className="text-xl">{formatCurrency(summary.estimatedTotalCostCents, plan.currency)}</b></div><div className="rounded-2xl bg-emerald-50 p-4"><p className="text-sm text-stone-500">Subscription revenue</p><b className="text-xl">{formatCurrency(summary.monthlyRevenueCents, plan.currency)}</b></div></div>
+      </Card>
+    </div>
+
+    <Card><SectionTitle eyebrow="Provider matrix" title="Reaper-first where possible, external only where necessary">Blocked capabilities stay explicit so the dashboard does not sell ghosts.</SectionTitle>
+      <div className="grid gap-3 md:grid-cols-2">{providerMatrix.map(([capability, provider, status, detail]) => <div key={capability} className="rounded-2xl border border-amber-100 bg-white p-4"><div className="flex items-center justify-between gap-3"><b>{capability}</b><span className={`rounded-full px-3 py-1 text-xs font-bold ${status === 'Ready' ? 'bg-emerald-100 text-emerald-800' : status === 'Foundation only' ? 'bg-stone-100 text-stone-700' : 'bg-amber-100 text-amber-900'}`}>{status}</span></div><p className="mt-1 text-sm font-semibold text-amber-800">{provider}</p><p className="mt-2 text-sm leading-6 text-stone-600">{detail}</p></div>)}</div>
+    </Card>
+
+    <div className="grid gap-5 lg:grid-cols-2">
+      <Card><SectionTitle eyebrow="Security readiness" title="Green locally, live gates still ahead" />
+        <div className="grid gap-2">{securityGates.map((gate, index) => <div key={gate} className="flex items-start gap-3 rounded-2xl bg-white p-3 ring-1 ring-amber-100">{index < 4 ? <CheckCircle2 className="mt-0.5 text-emerald-700" size={19} /> : <XCircle className="mt-0.5 text-amber-700" size={19} />}<p className="text-sm leading-6 text-stone-700">{gate}</p></div>)}</div>
+      </Card>
+      <Card><SectionTitle eyebrow="Deployment blockers" title="What must happen before production" />
+        <div className="grid gap-2">{runtime.map(item => <div key={item.id} className="rounded-2xl bg-white p-3 ring-1 ring-amber-100"><div className="flex items-center justify-between gap-3"><b className="flex items-center gap-2"><Server size={18} />{item.label}</b><span className={`rounded-full px-3 py-1 text-xs font-bold ${item.ready ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}`}>{item.ready ? 'Ready' : 'Needs setup'}</span></div><p className="mt-2 text-sm leading-6 text-stone-600">{item.detail}</p></div>)}</div>
+      </Card>
+    </div>
+
+    <Card><SectionTitle eyebrow="Next actions" title="Operator queue before deeper dashboard controls">The next dashboard pass should add interactions, not blur foundations.</SectionTitle>
+      <div className="grid gap-3 md:grid-cols-5">{dashboardNextActions.map((action, index) => <div key={action} className="rounded-2xl bg-gradient-to-br from-amber-50 to-white p-4 ring-1 ring-amber-100"><GitBranch className="mb-3 text-amber-700" /><b>0{index + 1}</b><p className="mt-2 text-sm leading-6 text-stone-600">{action}</p></div>)}</div>
+    </Card>
+  </div>;
 }
 
 export function HomePage({ archive }: { archive: ArchiveDataState }) {

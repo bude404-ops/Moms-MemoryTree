@@ -1,6 +1,6 @@
-import { BarChart3, BookOpenText, Clock3, Database, FileHeart, Home, PlusCircle, ShieldCheck, TreePine, UsersRound } from 'lucide-react';
+import { BarChart3, BookOpenText, Clock3, Database, FileHeart, Gauge, Home, PlusCircle, ShieldCheck, TreePine, UsersRound } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { FamilyPage, HomePage, LegacyPage, MemoriesPage, MemoryTreePage, RecordPage, TimelinePage, StoragePanel, CreatorCostDashboardPage } from './pages/Pages';
+import { AppDashboardPage, FamilyPage, HomePage, LegacyPage, MemoriesPage, MemoryTreePage, RecordPage, TimelinePage, StoragePanel, CreatorCostDashboardPage } from './pages/Pages';
 import { isSupabaseConfigured } from './lib/supabase';
 import { useOnboarding } from './lib/onboarding';
 import { OnboardingGate } from './components/OnboardingGate';
@@ -8,9 +8,10 @@ import { useArchiveData } from './lib/archiveData';
 import type { Memory } from './types/domain';
 import type { UploadProgressEvent } from './lib/mediaStorage';
 
-type Tab = 'home' | 'tree' | 'record' | 'memories' | 'family' | 'timeline' | 'legacy' | 'storage' | 'creator';
+type Tab = 'dashboard' | 'home' | 'tree' | 'record' | 'memories' | 'family' | 'timeline' | 'legacy' | 'storage' | 'creator';
 
 const tabs: { id: Tab; label: string; icon: typeof Home }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: Gauge },
   { id: 'home', label: 'Home', icon: Home },
   { id: 'tree', label: 'MemoryTree', icon: TreePine },
   { id: 'record', label: 'Record', icon: PlusCircle },
@@ -23,7 +24,7 @@ const tabs: { id: Tab; label: string; icon: typeof Home }[] = [
 ];
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>('home');
+  const [tab, setTab] = useState<Tab>('dashboard');
   const onboarding = useOnboarding();
   const archiveData = useArchiveData({ mode: onboarding.state.mode, activeFamily: onboarding.state.activeFamily, userId: onboarding.state.user?.id });
 
@@ -53,6 +54,7 @@ export default function App() {
       <OnboardingGate state={onboarding.state} onSignIn={onboarding.actions.signIn} onSignUp={onboarding.actions.signUp} onRequestPasswordReset={(email) => onboarding.actions.requestPasswordReset({ email })} onCreateFamily={onboarding.actions.createFirstFamily} />
       {(onboarding.state.mode === 'demo' || onboarding.state.mode === 'ready') && <>
         {onboarding.state.mode === 'ready' && <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950"><span><b>Family archive active:</b> {onboarding.state.activeFamily?.name}<span className="ml-2 text-emerald-800">Signed in as {onboarding.state.user?.email ?? 'authenticated family member'}</span></span><button onClick={() => void onboarding.actions.signOut()} className="rounded-full bg-white px-4 py-2 font-bold text-emerald-900 ring-1 ring-emerald-200">Sign out</button></div>}
+        {tab === 'dashboard' && <AppDashboardPage archive={archive} mode={onboarding.state.mode} />}
         {tab === 'home' && <HomePage archive={archive} />}
         {tab === 'tree' && <MemoryTreePage people={archive.people} relationships={archive.relationships} />}
         {tab === 'record' && <RecordPage archive={archive} onCreate={createMemory} />}
