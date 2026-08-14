@@ -187,7 +187,7 @@ Supabase RLS cannot be removed until Family A / Family B tests pass against the 
 | `src/lib/mediaUpload.ts` | Provider-neutral path prep, MIME/extension validation, upload status semantics. | Reuse unchanged. | Keep. |
 | `src/lib/repository.ts` `uploadMemoryMedia` | Uploads object to Supabase Storage and inserts metadata row. | `MediaStorageService` + `DatabaseService` transaction/compensation flow. | Split storage upload from DB metadata creation through services. |
 | `supabase/migrations/202608130002_cloud_media_storage_hardening.sql` | Private buckets, MIME limits, file size limits, quota triggers, path validation, storage policies. | Reaper private object storage policy system if available. | Keep until equivalent storage authorization exists. |
-| `docs/STORAGE_ARCHITECTURE.md` / `STORAGE_ARCHITECTURE.md` | Supabase storage architecture docs. | Update after replacement provider exists. | Mark as current external provider docs. |
+| `docs/architecture/STORAGE_ARCHITECTURE.md` / `docs/STORAGE_ARCHITECTURE.md` | Supabase storage architecture docs. | Update after replacement provider exists. | Mark as current external provider docs. |
 
 Current Supabase buckets:
 
@@ -263,7 +263,7 @@ Files containing env/config references:
 - `scripts/validate-deployment.mjs`
 - `docs/SUPABASE_DEPLOYMENT.md`
 - `docs/LIVE_SUPABASE_VERIFICATION.md`
-- `SUPABASE_SETUP.md`
+- `docs/providers/SUPABASE_SETUP.md`
 - `README.md`
 - `SECURITY.md`
 
@@ -285,15 +285,15 @@ Files containing env/config references:
 Supabase-current documentation exists in:
 
 - `README.md`
-- `SUPABASE_SETUP.md`
+- `docs/providers/SUPABASE_SETUP.md`
 - `docs/SUPABASE_DEPLOYMENT.md`
 - `docs/LIVE_SUPABASE_VERIFICATION.md`
-- `docs/STORAGE_ARCHITECTURE.md`
-- `STORAGE_ARCHITECTURE.md`
-- `STORAGE_COST_ARCHITECTURE.md`
+- `docs/architecture/STORAGE_ARCHITECTURE.md`
+- `docs/architecture/STORAGE_ARCHITECTURE.md`
+- `docs/architecture/STORAGE_COST_ARCHITECTURE.md`
 - `SECURITY.md`
 - `DEVELOPMENT_STATUS.md`
-- `MOMS_MEMORYTREE_ARCHITECTURE.md`
+- `docs/architecture/MOMS_MEMORYTREE_ARCHITECTURE.md`
 
 Migration action:
 

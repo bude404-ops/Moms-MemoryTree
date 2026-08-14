@@ -9,7 +9,7 @@ This index closes the foundation sequence before dashboard work begins.
 | Stage | Artifact | Status |
 |---:|---|---|
 | 0 | `REAPER_PLATFORM_CAPABILITIES.md` | Complete |
-| 1 | `MOMS_MEMORYTREE_ARCHITECTURE.md` | Complete |
+| 1 | `docs/architecture/MOMS_MEMORYTREE_ARCHITECTURE.md` | Complete |
 | 2 | `SUPABASE_TO_REAPER_MIGRATION.md` | Complete |
 | 3 | `src/lib/services.ts`, `src/lib/providers.ts`, provider tests | Complete |
 | 4 | `docs/GITHUB_SOURCE_OF_TRUTH.md` | Complete |

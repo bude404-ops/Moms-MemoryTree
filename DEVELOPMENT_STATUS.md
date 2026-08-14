@@ -51,7 +51,7 @@
 - Creator/Admin cost dashboard implemented for estimated revenue, gross profit, margin, plan profitability, highest-usage families, and forecasting.
 - Subscription architecture foundation implemented with plans, family subscriptions, add-ons, and billing events. Payments are not connected.
 - Stage 0 Reaper platform capability audit completed in `REAPER_PLATFORM_CAPABILITIES.md`.
-- Stage 1 Reaper-first architecture completed in `MOMS_MEMORYTREE_ARCHITECTURE.md`.
+- Stage 1 Reaper-first architecture completed in `docs/architecture/MOMS_MEMORYTREE_ARCHITECTURE.md`.
 - Stage 2 Supabase-to-Reaper migration map completed in `SUPABASE_TO_REAPER_MIGRATION.md`.
 - Stage 3 provider-independent service contracts added for auth, database, authorization, backup, notification, billing, AI, and queue services.
 - Existing Supabase auth/database/storage behavior now sits behind provider-oriented contracts and a service registry while Reaper-native backend capabilities remain unavailable/unknown.
@@ -74,6 +74,7 @@
 - GitHub Actions CI pushed after workflow-scoped authorization was provided.
 - Stage 2 architecture alignment documented in `docs/STAGE_02_ARCHITECTURE_ALIGNMENT.md` and `docs/STAGE_02_ARCHITECTURE_ALIGNMENT_REPORT.md`.
 - Portable service-contract strategy locked for Auth, Database, Family, Memory, Media Storage, Legacy, Notification, Billing, Backup, and AI services.
+- Repository cleanup completed before Stage 3: root documentation moved into organized docs folders, committed image asset moved into `assets/`, stale empty root `tests/` placeholder removed, repository structure documented, and `.gitignore` strengthened for generated files, credentials, and private media.
 
 ## IN PROGRESS
 
@@ -133,7 +134,7 @@ Archive export tracking exists, but no export worker is implemented yet.
 - BACKUPS: FOUNDATION ONLY
 - ARCHIVE EXPORT: FOUNDATION ONLY
 
-`STORAGE_COST_ARCHITECTURE.md` documents plans, quotas, provider abstraction, cost assumptions, billing foundation, forecasts, alerts, retention, and security.
+`docs/architecture/STORAGE_COST_ARCHITECTURE.md` documents plans, quotas, provider abstraction, cost assumptions, billing foundation, forecasts, alerts, retention, and security.
 
 ## LEGACY
 
