@@ -396,13 +396,13 @@
       </a>
       <div class="nav-center" aria-label="Dashboard sections">
         <button class="nav-pill active" data-tab="home">Home</button>
-        <button class="nav-pill" data-tab="dashboard">Dashboard</button>
+        <button class="nav-pill" data-tab="dashboard">Features</button>
         <button class="nav-pill" data-tab="tree">MemoryTree</button>
         <button class="nav-pill" data-tab="record">Record</button>
         <button class="nav-pill" data-tab="legacy">Legacy</button>
       </div>
       <div class="nav-actions">
-        <a class="btn ghost" href="docs/APP_INDEX.md">App index</a>
+        <button class="btn ghost" data-tab="record">Add a story</button>
       </div>
     </nav>
   </header>
@@ -410,7 +410,7 @@
   <main id="top" class="shell app-shell">
     <aside class="rail" aria-label="App navigation">
       <button class="active" data-tab="home" aria-label="Home">🏠</button>
-      <button data-tab="dashboard" aria-label="Dashboard">📊</button>
+      <button data-tab="dashboard" aria-label="Features">✨</button>
       <button data-tab="tree" aria-label="MemoryTree">🌳</button>
       <button data-tab="record" aria-label="Record">🎙️</button>
       <button data-tab="legacy" aria-label="Legacy">🛡️</button>
@@ -429,15 +429,15 @@
               <p>Moms MemoryTree turns family history into a warm, app-like home: stories, generations, private media, relationships, and legacy messages are lovingly organized around the people who matter most.</p>
               <span class="quote">“Don't just leave your family pictures. Leave them your story.”</span>
               <div class="cta-row">
-                <button class="btn primary" data-tab="dashboard">Open dashboard</button>
+                <button class="btn primary" data-tab="dashboard">Explore features</button>
                 <button class="btn secondary" data-tab="record">Record a memory</button>
               </div>
             </div>
             <div class="app-status-row">
-              <div class="status-chip"><span>Foundation</span><b>13/13</b></div>
-              <div class="status-chip"><span>Memories</span><b>3</b></div>
-              <div class="status-chip"><span>Private media</span><b>174 MB</b></div>
-              <div class="status-chip"><span>Blockers</span><b>9</b></div>
+              <div class="status-chip"><span>Stories</span><b>Record</b></div>
+              <div class="status-chip"><span>Family Tree</span><b>Connect</b></div>
+              <div class="status-chip"><span>Media Vault</span><b>Protect</b></div>
+              <div class="status-chip"><span>Legacy</span><b>Share</b></div>
             </div>
           </div>
 
@@ -452,7 +452,7 @@
               <div class="mobile-content" id="mobile-content"></div>
               <div class="mobile-tabs">
                 <button class="active" data-tab="home">Home</button>
-                <button data-tab="dashboard">Dash</button>
+                <button data-tab="dashboard">Features</button>
                 <button data-tab="tree">Tree</button>
                 <button data-tab="record">Record</button>
                 <button data-tab="legacy">Legacy</button>
@@ -464,15 +464,15 @@
 
       <section class="card" data-view="dashboard">
         <div class="section-title">
-          <p class="eyebrow">operator dashboard</p>
-          <h2>Everything honest, visible, and ready for iteration.</h2>
-          <p>This GitHub root behaves like a thoughtful product dashboard: tabbed surfaces, app-style navigation, provider status, storage economics, and production boundaries.</p>
+          <p class="eyebrow">app features</p>
+          <h2>A private family archive that feels like home.</h2>
+          <p>This view is for the family using the app: record stories, browse people, protect photos and videos, and prepare legacy messages for the right loved ones.</p>
         </div>
         <div class="grid four">
-          <article class="card"><span class="icon">✅</span><h3>13/13 foundation</h3><p>Local app shell, data models, storage boundaries, tests, migrations, and validation gates are complete.</p></article>
-          <article class="card"><span class="icon">🔐</span><h3>Private media</h3><p>Signed access and metadata boundaries are securely represented without pretending live provider setup is finished.</p></article>
-          <article class="card"><span class="icon">💾</span><h3>Storage economics</h3><p>Usage, quota, addon, cost, revenue, and family margin remain transparent before scale.</p></article>
-          <article class="card"><span class="icon">🚧</span><h3>9 known blockers</h3><p>Provider-live work remains intentionally marked until connected and verified.</p></article>
+          <article class="card"><span class="icon">🎙️</span><h3>Record stories</h3><p>Capture voice, written memories, dates, places, categories, and the family members connected to each moment.</p></article>
+          <article class="card"><span class="icon">🌳</span><h3>Build the tree</h3><p>Organize family around people and relationships, so memories are found through Mom, children, grandchildren, and milestones.</p></article>
+          <article class="card"><span class="icon">🔐</span><h3>Protect media</h3><p>Keep private photos, videos, and keepsakes inside a family-first vault instead of scattering them across folders.</p></article>
+          <article class="card"><span class="icon">💌</span><h3>Leave legacy</h3><p>Prepare future messages, lessons, and wishes for trusted loved ones without losing the warmth of the story.</p></article>
         </div>
       </section>
 
@@ -489,7 +489,7 @@
             <div class="memory-item"><span class="avatar">♡</span><div><strong>People tied to stories</strong><p>Every memory can carry person tags, exact dates, locations, categories, and private context.</p></div></div>
           </div>
         </article>
-        <article class="card"><span class="icon">🌲</span><h3>Tree readiness</h3><p>Unlimited-generation data modeling is present out-of-the-box. The live graph view can easily expand from this robust foundation.</p><div style="margin-top:20px" class="progress"><span style="width:74%"></span></div></article>
+        <article class="card"><span class="icon">🌲</span><h3>Tree view</h3><p>Generations can grow naturally from one loved one to the next, keeping every branch tied to real stories.</p><div style="margin-top:20px" class="progress"><span style="width:74%"></span></div></article>
       </section>
 
       <section class="panel-grid" data-view="record">
@@ -504,7 +504,7 @@
             <div class="card"><h3>Privacy</h3><p>Family-only by default, with private media securely guarded behind signed access boundaries.</p></div>
           </div>
         </article>
-        <article class="card"><span class="icon">🎙️</span><h3>Capture chain</h3><p>Story → person → privacy → media metadata → archive. Live media providers stay marked until fully verified.</p></article>
+        <article class="card"><span class="icon">🎙️</span><h3>Memory path</h3><p>Story → person → privacy → keepsakes → family archive. A simple path for preserving what matters.</p></article>
       </section>
 
       <section class="panel-grid" data-view="legacy">
@@ -514,36 +514,29 @@
             <h2>Future access without premature exposure.</h2>
             <p>Trusted custodians can be modeled securely today, while private memories remain completely protected until verified activation workflows are triggered.</p>
           </div>
-          <div class="card matrix" role="table" aria-label="Provider status matrix">
-            <div class="matrix-row" role="row"><div><strong>React runtime</strong><span>Primary app shell and dashboard UI.</span></div><div>React/Vite</div><div><span class="pill green">Ready</span></div></div>
-            <div class="matrix-row" role="row"><div><strong>Auth and database</strong><span>Provider abstraction, migrations, RLS, and boundaries exist.</span></div><div>Supabase</div><div><span class="pill amber">Needs setup</span></div></div>
-            <div class="matrix-row" role="row"><div><strong>Private media</strong><span>Storage paths, metadata, buckets, and signed function source exist.</span></div><div>Supabase Storage</div><div><span class="pill amber">Needs verify</span></div></div>
+          <div class="card matrix" role="table" aria-label="Legacy feature list">
+            <div class="matrix-row" role="row"><div><strong>Legacy messages</strong><span>Write words, lessons, blessings, and memories meant for the future.</span></div><div>Family keepsakes</div><div><span class="pill green">Included</span></div></div>
+            <div class="matrix-row" role="row"><div><strong>Trusted custodians</strong><span>Name the people who should help carry the archive forward.</span></div><div>Family roles</div><div><span class="pill green">Included</span></div></div>
+            <div class="matrix-row" role="row"><div><strong>Private memories</strong><span>Keep sensitive stories and media protected until the family chooses to share.</span></div><div>Privacy-first</div><div><span class="pill green">Included</span></div></div>
           </div>
         </article>
-        <article class="card"><span class="icon">🛡️</span><h3>Boundary</h3><p>The dashboard clearly shows what is real today and what still requires live provider connection. No false production claims.</p></article>
+        <article class="card"><span class="icon">🛡️</span><h3>Family privacy</h3><p>Legacy is presented as a family promise: the right memories, for the right people, at the right time.</p></article>
       </section>
 
       <section class="grid four" aria-label="App screens">
-        <article class="card screen-card"><div><span class="icon">🏠</span><h3>Home</h3><p>Storybook logo header and app-like entry point for the family archive.</p></div><footer><span>Archive entry</span><span>Live</span></footer></article>
-        <article class="card screen-card"><div><span class="icon">📊</span><h3>Dashboard</h3><p>Foundation status, provider matrix, storage economics, and blocker queue.</p></div><footer><span>Default ops</span><span>Live</span></footer></article>
-        <article class="card screen-card"><div><span class="icon">🌳</span><h3>MemoryTree</h3><p>People and relationships modeled around family context.</p></div><footer><span>Family graph</span><span>Foundation</span></footer></article>
-        <article class="card screen-card"><div><span class="icon">💌</span><h3>Legacy</h3><p>Custodian modeling without premature private-memory access.</p></div><footer><span>Future access</span><span>Foundation</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🏠</span><h3>Home</h3><p>Storybook logo header and warm entry point for the family archive.</p></div><footer><span>Start here</span><span>Welcome</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🎙️</span><h3>Stories</h3><p>Capture memories with prompts, people, places, dates, and privacy.</p></div><footer><span>Create</span><span>Preserve</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🌳</span><h3>MemoryTree</h3><p>Explore loved ones and relationships through a family-first lens.</p></div><footer><span>Connect</span><span>Remember</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">💌</span><h3>Legacy</h3><p>Leave lessons, wishes, and future messages for trusted loved ones.</p></div><footer><span>Prepare</span><span>Share</span></footer></article>
       </section>
 
-      <section class="grid two" id="run">
-        <article class="card"><h3>Local app</h3><pre><code>npm install
-cp .env.example .env.local
-npm run dev</code></pre></article>
-        <article class="card"><h3>Full validation</h3><pre><code>npm install
-npm run validate</code></pre></article>
-      </section>
     </div>
   </main>
 
   <footer class="shell footer">
     <div class="card">
-      <div><strong>Moms MemoryTree</strong><p>Private family stories. App-like dashboard home. Honest infrastructure boundaries.</p></div>
-      <a class="btn secondary" href="docs/APP_INDEX.md">Read the written index</a>
+      <div><strong>Moms MemoryTree</strong><p>A warm private home for stories, photos, people, and legacy messages.</p></div>
+      <button class="btn secondary" data-tab="record">Record a memory</button>
     </div>
   </footer>
 
@@ -551,11 +544,11 @@ npm run validate</code></pre></article>
     const copy = {
       home: {
         title: 'Home',
-        html: '<div class="mobile-feature"><small>App home</small><h3>Visit Mom, not folders.</h3><p>Enter through people, stories, and relationships — with the storybook tree as the warm family mark.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Foundation</span><b>13/13</b></div><div class="mobile-card metric"><span>Memories</span><b>3</b></div></div><div class="mobile-card"><h3>Today\'s prompt</h3><p>Tell us about the day this photo was taken under the pines.</p></div>'
+        html: '<div class="mobile-feature"><small>App home</small><h3>Visit Mom, not folders.</h3><p>Enter through people, stories, and relationships — with the storybook tree as the warm family mark.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Stories</span><b>Record</b></div><div class="mobile-card metric"><span>Memories</span><b>Save</b></div></div><div class="mobile-card"><h3>Today\'s prompt</h3><p>Tell us about the day this photo was taken under the pines.</p></div>'
       },
       dashboard: {
-        title: 'Dashboard',
-        html: '<div class="mobile-feature"><small>Operator view</small><h3>Foundation complete. Provider gates visible.</h3><p>Ready for product UI iteration without false live-provider claims.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Private media</span><b>174 MB</b></div><div class="mobile-card metric"><span>Blockers</span><b>9</b></div></div><div class="mobile-card"><h3>Provider matrix</h3><div class="stage-row"><span>Runtime</span><span class="pill green">Ready</span></div><div class="stage-row"><span>Storage</span><span class="pill amber">Setup</span></div><div class="stage-row"><span>Backups / AI</span><span class="pill dark">Foundation</span></div></div>'
+        title: 'Features',
+        html: '<div class="mobile-feature"><small>App features</small><h3>Your family archive, made visual.</h3><p>Stories, people, media, and legacy messages stay together in one warm family space.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Stories</span><b>Record</b></div><div class="mobile-card metric"><span>Media</span><b>Protect</b></div></div><div class="mobile-card"><h3>What you can do</h3><div class="stage-row"><span>Record stories</span><span class="pill green">Yes</span></div><div class="stage-row"><span>Browse family</span><span class="pill green">Yes</span></div><div class="stage-row"><span>Prepare legacy</span><span class="pill green">Yes</span></div></div>'
       },
       tree: {
         title: 'MemoryTree',
