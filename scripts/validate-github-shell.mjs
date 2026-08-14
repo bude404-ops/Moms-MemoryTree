@@ -86,6 +86,24 @@ for (const contract of stage5ServiceContracts) {
   expect(html.includes(contract), `Stage 5 mock service hardening must include ${contract}.`);
 }
 
+const stage6ReadinessContracts = [
+  'providerReadinessGates',
+  'provider-readiness-summary',
+  'provider-readiness-list',
+  'evaluateProviderReadiness',
+  'renderProviderReadiness',
+  'Auth provider',
+  'Database provider',
+  'Private media storage',
+  'Invitation delivery',
+  'Backup/export worker',
+  'Preview-safe:',
+  'Production provider not connected in this preview shell.'
+];
+for (const contract of stage6ReadinessContracts) {
+  expect(html.includes(contract), `Stage 6 provider readiness gates must include ${contract}.`);
+}
+
 expect(!/supabase\.|@supabase|SUPABASE_/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
 
 if (failures.length) {

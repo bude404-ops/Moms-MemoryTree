@@ -449,6 +449,13 @@
     .prototype-status .status-chip span { color: var(--muted); }
     .prototype-status .status-chip b { color: var(--ink); font-size: 18px; }
     .upload-flow { display: grid; gap: 8px; padding: 12px; border-radius: 16px; background: rgba(235, 224, 203, .45); border: 1px dashed rgba(106, 86, 55, .28); }
+    .provider-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+    .provider-card { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.72); border: 1px solid var(--line); }
+    .provider-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .provider-card strong { color: var(--ink); }
+    .provider-card p { margin: 0; color: var(--muted); line-height: 1.45; }
+    .provider-card ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.55; }
+    .readiness-summary { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(46,74,56,.08); border: 1px solid rgba(46,74,56,.22); color: var(--ink-soft); line-height: 1.5; }
     .upload-bar { height: 9px; border-radius: 999px; background: #f2e2cb; overflow: hidden; }
     .upload-bar span { display: block; width: var(--upload-width, 0%); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--honey), var(--pine)); transition: width .35s ease; }
     .action-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -547,6 +554,15 @@
             <div class="mock-list" id="home-recent-memories"></div>
             <div class="upload-flow" id="mock-service-status" aria-live="polite"><strong>Mock service layer</strong><small>State adapter ready.</small></div>
           </article>
+        </div>
+        <div class="mock-panel" style="margin-top:16px" aria-label="Production provider readiness gates">
+          <div class="section-title">
+            <p class="eyebrow">production readiness</p>
+            <h2>Provider gates before real family data.</h2>
+            <p>Preview actions stay local until auth, database, media, invitation, and backup providers pass their readiness checks.</p>
+          </div>
+          <div class="readiness-summary" id="provider-readiness-summary">Provider readiness checks loading.</div>
+          <div class="provider-grid" id="provider-readiness-list"></div>
         </div>
       </section>
 
@@ -707,6 +723,14 @@
 
     const storageKey = 'moms-memorytree-stage4-prototype';
     const serviceSchemaVersion = 5;
+    const providerReadinessGates = [
+      { key: 'auth', label: 'Auth provider', status: 'blocked', required: ['verified signup/signin', 'password reset route', 'session refresh'], safePreview: 'Mock account creation only' },
+      { key: 'database', label: 'Database provider', status: 'blocked', required: ['deployed migrations', 'RLS live isolation test', 'typed repository binding'], safePreview: 'Browser-local family archive state' },
+      { key: 'media', label: 'Private media storage', status: 'blocked', required: ['private bucket/object policy', 'signed playback function', 'quota enforcement'], safePreview: 'Upload progress simulation only' },
+      { key: 'invitations', label: 'Invitation delivery', status: 'blocked', required: ['email provider', 'accept/expire token flow', 'role audit log'], safePreview: 'Pending invitation cards only' },
+      { key: 'backup', label: 'Backup/export worker', status: 'blocked', required: ['independent backup target', 'restore verification', 'archive export job'], safePreview: 'Architecture record only' }
+    ];
+
     const mobileTitle = document.getElementById('mobile-title');
     const mobileContent = document.getElementById('mobile-content');
     const controls = Array.from(document.querySelectorAll('[data-tab]'));
@@ -903,6 +927,24 @@
       node.innerHTML = `<strong>Mock service layer</strong><small>${escapeHtml(state.service?.provider || 'browser-local-mock')} · schema v${serviceSchemaVersion} · ${escapeHtml(state.service?.lastMigration || 'ready')}</small><small>${escapeHtml(validation)}</small>`;
     }
 
+    function evaluateProviderReadiness() {
+      return providerReadinessGates.map((gate) => ({
+        ...gate,
+        ready: gate.status === 'ready',
+        blockedReason: gate.status === 'blocked' ? 'Production provider not connected in this preview shell.' : ''
+      }));
+    }
+
+    function renderProviderReadiness() {
+      const list = byId('provider-readiness-list');
+      const summary = byId('provider-readiness-summary');
+      if (!list || !summary) return;
+      const gates = evaluateProviderReadiness();
+      const readyCount = gates.filter((gate) => gate.ready).length;
+      summary.innerHTML = `<strong>${readyCount}/${gates.length} production providers ready.</strong><span>Preview mode remains safe: no real auth, database writes, media uploads, invitations, backups, or exports run until these gates pass.</span>`;
+      list.innerHTML = gates.map((gate) => `<article class="provider-card" data-provider-gate="${escapeHtml(gate.key)}"><header><strong>${escapeHtml(gate.label)}</strong><span class="pill amber">Blocked</span></header><p>${escapeHtml(gate.blockedReason)}</p><ul>${gate.required.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul><p><strong>Preview-safe:</strong> ${escapeHtml(gate.safePreview)}</p></article>`).join('');
+    }
+
     function renderTree() {
       if (!treeMembers) return;
       const members = state.members.filter((member) => member.name !== 'Mom');
@@ -955,6 +997,7 @@
     function renderAll() {
       renderStatus();
       renderServiceStatus();
+      renderProviderReadiness();
       renderTree();
       renderMemories();
       renderInvites();
