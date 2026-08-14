@@ -81,7 +81,6 @@
 - Live production provider deployment remains pending provider selection/credentials.
 - Real cloud upload/playback requires an approved production storage/backend provider.
 - Family invitation email delivery is architecture-only.
-- Stage 3 GitHub application shell work is next.
 
 ## PLANNED
 
