@@ -11,6 +11,9 @@ import type {
   BackupService,
   BillingService,
   DatabaseService,
+  FamilyService,
+  LegacyService,
+  MemoryService,
   NotificationService,
   QueueService
 } from './services';
@@ -31,7 +34,10 @@ export interface PlatformProviderCapability {
 export interface MomsMemoryTreeServices {
   auth: AuthService;
   database: DatabaseService;
+  family: FamilyService;
+  memory: MemoryService;
   mediaStorage: MediaStorageService;
+  legacy: LegacyService;
   authorization: AuthorizationService;
   backup: BackupService;
   notifications: NotificationService;
@@ -75,6 +81,53 @@ export class UnavailableDatabaseProvider implements DatabaseService {
   async getCostAssumptions() { return this.unavailable(); }
   async uploadMemoryMedia() { return this.unavailable(); }
   async createTemporaryMediaAccess() { return this.unavailable(); }
+}
+
+export class DatabaseFamilyServiceAdapter implements FamilyService {
+  constructor(private readonly database: DatabaseService) {}
+  createFamily(input: Parameters<DatabaseService['createFamily']>[0]) { return this.database.createFamily(input); }
+  listFamilies() { return this.database.listFamilies(); }
+  listFamilyMembers(familyId: string) { return this.database.listFamilyMembers(familyId); }
+  inviteFamilyMember(input: Parameters<DatabaseService['inviteFamilyMember']>[0]) { return this.database.inviteFamilyMember(input); }
+  listPeople(familyId: string) { return this.database.listPeople(familyId); }
+  addPerson(familyId: string, displayName: string) { return this.database.addPerson(familyId, displayName); }
+  listRelationships(familyId: string) { return this.database.listRelationships(familyId); }
+  createRelationship(input: Parameters<DatabaseService['createRelationship']>[0]) { return this.database.createRelationship(input); }
+}
+
+export class DatabaseMemoryServiceAdapter implements MemoryService {
+  constructor(private readonly database: DatabaseService) {}
+  listMemories(familyId: string) { return this.database.listMemories(familyId); }
+  createMemory(input: Parameters<DatabaseService['createMemory']>[0]) { return this.database.createMemory(input); }
+  listMemoryMedia(familyId: string) { return this.database.listMemoryMedia(familyId); }
+  uploadMemoryMedia(input: Parameters<DatabaseService['uploadMemoryMedia']>[0]) { return this.database.uploadMemoryMedia(input); }
+  createTemporaryMediaAccess(mediaId: string) { return this.database.createTemporaryMediaAccess(mediaId); }
+}
+
+export class UnavailableLegacyProvider implements LegacyService {
+  constructor(private readonly message = 'Legacy service provider unavailable.') {}
+  private unavailable(): never { throw new Error(this.message); }
+  async preserveOriginalStory() { return this.unavailable(); }
+  async requestLegacyStatus() { return this.unavailable(); }
+  async approveLegacyStatus() { return this.unavailable(); }
+  async listLegacyCustodians() { return this.unavailable(); }
+  async addMemorialMedia() { return this.unavailable(); }
+  async recordLegacyEvent() { return this.unavailable(); }
+}
+
+export class DatabaseLegacyServiceAdapter implements LegacyService {
+  constructor(private readonly database: DatabaseService) {}
+  private unavailable(): never { throw new Error('Legacy write operations require the production LegacyService provider; current database provider can only list custodians here.'); }
+  async preserveOriginalStory() { return this.unavailable(); }
+  async requestLegacyStatus() { return this.unavailable(); }
+  async approveLegacyStatus() { return this.unavailable(); }
+  listLegacyCustodians(familyId: string) { return this.database.listLegacyCustodians(familyId); }
+  async addMemorialMedia() { return this.unavailable(); }
+  async recordLegacyEvent() { return this.unavailable(); }
+}
+
+export class ReaperLegacyProvider extends UnavailableLegacyProvider {
+  constructor() { super('Reaper LegacyService is not exposed to Moms MemoryTree yet.'); }
 }
 
 export class UnavailableAuthorizationProvider implements AuthorizationService {
@@ -170,7 +223,10 @@ export function getPlatformCapabilityMatrix(): PlatformProviderCapability[] {
   return [
     { service: 'AuthService', preferredProvider: 'reaper', activeProvider: supabaseConfigured ? 'supabase' : 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: true, notes: 'Reaper user-app auth is not exposed yet; Supabase remains behind AuthService.' },
     { service: 'DatabaseService', preferredProvider: 'reaper', activeProvider: supabaseConfigured ? 'supabase' : 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: true, notes: 'Reaper app-owned relational database is not exposed yet; Supabase remains behind DatabaseService.' },
+    { service: 'FamilyService', preferredProvider: 'reaper', activeProvider: supabaseConfigured ? 'supabase' : 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: true, notes: 'Family creation, members, invitations, and relationships route through provider-neutral family contracts.' },
+    { service: 'MemoryService', preferredProvider: 'reaper', activeProvider: supabaseConfigured ? 'supabase' : 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: true, notes: 'Memory creation, media metadata, and signed access route through provider-neutral memory contracts.' },
     { service: 'MediaStorageService', preferredProvider: 'reaper', activeProvider: supabaseConfigured ? 'supabase' : 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: true, notes: 'Reaper private large-media storage is not exposed yet; Supabase Storage remains behind MediaStorageService.' },
+    { service: 'LegacyService', preferredProvider: 'reaper', activeProvider: supabaseConfigured ? 'supabase' : 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: true, notes: 'Preserved stories, legacy status, memorial media, and audit events require a production legacy provider.' },
     { service: 'AuthorizationService', preferredProvider: 'reaper', activeProvider: supabaseConfigured ? 'supabase' : 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: true, notes: 'Server-side authorization is currently enforced by Supabase RLS and signed-media RPC.' },
     { service: 'BackupService', preferredProvider: 'reaper', activeProvider: 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: false, notes: 'No verified backup provider is active; preservation claims must remain limited.' },
     { service: 'NotificationService', preferredProvider: 'reaper', activeProvider: 'unavailable', reaperStatus: 'unknown', externalFallbackRequired: false, notes: 'No production notification provider is active.' },
@@ -188,7 +244,10 @@ export function createMomsMemoryTreeServices(): MomsMemoryTreeServices {
   return {
     auth,
     database,
+    family: new DatabaseFamilyServiceAdapter(database),
+    memory: new DatabaseMemoryServiceAdapter(database),
     mediaStorage,
+    legacy: new DatabaseLegacyServiceAdapter(database),
     authorization,
     backup: new ReaperBackupProvider(),
     notifications: new ReaperNotificationProvider(),

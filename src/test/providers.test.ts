@@ -17,7 +17,10 @@ describe('provider abstraction registry', () => {
     expect(matrix.map(item => item.service)).toEqual([
       'AuthService',
       'DatabaseService',
+      'FamilyService',
+      'MemoryService',
       'MediaStorageService',
+      'LegacyService',
       'AuthorizationService',
       'BackupService',
       'NotificationService',
@@ -34,7 +37,10 @@ describe('provider abstraction registry', () => {
     const services = createMomsMemoryTreeServices();
     expect(services.auth.isConfigured()).toBe(false);
     expect(services.database.isConfigured()).toBe(false);
+    expect(services.family).toBeDefined();
+    expect(services.memory).toBeDefined();
     expect(services.mediaStorage).toBeDefined();
+    expect(services.legacy).toBeDefined();
     expect(services.authorization).toBeDefined();
     expect(services.backup).toBeInstanceOf(ReaperBackupProvider);
     expect(services.notifications).toBeInstanceOf(ReaperNotificationProvider);

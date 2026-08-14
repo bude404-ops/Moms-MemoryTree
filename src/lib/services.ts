@@ -5,6 +5,9 @@ import type {
   FamilyRelationship,
   FamilySubscription,
   LegacyCustodian,
+  LegacyEventType,
+  LegacyLock,
+  LegacyProfile,
   LifeEvent,
   Memory,
   MemoryMedia,
@@ -100,6 +103,61 @@ export interface TemporaryMediaAccess {
   signedUrl: string;
   expiresInSeconds: number;
   publicUrlAllowed: false;
+}
+
+export interface FamilyService {
+  createFamily(input: CreateFamilyInput): Promise<Family>;
+  listFamilies(): Promise<Family[]>;
+  listFamilyMembers(familyId: string): Promise<FamilyMember[]>;
+  inviteFamilyMember(input: InviteFamilyMemberInput): Promise<FamilyMember>;
+  listPeople(familyId: string): Promise<Person[]>;
+  addPerson(familyId: string, displayName: string): Promise<Person>;
+  listRelationships(familyId: string): Promise<FamilyRelationship[]>;
+  createRelationship(input: CreateRelationshipInput): Promise<FamilyRelationship>;
+}
+
+export interface MemoryService {
+  listMemories(familyId: string): Promise<Memory[]>;
+  createMemory(input: CreateMemoryInput): Promise<Memory>;
+  listMemoryMedia(familyId: string): Promise<MemoryMedia[]>;
+  uploadMemoryMedia(input: UploadMediaInput): Promise<MemoryMedia>;
+  createTemporaryMediaAccess(mediaId: string): Promise<TemporaryMediaAccess>;
+}
+
+export interface LegacyStoryPreservationInput {
+  creatorId: string;
+  familyId: string;
+  originalStory: string;
+  originalVersion: number;
+  contentHash: string;
+}
+
+export interface LegacyStatusRequestInput {
+  personId: string;
+  familyId: string;
+  requestedBy: string;
+  reason?: string;
+}
+
+export interface MemorialMediaInput {
+  personId: string;
+  familyId: string;
+  legacyProfileId: string;
+  creatorId: string;
+  title: string;
+  description?: string;
+  date?: string;
+  location?: string;
+  contributors?: string[];
+}
+
+export interface LegacyService {
+  preserveOriginalStory(input: LegacyStoryPreservationInput): Promise<LegacyLock>;
+  requestLegacyStatus(input: LegacyStatusRequestInput): Promise<LegacyProfile>;
+  approveLegacyStatus(profileId: string, actorId: string): Promise<LegacyProfile>;
+  listLegacyCustodians(familyId: string): Promise<LegacyCustodian[]>;
+  addMemorialMedia(input: MemorialMediaInput): Promise<MemoryMedia>;
+  recordLegacyEvent(input: { familyId: string; actorId: string; action: LegacyEventType; targetId: string; previousState?: string; newState?: string }): Promise<void>;
 }
 
 export interface DatabaseService {
