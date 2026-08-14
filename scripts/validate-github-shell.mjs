@@ -72,6 +72,20 @@ for (const phrase of stage4Phrases) {
   expect(html.includes(phrase), `Stage 4 shell must include interaction text: ${phrase}.`);
 }
 
+const stage5ServiceContracts = [
+  'serviceSchemaVersion = 5',
+  'mockServices =',
+  'migrateState',
+  'validateState',
+  'persistState',
+  'mock-service-status',
+  'browser-local-mock',
+  'schema v${serviceSchemaVersion}'
+];
+for (const contract of stage5ServiceContracts) {
+  expect(html.includes(contract), `Stage 5 mock service hardening must include ${contract}.`);
+}
+
 expect(!/supabase\.|@supabase|SUPABASE_/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
 
 if (failures.length) {

@@ -80,10 +80,13 @@
 - `npm run validate:github-shell` added to enforce GitHub Pages shell requirements.
 - Stage 4 interactive prototype completed in `docs/STAGE_04_INTERACTIVE_PROTOTYPE_REPORT.md`.
 - Root `index.html` now supports browser-local mock account setup, family tree persistence, invitations, memory creation, upload simulation, and generated timeline rendering.
+- Stage 5 mock service layer hardening completed in `docs/STAGE_05_MOCK_SERVICE_LAYER_HARDENING_REPORT.md`.
+- Root `index.html` now routes preview account, family, invitation, memory, reset, load, save, migration, and validation behavior through a browser-local mock service adapter with schema version 5.
+- `npm run validate:github-shell` now enforces Stage 5 mock service contracts.
 
 ## IN PROGRESS
 
-- Stage 5 mock service layer hardening is next.
+- Stage 6 production provider readiness gates are next.
 - Live production provider deployment remains pending provider selection/credentials.
 - Real cloud upload/playback requires an approved production storage/backend provider.
 - Family invitation email delivery is architecture-only.

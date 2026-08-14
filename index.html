@@ -545,6 +545,7 @@
             <h3>Live preview state</h3>
             <div class="prototype-status" id="prototype-status" aria-label="Preview status"></div>
             <div class="mock-list" id="home-recent-memories"></div>
+            <div class="upload-flow" id="mock-service-status" aria-live="polite"><strong>Mock service layer</strong><small>State adapter ready.</small></div>
           </article>
         </div>
       </section>
@@ -705,6 +706,7 @@
     };
 
     const storageKey = 'moms-memorytree-stage4-prototype';
+    const serviceSchemaVersion = 5;
     const mobileTitle = document.getElementById('mobile-title');
     const mobileContent = document.getElementById('mobile-content');
     const controls = Array.from(document.querySelectorAll('[data-tab]'));
@@ -717,30 +719,165 @@
     const treeSaveNote = document.getElementById('tree-save-note');
     const memoryPerson = document.getElementById('memory-person');
 
+    const allowedRoles = ['Archive Creator', 'Family Manager', 'Legacy Custodian'];
+    const allowedMemberRoles = ['Mother', 'Father', 'Child', 'Grandchild', 'Partner', 'Other', 'Family root'];
+    const allowedInviteRoles = ['Viewer', 'Contributor', 'Family Manager', 'Legacy Custodian'];
+    const allowedMemoryTypes = ['Video', 'Audio', 'Photo', 'Written Story', 'Memorial'];
+    const allowedVisibility = ['Family', 'Private', 'Legacy Custodians'];
+
     const starterState = {
+      schemaVersion: serviceSchemaVersion,
       account: { signedIn: false, name: '', email: '', role: 'Archive Creator' },
       family: { name: 'Moms MemoryTree Family' },
       members: [{ name: 'Mom', role: 'Family root', connection: 'Original storyteller' }],
       invites: [],
-      memories: [{ title: 'The day under the pines', type: 'Photo', person: 'Mom', visibility: 'Family', notes: 'A warm starting memory for the archive preview.', status: 'Preserved', createdAt: new Date().toISOString() }]
+      memories: [{ id: 'starter-memory', title: 'The day under the pines', type: 'Photo', person: 'Mom', visibility: 'Family', notes: 'A warm starting memory for the archive preview.', status: 'Preserved', createdAt: new Date().toISOString() }],
+      service: { provider: 'browser-local-mock', lastMigration: 'fresh-stage5', lastValidation: 'clean' }
+    };
+
+    function clone(value) {
+      return typeof structuredClone === 'function' ? structuredClone(value) : JSON.parse(JSON.stringify(value));
+    }
+
+    function normalizeText(value, fallback = '') {
+      return String(value ?? '').trim() || fallback;
+    }
+
+    function createId(prefix) {
+      return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function normalizeOption(value, allowed, fallback) {
+      return allowed.includes(value) ? value : fallback;
+    }
+
+    function normalizeEmail(value, fallback = '') {
+      const email = normalizeText(value).toLowerCase();
+      return email.includes('@') ? email : fallback;
+    }
+
+    function normalizeMember(member, index = 0) {
+      return {
+        id: normalizeText(member?.id, `member-${index}`),
+        name: normalizeText(member?.name, index === 0 ? 'Mom' : 'Family member'),
+        role: normalizeOption(member?.role, allowedMemberRoles, index === 0 ? 'Family root' : 'Other'),
+        connection: normalizeText(member?.connection, index === 0 ? 'Original storyteller' : 'Family root')
+      };
+    }
+
+    function normalizeMemory(memory, index = 0) {
+      return {
+        id: normalizeText(memory?.id, `memory-${index}`),
+        title: normalizeText(memory?.title, 'Untitled memory'),
+        type: normalizeOption(memory?.type, allowedMemoryTypes, 'Written Story'),
+        person: normalizeText(memory?.person, 'Mom'),
+        visibility: normalizeOption(memory?.visibility, allowedVisibility, 'Family'),
+        notes: normalizeText(memory?.notes, ''),
+        status: normalizeText(memory?.status, 'Saved'),
+        createdAt: Number.isNaN(Date.parse(memory?.createdAt || '')) ? new Date().toISOString() : memory.createdAt
+      };
+    }
+
+    function normalizeInvite(invite, index = 0) {
+      return {
+        id: normalizeText(invite?.id, `invite-${index}`),
+        email: normalizeEmail(invite?.email, 'pending@example.com'),
+        role: normalizeOption(invite?.role, allowedInviteRoles, 'Viewer'),
+        createdAt: Number.isNaN(Date.parse(invite?.createdAt || '')) ? new Date().toISOString() : invite.createdAt
+      };
+    }
+
+    function migrateState(raw) {
+      const next = clone(starterState);
+      if (!raw || typeof raw !== 'object') return next;
+      next.schemaVersion = serviceSchemaVersion;
+      next.account = {
+        signedIn: Boolean(raw.account?.signedIn),
+        name: normalizeText(raw.account?.name),
+        email: normalizeEmail(raw.account?.email),
+        role: normalizeOption(raw.account?.role, allowedRoles, 'Archive Creator')
+      };
+      next.family = { name: normalizeText(raw.family?.name, 'Moms MemoryTree Family') };
+      next.members = Array.isArray(raw.members) && raw.members.length ? raw.members.map(normalizeMember) : clone(starterState.members);
+      next.invites = Array.isArray(raw.invites) ? raw.invites.map(normalizeInvite) : [];
+      next.memories = Array.isArray(raw.memories) && raw.memories.length ? raw.memories.map(normalizeMemory) : clone(starterState.memories);
+      next.service = {
+        provider: 'browser-local-mock',
+        lastMigration: raw.schemaVersion === serviceSchemaVersion ? 'schema-current' : `migrated-to-stage-${serviceSchemaVersion}`,
+        lastValidation: validateState(next).length ? 'repaired' : 'clean'
+      };
+      return next;
+    }
+
+    function validateState(candidate) {
+      const failures = [];
+      if (candidate.schemaVersion !== serviceSchemaVersion) failures.push('schema version mismatch');
+      if (!candidate.family?.name) failures.push('family name missing');
+      if (!Array.isArray(candidate.members) || !candidate.members.length) failures.push('at least one family member required');
+      if (!Array.isArray(candidate.memories)) failures.push('memories collection missing');
+      if (!Array.isArray(candidate.invites)) failures.push('invitations collection missing');
+      if (candidate.account?.email && !candidate.account.email.includes('@')) failures.push('account email invalid');
+      candidate.invites?.forEach((invite) => { if (!invite.email.includes('@')) failures.push(`invalid invite email: ${invite.email}`); });
+      candidate.memories?.forEach((memory) => { if (!memory.title || !memory.person) failures.push(`invalid memory: ${memory.id}`); });
+      return failures;
+    }
+
+    function readStoredState() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || 'null');
+      } catch (error) {
+        console.warn('Preview state reset after invalid storage.', error);
+        return null;
+      }
+    }
+
+    function persistState(next) {
+      const failures = validateState(next);
+      next.service = { ...(next.service || {}), provider: 'browser-local-mock', lastValidation: failures.length ? failures.join('; ') : 'clean' };
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      localStorage.setItem('moms-memorytree-family-tree', JSON.stringify(next.members.filter((member) => member.name !== 'Mom')));
+      return failures;
+    }
+
+    const mockServices = {
+      load() { return migrateState(readStoredState()); },
+      reset() { const next = clone(starterState); persistState(next); return next; },
+      save(next) { persistState(next); return next; },
+      createAccount(current, payload) {
+        const next = clone(current);
+        next.account = {
+          signedIn: true,
+          name: normalizeText(payload.name, 'Archive Creator'),
+          email: normalizeEmail(payload.email, 'preview@example.com'),
+          role: normalizeOption(payload.role, allowedRoles, 'Archive Creator')
+        };
+        next.family.name = normalizeText(payload.familyName, 'Moms MemoryTree Family');
+        return this.save(next);
+      },
+      addMember(current, payload) {
+        const next = clone(current);
+        next.members.push(normalizeMember({ id: createId('member'), ...payload }, next.members.length));
+        return this.save(next);
+      },
+      addInvite(current, payload) {
+        const next = clone(current);
+        next.invites.push(normalizeInvite({ id: createId('invite'), ...payload }, next.invites.length));
+        return this.save(next);
+      },
+      addMemory(current, payload) {
+        const next = clone(current);
+        next.memories.push(normalizeMemory({ id: createId('memory'), status: 'Saved', createdAt: new Date().toISOString(), ...payload }, next.memories.length));
+        return this.save(next);
+      }
     };
 
     function loadState() {
-      try {
-        const parsed = JSON.parse(localStorage.getItem(storageKey) || 'null');
-        if (parsed && Array.isArray(parsed.members) && Array.isArray(parsed.memories)) return parsed;
-      } catch (error) {
-        console.warn('Preview state reset after invalid storage.', error);
-      }
-      return structuredClone(starterState);
+      const next = mockServices.load();
+      persistState(next);
+      return next;
     }
 
     let state = loadState();
-
-    function persist() {
-      localStorage.setItem(storageKey, JSON.stringify(state));
-      localStorage.setItem('moms-memorytree-family-tree', JSON.stringify(state.members.filter((member) => member.name !== 'Mom')));
-    }
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
@@ -756,6 +893,14 @@
         ['Family', state.family.name || 'Unnamed'],
         ['Memories', String(state.memories.length)]
       ].map(([label, value]) => `<div class="status-chip"><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></div>`).join('');
+    }
+
+    function renderServiceStatus() {
+      const node = byId('mock-service-status');
+      if (!node) return;
+      const issues = validateState(state);
+      const validation = issues.length ? `Needs repair: ${issues.join(', ')}` : 'State validation clean.';
+      node.innerHTML = `<strong>Mock service layer</strong><small>${escapeHtml(state.service?.provider || 'browser-local-mock')} · schema v${serviceSchemaVersion} · ${escapeHtml(state.service?.lastMigration || 'ready')}</small><small>${escapeHtml(validation)}</small>`;
     }
 
     function renderTree() {
@@ -809,6 +954,7 @@
 
     function renderAll() {
       renderStatus();
+      renderServiceStatus();
       renderTree();
       renderMemories();
       renderInvites();
@@ -819,15 +965,13 @@
     const createAccount = byId('mock-create-account');
     if (createAccount) {
       createAccount.addEventListener('click', () => {
-        state.account = {
-          signedIn: true,
-          name: (byId('mock-name').value || 'Archive Creator').trim(),
-          email: (byId('mock-email').value || 'preview@example.com').trim(),
-          role: byId('mock-role').value
-        };
-        state.family.name = (byId('mock-family').value || 'Moms MemoryTree Family').trim();
+        state = mockServices.createAccount(state, {
+          name: byId('mock-name').value,
+          email: byId('mock-email').value,
+          role: byId('mock-role').value,
+          familyName: byId('mock-family').value
+        });
         byId('mock-account-note').textContent = `${state.account.name} created ${state.family.name} in preview mode.`;
-        persist();
         renderAll();
       });
     }
@@ -835,8 +979,7 @@
     const reset = byId('mock-reset');
     if (reset) {
       reset.addEventListener('click', () => {
-        state = structuredClone(starterState);
-        persist();
+        state = mockServices.reset();
         byId('mock-account-note').textContent = 'Preview reset.';
         renderAll();
       });
@@ -852,11 +995,10 @@
           treeName.focus();
           return;
         }
-        state.members.push({ name, role, connection });
+        state = mockServices.addMember(state, { name, role, connection });
         treeName.value = '';
         treeConnection.value = '';
         treeSaveNote.textContent = `${name} saved to your family tree.`;
-        persist();
         renderAll();
       });
     }
@@ -870,10 +1012,9 @@
           return;
         }
         const role = byId('invite-role').value;
-        state.invites.push({ email, role, createdAt: new Date().toISOString() });
+        state = mockServices.addInvite(state, { email, role });
         byId('invite-email').value = '';
         byId('invite-note').textContent = `${email} saved as a pending ${role} invitation.`;
-        persist();
         renderAll();
       });
     }
@@ -908,16 +1049,13 @@
             type: byId('memory-type').value,
             person: byId('memory-person').value || 'Mom',
             visibility: byId('memory-visibility').value,
-            notes: byId('memory-notes').value,
-            status: 'Saved',
-            createdAt: new Date().toISOString()
+            notes: byId('memory-notes').value
           };
-          state.memories.push(memory);
+          state = mockServices.addMemory(state, memory);
           ['memory-title', 'memory-notes'].forEach((id) => { byId(id).value = ''; });
           progress.style.setProperty('--upload-width', '100%');
           status.textContent = 'Preview memory saved.';
           byId('memory-note').textContent = `${memory.title} saved and visible in Memories and Timeline.`;
-          persist();
           renderAll();
         }, 380);
       });
@@ -940,7 +1078,7 @@
       if (control) setTab(control.dataset.tab);
     });
 
-    persist();
+    mockServices.save(state);
     setTab((window.location.hash || '#home').replace('#', ''));
   </script>
 </body>
