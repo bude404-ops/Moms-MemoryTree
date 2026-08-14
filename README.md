@@ -6,9 +6,11 @@ Moms MemoryTree is a private family-centered digital legacy app. It helps famili
 
 ## Start here
 
-**GitHub app index:** [`docs/APP_INDEX.md`](docs/APP_INDEX.md)
+**Coded GitHub demo page:** [`docs/index.html`](docs/index.html)
 
-The app index shows:
+**Written app index:** [`docs/APP_INDEX.md`](docs/APP_INDEX.md)
+
+The coded demo and app index show:
 
 - what Moms MemoryTree is
 - what the current dashboard shows

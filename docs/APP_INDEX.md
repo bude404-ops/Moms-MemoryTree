@@ -4,7 +4,9 @@
 
 Moms MemoryTree is a private family memory and digital legacy app. It is built for families who want more than folders of photos: stories, voices, relationships, family context, future messages, and long-term continuity.
 
-This page is the GitHub index for what the app can do today, what is foundation-only, and what must be connected before production.
+This page is the written GitHub index for what the app can do today, what is foundation-only, and what must be connected before production.
+
+For the coded visual demo, open [`index.html`](index.html).
 
 ## What the app is
 

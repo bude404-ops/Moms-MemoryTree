@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Moms MemoryTree coded GitHub demo: private family archive, MemoryTree, recording, legacy, storage, and dashboard foundation." />
+  <title>Moms MemoryTree — GitHub Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --stone-950: #1c1917;
+      --stone-900: #292524;
+      --stone-800: #44403c;
+      --stone-700: #57534e;
+      --stone-600: #78716c;
+      --stone-100: #f5f5f4;
+      --amber-950: #451a03;
+      --amber-800: #92400e;
+      --amber-700: #b45309;
+      --amber-600: #d97706;
+      --amber-500: #f59e0b;
+      --amber-200: #fde68a;
+      --amber-100: #fef3c7;
+      --amber-50: #fffbeb;
+      --emerald-950: #022c22;
+      --emerald-900: #064e3b;
+      --emerald-800: #065f46;
+      --emerald-700: #047857;
+      --emerald-100: #d1fae5;
+      --emerald-50: #ecfdf5;
+      --rose-700: #be123c;
+      --rose-100: #ffe4e6;
+      --rose-50: #fff1f2;
+      --orange-700: #c2410c;
+      --white: #ffffff;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fff7ed;
+      color: var(--stone-900);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(245, 158, 11, 0.28), transparent 30rem),
+        radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.18), transparent 30rem),
+        linear-gradient(135deg, #fff7ed 0%, #fff 48%, #ecfdf5 100%);
+    }
+
+    a { color: inherit; }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(255, 251, 235, 0.86);
+      border-bottom: 1px solid rgba(146, 64, 14, 0.12);
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 14px 0;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .mark {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--amber-200), var(--rose-100));
+      color: var(--stone-950);
+      font-weight: 900;
+      box-shadow: inset 0 1px 8px rgba(255,255,255,.8), 0 14px 30px rgba(92,64,35,.14);
+    }
+    .brand small { display: block; color: var(--amber-700); font-weight: 800; letter-spacing: .18em; text-transform: uppercase; font-size: 10px; }
+    .brand strong { display: block; font-size: 18px; }
+    .links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .links a {
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--stone-700);
+      padding: 10px 12px;
+      border-radius: 999px;
+    }
+    .links a:hover { background: rgba(245, 158, 11, .14); color: var(--amber-800); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr minmax(320px, 430px);
+      gap: 32px;
+      align-items: center;
+      padding: 64px 0 36px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px;
+      color: var(--amber-700);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .24em;
+    }
+    .hero h1 {
+      margin: 0;
+      max-width: 780px;
+      color: var(--stone-950);
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: .94;
+      letter-spacing: -.06em;
+    }
+    .hero p { color: var(--stone-700); font-size: 18px; line-height: 1.75; max-width: 720px; }
+    .quote {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 14px 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.76);
+      border: 1px solid rgba(146,64,14,.12);
+      color: var(--stone-800);
+      box-shadow: 0 18px 60px rgba(92,64,35,.08);
+    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(146,64,14,.16);
+      text-decoration: none;
+      font-weight: 900;
+      box-shadow: 0 16px 40px rgba(92,64,35,.10);
+    }
+    .btn.primary { background: var(--stone-950); color: white; border-color: var(--stone-950); }
+    .btn.secondary { background: white; color: var(--stone-900); }
+
+    .phone {
+      border-radius: 44px;
+      padding: 14px;
+      background: linear-gradient(145deg, var(--stone-950), var(--stone-800));
+      box-shadow: 0 30px 90px rgba(28,25,23,.25);
+      transform: rotate(1deg);
+    }
+    .phone-screen {
+      min-height: 680px;
+      overflow: hidden;
+      border-radius: 34px;
+      background: linear-gradient(135deg, #fff7ed, #fff, #ecfdf5);
+      border: 1px solid rgba(255,255,255,.3);
+    }
+    .app-header {
+      padding: 22px;
+      background: rgba(255,251,235,.9);
+      border-bottom: 1px solid rgba(146,64,14,.12);
+    }
+    .app-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .app-title h2 { margin: 0; font-size: 30px; letter-spacing: -.04em; }
+    .pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 6px 10px; font-size: 11px; font-weight: 900; }
+    .pill.green { background: var(--emerald-100); color: var(--emerald-800); }
+    .pill.amber { background: var(--amber-100); color: var(--amber-800); }
+    .pill.dark { background: var(--stone-950); color: white; }
+    .app-content { padding: 16px; display: grid; gap: 12px; }
+    .mini-hero {
+      color: white;
+      padding: 20px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, var(--stone-950), var(--emerald-900));
+    }
+    .mini-hero small { color: var(--amber-200); font-weight: 900; letter-spacing: .2em; text-transform: uppercase; font-size: 10px; }
+    .mini-hero h3 { margin: 8px 0; font-size: 26px; line-height: 1.05; }
+    .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .metric, .mini-card {
+      padding: 14px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(146,64,14,.1);
+      box-shadow: 0 14px 30px rgba(92,64,35,.06);
+    }
+    .metric span { display:block; color: var(--stone-600); font-size: 12px; font-weight: 700; }
+    .metric b { display:block; margin-top: 5px; font-size: 23px; color: var(--stone-950); }
+    .mini-card h4 { margin: 0 0 9px; font-size: 14px; }
+    .stage-row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(146,64,14,.1); font-size: 13px; }
+    .stage-row:first-of-type { border-top: 0; }
+    .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 0 16px 16px; }
+    .tabbar span { text-align: center; padding: 9px 4px; border-radius: 14px; font-size: 10px; font-weight: 900; color: var(--stone-600); background: rgba(255,255,255,.65); }
+    .tabbar span:first-child { color: white; background: var(--stone-950); }
+
+    section { padding: 36px 0; }
+    .section-title { margin-bottom: 20px; }
+    .section-title h2 { margin: 0; color: var(--stone-950); font-size: clamp(30px, 4vw, 48px); letter-spacing: -.045em; }
+    .section-title p { color: var(--stone-600); line-height: 1.7; max-width: 760px; }
+    .grid { display: grid; gap: 16px; }
+    .grid.four { grid-template-columns: repeat(4, 1fr); }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+    .card {
+      border-radius: 30px;
+      padding: 22px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(146,64,14,.12);
+      box-shadow: 0 18px 60px rgba(92,64,35,.08);
+    }
+    .card h3 { margin: 0 0 10px; color: var(--stone-950); font-size: 22px; letter-spacing: -.02em; }
+    .card p { color: var(--stone-600); line-height: 1.65; margin: 0; }
+    .card .icon { font-size: 26px; margin-bottom: 12px; display: inline-block; }
+    .screen-card { min-height: 184px; display: flex; flex-direction: column; justify-content: space-between; }
+    .screen-card footer { margin-top: 18px; display:flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--amber-800); font-weight: 900; font-size: 13px; }
+    .matrix { overflow: hidden; padding: 0; }
+    .matrix-row { display: grid; grid-template-columns: 1fr 1fr 140px; gap: 0; border-top: 1px solid rgba(146,64,14,.12); }
+    .matrix-row:first-child { border-top: 0; }
+    .matrix-row > div { padding: 16px; }
+    .matrix-row strong { display:block; margin-bottom: 5px; }
+    .demo-strip {
+      background: linear-gradient(135deg, var(--stone-950), var(--stone-800));
+      color: white;
+      border-radius: 34px;
+      padding: 26px;
+      box-shadow: 0 22px 70px rgba(28,25,23,.18);
+    }
+    .demo-strip .section-title h2, .demo-strip .section-title p { color: white; }
+    .demo-strip .section-title p { color: #e7e5e4; }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .flow-step { padding: 16px; border-radius: 22px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.12); }
+    .flow-step b { color: var(--amber-200); }
+    .footer { padding: 44px 0 60px; color: var(--stone-600); }
+    .footer .card { display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; }
+      .phone { width: min(430px, 100%); margin: 0 auto; }
+      .grid.four, .grid.three, .flow { grid-template-columns: repeat(2, 1fr); }
+      .matrix-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .shell { width: min(100% - 22px, 1180px); }
+      .nav { align-items: flex-start; flex-direction: column; }
+      .links { justify-content: flex-start; }
+      .hero { padding-top: 34px; }
+      .phone-screen { min-height: 600px; }
+      .grid.four, .grid.three, .grid.two, .flow { grid-template-columns: 1fr; }
+      .footer .card { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="shell nav" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Moms MemoryTree home">
+        <span class="mark">M</span>
+        <span><small>Private family archive</small><strong>Moms MemoryTree</strong></span>
+      </a>
+      <div class="links">
+        <a href="#demo">Demo</a>
+        <a href="#screens">Screens</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#status">Status</a>
+        <a href="#run">Run</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <div class="shell hero">
+      <div>
+        <p class="eyebrow">🌳 coded GitHub demo</p>
+        <h1>Visit Mom, not folders.</h1>
+        <p>Moms MemoryTree preserves family stories, private media, relationships, memories, life lessons, and future legacy messages inside a family-owned archive.</p>
+        <span class="quote">“Don't just leave your family pictures. Leave them your story.”</span>
+        <div class="cta-row">
+          <a class="btn primary" href="#demo">View the app demo ↓</a>
+          <a class="btn secondary" href="APP_INDEX.md">Read the full app index</a>
+        </div>
+      </div>
+
+      <aside class="phone" aria-label="Moms MemoryTree mobile dashboard mockup">
+        <div class="phone-screen">
+          <div class="app-header">
+            <div class="app-title"><h2>Dashboard</h2><span class="pill green">Demo</span></div>
+            <p style="margin:8px 0 0;color:#78716c;font-size:13px">Private family archive</p>
+          </div>
+          <div class="app-content">
+            <div class="mini-hero"><small>App dashboard</small><h3>Foundation is complete. Dashboard phase is live.</h3><p style="margin:0;color:#e7e5e4;font-size:13px;line-height:1.55">Ready for product UI iteration. Provider-live claims stay honest.</p></div>
+            <div class="metrics">
+              <div class="metric"><span>Foundation stages</span><b>13/13</b></div>
+              <div class="metric"><span>Memories tracked</span><b>3</b></div>
+              <div class="metric"><span>Private media</span><b>174 MB</b></div>
+              <div class="metric"><span>Known blockers</span><b>9</b></div>
+            </div>
+            <div class="mini-card"><h4>Provider matrix</h4><div class="stage-row"><span>Mini App runtime</span><span class="pill green">Ready</span></div><div class="stage-row"><span>Supabase storage</span><span class="pill amber">Needs setup</span></div><div class="stage-row"><span>Backups / AI / payments</span><span class="pill dark">Foundation</span></div></div>
+            <div class="mini-card"><h4>Storage economics</h4><div style="height:12px;border-radius:999px;background:#fef3c7;overflow:hidden"><span style="display:block;width:18%;height:100%;background:linear-gradient(90deg,#f59e0b,#10b981)"></span></div><p style="margin:8px 0 0;color:#78716c;font-size:12px">Usage, quota, cost, and revenue stay visible before scale.</p></div>
+          </div>
+          <div class="tabbar"><span>Dash</span><span>Home</span><span>Tree</span><span>Record</span><span>Legacy</span></div>
+        </div>
+      </aside>
+    </div>
+
+    <section id="demo" class="shell">
+      <div class="demo-strip">
+        <div class="section-title"><p class="eyebrow">live-shaped demo</p><h2>What the app feels like</h2><p>This coded page mirrors the actual app’s core surfaces: dashboard first, story-first archive, private media boundaries, family relationships, storage economics, and legacy custody.</p></div>
+        <div class="flow">
+          <div class="flow-step"><b>01</b><h3>Open dashboard</h3><p>See what is complete, blocked, live, or foundation-only.</p></div>
+          <div class="flow-step"><b>02</b><h3>Visit family</h3><p>Browse people and relationships, not anonymous folders.</p></div>
+          <div class="flow-step"><b>03</b><h3>Record memory</h3><p>Create a story with privacy, person, date, and media context.</p></div>
+          <div class="flow-step"><b>04</b><h3>Protect access</h3><p>Private media moves through signed authorization boundaries.</p></div>
+          <div class="flow-step"><b>05</b><h3>Prepare legacy</h3><p>Custodians are modeled without premature access grants.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screens" class="shell">
+      <div class="section-title"><p class="eyebrow">app screens</p><h2>The product map</h2><p>Each screen represents a real surface in the current React app, with foundation-only status kept visible where live providers are still needed.</p></div>
+      <div class="grid four">
+        <article class="card screen-card"><div><span class="icon">📊</span><h3>Dashboard</h3><p>Foundation status, provider matrix, security readiness, blockers, economics, and operator queue.</p></div><footer><span>Default screen</span><span>Implemented</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🏠</span><h3>Home</h3><p>Story-first landing page for the family archive: visit people and memories, not raw folders.</p></div><footer><span>Archive entry</span><span>Implemented</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🌳</span><h3>MemoryTree</h3><p>People and relationships foundation with unlimited-generation data modeling.</p></div><footer><span>Family graph</span><span>Foundation</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🎙️</span><h3>Record</h3><p>Preserve a story, classify it, attach a person, set privacy, and stage private media.</p></div><footer><span>Upload chain</span><span>Foundation</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">💌</span><h3>Memories</h3><p>Browse memory cards with family context, category, tags, and privacy labels.</p></div><footer><span>Story library</span><span>Implemented</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">👪</span><h3>Family</h3><p>Add people, connect relationships, and prepare invited members with roles.</p></div><footer><span>Management</span><span>Foundation</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">💾</span><h3>Storage</h3><p>Usage, quota, plan assumptions, cost estimates, and revenue separation.</p></div><footer><span>Economics</span><span>Foundation</span></footer></article>
+        <article class="card screen-card"><div><span class="icon">🛡️</span><h3>Legacy</h3><p>Primary and backup custodians without automatic private-memory access.</p></div><footer><span>Future access</span><span>Foundation</span></footer></article>
+      </div>
+    </section>
+
+    <section id="capabilities" class="shell">
+      <div class="section-title"><p class="eyebrow">capabilities</p><h2>What it can do now</h2><p>The current foundation is built for safe iteration: app UI, domain model, local demo mode, provider boundaries, validation, and honest production gates.</p></div>
+      <div class="grid three">
+        <article class="card"><span class="icon">🔐</span><h3>Private by default</h3><p>Family-scoped models, private storage architecture, signed media access, environment validation, and secret scanning.</p></article>
+        <article class="card"><span class="icon">🧬</span><h3>Family-centered data</h3><p>Families, people, members, relationships, memories, timeline events, custodians, and storage usage are separate concepts.</p></article>
+        <article class="card"><span class="icon">🎞️</span><h3>Memory preservation</h3><p>Stories support type, category, date, location, associated person, tags, privacy, and private media metadata.</p></article>
+        <article class="card"><span class="icon">📈</span><h3>Cost visibility</h3><p>Storage economics estimate usage, cost, quota, addon, revenue, and margin without pretending invoices exist.</p></article>
+        <article class="card"><span class="icon">🧓</span><h3>Legacy custody</h3><p>Legacy custodians can be modeled now, while future activation remains blocked until verified workflows exist.</p></article>
+        <article class="card"><span class="icon">✅</span><h3>Validation gate</h3><p>Lint, tests, migrations, RLS checks, environment checks, live-harness checks, deployment checks, secrets, and build.</p></article>
+      </div>
+    </section>
+
+    <section id="status" class="shell">
+      <div class="section-title"><p class="eyebrow">provider status</p><h2>Ready where real. Blocked where honest.</h2><p>The demo represents the actual app without claiming production infrastructure that has not been connected and verified.</p></div>
+      <div class="card matrix" role="table" aria-label="Provider status matrix">
+        <div class="matrix-row" role="row"><div><strong>Mini App / React runtime</strong><span>Primary app shell and dashboard UI.</span></div><div>Reaper + React/Vite</div><div><span class="pill green">Ready</span></div></div>
+        <div class="matrix-row" role="row"><div><strong>Auth and database</strong><span>Provider abstraction, migrations, RLS, and service boundaries exist.</span></div><div>Supabase</div><div><span class="pill amber">Needs live setup</span></div></div>
+        <div class="matrix-row" role="row"><div><strong>Private media</strong><span>Storage paths, metadata, buckets, and signed URL function source exist.</span></div><div>Supabase Storage</div><div><span class="pill amber">Needs verification</span></div></div>
+        <div class="matrix-row" role="row"><div><strong>Backup, payments, AI, jobs</strong><span>Models and boundaries exist where needed, but providers are not live.</span></div><div>Future providers</div><div><span class="pill dark">Foundation only</span></div></div>
+      </div>
+    </section>
+
+    <section id="run" class="shell">
+      <div class="section-title"><p class="eyebrow">run locally</p><h2>Demo mode starts safely</h2><p>Without provider variables, the app uses local seed/demo data so the product can be explored without exposing credentials.</p></div>
+      <div class="grid two">
+        <article class="card"><h3>Local app</h3><pre><code>npm install
+cp .env.example .env.local
+npm run dev</code></pre></article>
+        <article class="card"><h3>Full validation</h3><pre><code>npm install
+npm run validate</code></pre></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <div class="card">
+      <div><strong>Moms MemoryTree</strong><p>Private family stories. Honest infrastructure boundaries. Built for dashboard and product iteration.</p></div>
+      <a class="btn secondary" href="APP_INDEX.md">Read the written index</a>
+    </div>
+  </footer>
+</body>
+</html>
