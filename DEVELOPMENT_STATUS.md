@@ -75,10 +75,13 @@
 - Stage 2 architecture alignment documented in `docs/STAGE_02_ARCHITECTURE_ALIGNMENT.md` and `docs/STAGE_02_ARCHITECTURE_ALIGNMENT_REPORT.md`.
 - Portable service-contract strategy locked for Auth, Database, Family, Memory, Media Storage, Legacy, Notification, Billing, Backup, and AI services.
 - Repository cleanup completed before Stage 3: root documentation moved into organized docs folders, committed image asset moved into `assets/`, stale empty root `tests/` placeholder removed, repository structure documented, and `.gitignore` strengthened for generated files, credentials, and private media.
+- Stage 3 GitHub application shell completed in `docs/STAGE_03_GITHUB_APPLICATION_SHELL_REPORT.md`.
+- Root `index.html` now follows the app navigation shell: Home, Memories, Family, Record, Timeline, Legacy.
+- `npm run validate:github-shell` added to enforce GitHub Pages shell requirements.
 
 ## IN PROGRESS
 
-- Stage 3 GitHub application shell is next.
+- Stage 4 `index.html` interactive prototype is next.
 - Live production provider deployment remains pending provider selection/credentials.
 - Real cloud upload/playback requires an approved production storage/backend provider.
 - Family invitation email delivery is architecture-only.

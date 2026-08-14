@@ -467,9 +467,10 @@
       </a>
       <div class="nav-center" aria-label="Dashboard sections">
         <button class="nav-pill active" data-tab="home">Home</button>
-        <button class="nav-pill" data-tab="dashboard">Features</button>
-        <button class="nav-pill" data-tab="tree">MemoryTree</button>
+        <button class="nav-pill" data-tab="memories">Memories</button>
+        <button class="nav-pill" data-tab="family">Family</button>
         <button class="nav-pill" data-tab="record">Record</button>
+        <button class="nav-pill" data-tab="timeline">Timeline</button>
         <button class="nav-pill" data-tab="legacy">Legacy</button>
       </div>
       <div class="nav-actions">
@@ -481,9 +482,10 @@
   <main id="top" class="shell app-shell">
     <aside class="rail" aria-label="App navigation">
       <button class="active" data-tab="home" aria-label="Home">🏠</button>
-      <button data-tab="dashboard" aria-label="Features">✨</button>
-      <button data-tab="tree" aria-label="MemoryTree">🌳</button>
+      <button data-tab="memories" aria-label="Memories">📚</button>
+      <button data-tab="family" aria-label="Family">🌳</button>
       <button data-tab="record" aria-label="Record">🎙️</button>
+      <button data-tab="timeline" aria-label="Timeline">📅</button>
       <button data-tab="legacy" aria-label="Legacy">🛡️</button>
     </aside>
 
@@ -493,29 +495,29 @@
           <img class="uploaded-photo" src="assets/memorytree-hero.png" alt="Uploaded family memory" />
           <div class="photo-actions" aria-label="Home actions">
             <button class="btn primary" data-tab="record">Record a memory</button>
-            <button class="btn secondary" data-tab="dashboard">View features</button>
+            <button class="btn secondary" data-tab="memories">View memories</button>
           </div>
         </div>
       </section>
 
-      <section class="card" data-view="dashboard">
+      <section class="card" data-view="memories">
         <div class="section-title">
-          <p class="eyebrow">app features</p>
-          <h2>A private family archive that feels like home.</h2>
-          <p>This view is for the family using the app: record stories, browse people, protect photos and videos, and prepare legacy messages for the right loved ones.</p>
+          <p class="eyebrow">memories</p>
+          <h2>All family memories in one calm place.</h2>
+          <p>Browse videos, photos, written stories, audio, and memorial memories with clear cards and plain labels.</p>
         </div>
         <div class="grid four">
-          <article class="card"><span class="icon">🎥</span><h3>Video or audio</h3><p>Choose one clear recording path: video when they want to be seen, audio when they only want their voice preserved.</p></article>
-          <article class="card"><span class="icon">🌳</span><h3>Save family tree</h3><p>Enter family members, choose their roles, connect them together, and save the tree for the archive.</p></article>
-          <article class="card"><span class="icon">🔐</span><h3>Protect media</h3><p>Keep private photos, videos, and keepsakes inside a family-first vault instead of scattering them across folders.</p></article>
-          <article class="card"><span class="icon">💌</span><h3>Leave legacy</h3><p>Prepare future messages, lessons, and wishes for trusted loved ones without losing the warmth of the story.</p></article>
+          <article class="card"><span class="icon">🎥</span><h3>Video memories</h3><p>Faces, voices, celebrations, and quiet everyday moments stay attached to the right family people.</p></article>
+          <article class="card"><span class="icon">📷</span><h3>Photos</h3><p>Private family photos remain separate from GitHub and are represented here by safe metadata.</p></article>
+          <article class="card"><span class="icon">✍️</span><h3>Stories</h3><p>Written memories can become drafts first, then preserved when the creator is ready.</p></article>
+          <article class="card"><span class="icon">🕯️</span><h3>Memorial</h3><p>Tributes and funeral videos are new contributions, never replacements for the original life story.</p></article>
         </div>
       </section>
 
-      <section class="panel-grid" data-view="tree">
+      <section class="panel-grid" data-view="family">
         <article class="card">
           <div class="section-title">
-            <p class="eyebrow">memorytree</p>
+            <p class="eyebrow">family</p>
             <h2>Your family tree.</h2>
             <p>Enter the people in your family, choose how they are connected, and save the tree so memories stay attached to the right loved ones.</p>
           </div>
@@ -534,6 +536,20 @@
           </div>
         </article>
         <article class="card"><span class="icon">🌲</span><h3>Save the tree</h3><p>This screen stays focused on one thing: entering family members and keeping their relationships saved for the archive.</p></article>
+      </section>
+
+      <section class="card" data-view="timeline">
+        <div class="section-title">
+          <p class="eyebrow">timeline</p>
+          <h2>Life story, family memories, and memorial moments stay separate.</h2>
+          <p>Every event shows what happened, when it happened, and who added it.</p>
+        </div>
+        <div class="card matrix" role="table" aria-label="Legacy timeline preview">
+          <div class="matrix-row" role="row"><div><strong>1948 — Born</strong><span>Life Story</span></div><div>Recorded by Mom</div><div><span class="pill green">Original</span></div></div>
+          <div class="matrix-row" role="row"><div><strong>1972 — Married</strong><span>Life Memories</span></div><div>Added by family</div><div><span class="pill dark">Contribution</span></div></div>
+          <div class="matrix-row" role="row"><div><strong>2026 — Life Story Recorded</strong><span>Preserved story</span></div><div>Recorded by creator</div><div><span class="pill green">Locked</span></div></div>
+          <div class="matrix-row" role="row"><div><strong>Future — Memorial Video</strong><span>Funeral & Memorial</span></div><div>Added by custodian</div><div><span class="pill dark">Separate</span></div></div>
+        </div>
       </section>
 
       <section class="panel-grid" data-view="record">
@@ -591,17 +607,21 @@
         title: 'Home',
         html: '<div class="mobile-feature"><small>App home</small><h3>Visit Mom, not folders.</h3><p>Enter through people, stories, and relationships — with the storybook tree as the warm family mark.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Stories</span><b>Record</b></div><div class="mobile-card metric"><span>Memories</span><b>Save</b></div></div><div class="mobile-card"><h3>Today\'s prompt</h3><p>Tell us about the day this photo was taken under the pines.</p></div>'
       },
-      dashboard: {
-        title: 'Features',
-        html: '<div class="mobile-feature"><small>App features</small><h3>Your family archive, made visual.</h3><p>Stories, people, media, and legacy messages stay together in one warm family space.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Stories</span><b>Record</b></div><div class="mobile-card metric"><span>Media</span><b>Protect</b></div></div><div class="mobile-card"><h3>What you can do</h3><div class="stage-row"><span>Record stories</span><span class="pill green">Yes</span></div><div class="stage-row"><span>Browse family</span><span class="pill green">Yes</span></div><div class="stage-row"><span>Prepare legacy</span><span class="pill green">Yes</span></div></div>'
+      memories: {
+        title: 'Memories',
+        html: '<div class="mobile-feature"><small>Memories</small><h3>Your family archive, made visual.</h3><p>Stories, people, media, and legacy messages stay together in one warm family space.</p></div><div class="mobile-grid"><div class="mobile-card metric"><span>Stories</span><b>Record</b></div><div class="mobile-card metric"><span>Media</span><b>Protect</b></div></div><div class="mobile-card"><h3>What you can do</h3><div class="stage-row"><span>Record stories</span><span class="pill green">Yes</span></div><div class="stage-row"><span>Browse family</span><span class="pill green">Yes</span></div><div class="stage-row"><span>Prepare legacy</span><span class="pill green">Yes</span></div></div>'
       },
-      tree: {
-        title: 'MemoryTree',
+      family: {
+        title: 'Family',
         html: '<div class="mobile-feature"><small>Family tree</small><h3>Enter family members and save the tree.</h3><p>One focused place for names, roles, and connections.</p></div><div class="mobile-card"><h3>Saved tree</h3><div class="stage-row"><span>Mom</span><span>Root</span></div><div class="stage-row"><span>Children</span><span>Add</span></div><div class="stage-row"><span>Grandchildren</span><span>Add</span></div></div>'
       },
       record: {
         title: 'Record',
         html: '<div class="mobile-feature"><small>Record</small><h3>Choose video or audio.</h3><p>No extra clutter — just save the memory in the format they want.</p></div><div class="mobile-grid"><button class="mobile-card"><h3>🎥 Video</h3><p>Record with camera.</p></button><button class="mobile-card"><h3>🎙️ Audio</h3><p>Record voice only.</p></button></div>'
+      },
+      timeline: {
+        title: 'Timeline',
+        html: '<div class="mobile-feature"><small>Timeline</small><h3>Every memory keeps its source.</h3><p>Original life story, family additions, memorial videos, and later tributes are clearly separated.</p></div><div class="mobile-card"><h3>Timeline sections</h3><div class="stage-row"><span>Life Story</span><span class="pill green">Original</span></div><div class="stage-row"><span>Life Memories</span><span>During life</span></div><div class="stage-row"><span>Funeral & Memorial</span><span>Custodian</span></div><div class="stage-row"><span>Family After Passing</span><span>Contributor shown</span></div></div>'
       },
       legacy: {
         title: 'Legacy',
