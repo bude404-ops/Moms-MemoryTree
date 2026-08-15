@@ -65,7 +65,7 @@ const stage4Phrases = [
   'Create preview account',
   'Save invitation',
   'Save memory',
-  'Upload simulation',
+  'Provider-neutral save chain',
   'saved to your family tree'
 ];
 for (const phrase of stage4Phrases) {
@@ -132,10 +132,10 @@ const stage8VerificationContracts = [
   'liveVerificationHarness',
   "mode: 'evidence-required'",
   'npm run validate:live-harness',
-  'npm run verify:live-supabase',
-  'SUPABASE_LIVE_URL',
-  'SUPABASE_LIVE_PUBLISHABLE_KEY',
-  'SUPABASE_LIVE_TEST_PASSWORD',
+  'npm run verify:live-provider',
+  'PROVIDER_LIVE_URL',
+  'PROVIDER_LIVE_PUBLISHABLE_KEY',
+  'PROVIDER_LIVE_TEST_PASSWORD',
   'liveVerificationSteps',
   'data-verification-step=',
   'renderLiveVerificationHarness',

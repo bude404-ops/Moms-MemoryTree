@@ -677,12 +677,13 @@
           <div class="section-title">
             <p class="eyebrow">record a memory</p>
             <h2>Record video or audio.</h2>
-            <p>Keep this screen simple: choose video when they want to be seen, or audio when they only want their voice saved.</p>
+            <p>Keep this screen simple: record video or audio in the browser, then preserve the captured file through the same cloud storage boundary as uploads.</p>
           </div>
           <div class="record-choice-grid">
-            <button class="record-choice" type="button" data-record-type="Video"><span><span class="big-icon">🎥</span><h3>Record video</h3><p>Save a face, a voice, and the moment together.</p></span></button>
-            <button class="record-choice" type="button" data-record-type="Audio"><span><span class="big-icon">🎙️</span><h3>Record audio</h3><p>Save the story in their own voice.</p></span></button>
+            <button class="record-choice" type="button" data-record-type="Video"><span><span class="big-icon">🎥</span><h3>Record video</h3><p>Use the camera and mic, then stage the capture locally.</p></span></button>
+            <button class="record-choice" type="button" data-record-type="Audio"><span><span class="big-icon">🎙️</span><h3>Record audio</h3><p>Use the microphone and keep the story in their own voice.</p></span></button>
           </div>
+          <div class="action-row" style="margin-top:12px"><button class="btn secondary" id="stop-recording" type="button" disabled>Stop recording</button><span class="pill" id="recording-status">Recorder ready. No file leaves this device. Save to attach it.</span></div>
           <div class="mock-panel" style="margin-top:16px">
             <h3>Save a preview memory</h3>
             <div class="mock-form two">
@@ -692,7 +693,7 @@
               <label>Visibility<select id="memory-visibility"><option>Family</option><option>Private</option><option>Legacy Custodians</option></select></label>
             </div>
             <div class="mock-form" style="margin-top:10px"><label>Story notes<textarea id="memory-notes" placeholder="Write the memory or recording note here..."></textarea></label></div>
-            <div class="upload-flow" id="upload-flow"><strong>Upload simulation — preview only</strong><div class="upload-bar"><span id="upload-progress"></span></div><small id="upload-status">Ready to save a browser-local preview memory. No file leaves this device.</small></div>
+            <div class="upload-flow" id="upload-flow"><strong>Provider-neutral save chain — preview only</strong><div class="upload-bar"><span id="upload-progress"></span></div><small id="upload-status">Ready to save a browser-local preview memory. Recording/upload media is staged locally first.</small></div>
             <div class="action-row"><button class="btn primary" id="save-memory" type="button">Save memory preview</button><button class="btn secondary" data-tab="memories" type="button">View saved memories</button><button class="btn locked-action" data-production-lock="media" type="button" aria-disabled="true">Live upload locked</button></div>
             <p class="save-note" id="memory-note" aria-live="polite"></p>
           </div>
@@ -776,18 +777,18 @@
     const liveVerificationHarness = {
       mode: 'evidence-required',
       safetyCheck: 'npm run validate:live-harness',
-      liveCommand: 'npm run verify:live-supabase',
-      requiredCredentials: ['SUPABASE_LIVE_URL', 'SUPABASE_LIVE_PUBLISHABLE_KEY', 'SUPABASE_LIVE_TEST_PASSWORD'],
-      optionalFixtures: ['SUPABASE_LIVE_TEST_EMAIL_A', 'SUPABASE_LIVE_TEST_EMAIL_B', 'SUPABASE_SIGNED_MEDIA_FUNCTION'],
+      liveCommand: 'npm run verify:live-provider',
+      requiredCredentials: ['PROVIDER_LIVE_URL', 'PROVIDER_LIVE_PUBLISHABLE_KEY', 'PROVIDER_LIVE_TEST_PASSWORD'],
+      optionalFixtures: ['PROVIDER_LIVE_TEST_EMAIL_A', 'PROVIDER_LIVE_TEST_EMAIL_B', 'PROVIDER_SIGNED_MEDIA_FUNCTION'],
       evidence: ['command output captured', 'timestamped pass/fail result', 'provider gate owner review', 'no privileged credentials used']
     };
 
     const liveVerificationSteps = [
       { key: 'credentials', label: 'Client credentials loaded', command: 'validate:live-harness', proof: 'publishable-only environment names are present and privileged names are absent' },
-      { key: 'auth', label: 'Auth signup/signin verified', command: 'verify:live-supabase', proof: 'throwaway Family A and Family B test users can authenticate' },
-      { key: 'database', label: 'Family isolation verified', command: 'verify:live-supabase', proof: 'Family B cannot read, update, or delete Family A memories' },
-      { key: 'media', label: 'Private media verified', command: 'verify:live-supabase', proof: 'Family B cannot upload into or download from Family A media paths' },
-      { key: 'signed-media', label: 'Signed playback verified', command: 'verify:live-supabase', proof: 'Family A receives an expiring signed URL and Family B is denied' },
+      { key: 'auth', label: 'Auth signup/signin verified', command: 'verify:live-provider', proof: 'throwaway Family A and Family B test users can authenticate' },
+      { key: 'database', label: 'Family isolation verified', command: 'verify:live-provider', proof: 'Family B cannot read, update, or delete Family A memories' },
+      { key: 'media', label: 'Private media verified', command: 'verify:live-provider', proof: 'Family B cannot upload into or download from Family A media paths' },
+      { key: 'signed-media', label: 'Signed playback verified', command: 'verify:live-provider', proof: 'Family A receives an expiring signed URL and Family B is denied' },
       { key: 'backup', label: 'Backup/export drill pending', command: 'manual production drill', proof: 'restore/export evidence must be attached before backup gate can unlock' }
     ];
 
@@ -801,7 +802,7 @@
     const operatorHandoffSteps = [
       { key: 'prepare', label: 'Prepare throwaway users', command: 'create or confirm Family A / Family B test accounts', proof: 'test accounts are disposable and not tied to real family data' },
       { key: 'inject', label: 'Inject credentials safely', command: 'use environment variables or CI secrets', proof: 'no values appear in source, docs, browser storage, or Mini App copy' },
-      { key: 'run', label: 'Run verification commands', command: 'npm run validate:live-harness && npm run verify:live-supabase', proof: 'captured output shows auth, isolation, media, and signed URL checks' },
+      { key: 'run', label: 'Run verification commands', command: 'npm run validate:live-harness && npm run verify:live-provider', proof: 'captured output shows auth, isolation, media, and signed URL checks' },
       { key: 'record', label: 'Record redacted evidence', command: 'attach timestamped pass/fail summary', proof: 'evidence references commands and gate names without exposing secrets' },
       { key: 'review', label: 'Manual owner review', command: 'approve or keep blocked', proof: 'reviewer confirms each gate and rollback path' },
       { key: 'rollback', label: 'Keep rollback ready', command: 'revoke test credentials and return gate to blocked if evidence expires', proof: 'operator can disable credentials and restore preview lockout' }
@@ -809,7 +810,7 @@
 
     const providerReadinessGates = [
       { key: 'auth', label: 'Auth provider', status: 'blocked', required: ['verified signup/signin', 'password reset route', 'session refresh'], safePreview: 'Mock account creation only' },
-      { key: 'database', label: 'Database provider', status: 'blocked', required: ['deployed migrations', 'RLS live isolation test', 'typed repository binding'], safePreview: 'Browser-local family archive state' },
+      { key: 'database', label: 'Database provider', status: 'blocked', required: ['deployed migrations', 'authorization live isolation test', 'typed repository binding'], safePreview: 'Browser-local family archive state' },
       { key: 'media', label: 'Private media storage', status: 'blocked', required: ['private bucket/object policy', 'signed playback function', 'quota enforcement'], safePreview: 'Upload progress simulation only' },
       { key: 'invitations', label: 'Invitation delivery', status: 'blocked', required: ['email provider', 'accept/expire token flow', 'role audit log'], safePreview: 'Pending invitation cards only' },
       { key: 'backup', label: 'Backup/export worker', status: 'blocked', required: ['independent backup target', 'restore verification', 'archive export job'], safePreview: 'Architecture record only' }
@@ -826,6 +827,12 @@
     const treeMembers = document.getElementById('tree-members');
     const treeSaveNote = document.getElementById('tree-save-note');
     const memoryPerson = document.getElementById('memory-person');
+    const recordingStatus = document.getElementById('recording-status');
+    const stopRecordingButton = document.getElementById('stop-recording');
+    let activeRecorder = null;
+    let activeStream = null;
+    let recordedChunks = [];
+    let stagedRecording = null;
 
     const allowedRoles = ['Archive Creator', 'Family Manager', 'Legacy Custodian'];
     const allowedMemberRoles = ['Mother', 'Father', 'Child', 'Grandchild', 'Partner', 'Other', 'Family root'];
@@ -1172,12 +1179,48 @@
       });
     }
 
+    async function startBrowserRecording(kind) {
+      byId('memory-type').value = kind;
+      byId('memory-title').focus();
+      if (!navigator.mediaDevices || typeof MediaRecorder === 'undefined') {
+        recordingStatus.textContent = 'This browser cannot record here yet. Use upload in the React app or choose another browser.';
+        return;
+      }
+      try {
+        activeStream = await navigator.mediaDevices.getUserMedia(kind === 'Video' ? { video: true, audio: true } : { audio: true });
+        activeRecorder = new MediaRecorder(activeStream);
+        recordedChunks = [];
+        activeRecorder.ondataavailable = (event) => { if (event.data.size > 0) recordedChunks.push(event.data); };
+        activeRecorder.onstop = () => {
+          const mimeType = activeRecorder.mimeType || (kind === 'Video' ? 'video/webm' : 'audio/webm');
+          stagedRecording = { kind, bytes: recordedChunks.reduce((sum, chunk) => sum + chunk.size, 0), mimeType };
+          activeStream.getTracks().forEach((track) => track.stop());
+          activeStream = null;
+          activeRecorder = null;
+          stopRecordingButton.disabled = true;
+          recordingStatus.textContent = `${kind} recording staged locally (${Math.max(1, Math.round(stagedRecording.bytes / 1024))} KB). Save the preview memory to attach it.`;
+        };
+        activeRecorder.start();
+        stopRecordingButton.disabled = false;
+        recordingStatus.textContent = `Recording ${kind.toLowerCase()} now. Stop when the story is complete.`;
+      } catch (error) {
+        recordingStatus.textContent = error && error.message ? error.message : 'Camera or microphone permission was denied.';
+        if (activeStream) activeStream.getTracks().forEach((track) => track.stop());
+        activeStream = null;
+        activeRecorder = null;
+        stopRecordingButton.disabled = true;
+      }
+    }
+
     document.querySelectorAll('[data-record-type]').forEach((button) => {
-      button.addEventListener('click', () => {
-        byId('memory-type').value = button.dataset.recordType;
-        byId('memory-title').focus();
-      });
+      button.addEventListener('click', () => { startBrowserRecording(button.dataset.recordType); });
     });
+
+    if (stopRecordingButton) {
+      stopRecordingButton.addEventListener('click', () => {
+        if (activeRecorder && activeRecorder.state !== 'inactive') activeRecorder.stop();
+      });
+    }
 
     const saveMemory = byId('save-memory');
     if (saveMemory) {
@@ -1202,9 +1245,12 @@
             type: byId('memory-type').value,
             person: byId('memory-person').value || 'Mom',
             visibility: byId('memory-visibility').value,
-            notes: byId('memory-notes').value
+            notes: byId('memory-notes').value || (stagedRecording ? `${stagedRecording.kind} recording staged from browser recorder.` : '')
           };
+          if (stagedRecording) memory.recording = stagedRecording;
           state = mockServices.addMemory(state, memory);
+          stagedRecording = null;
+          recordingStatus.textContent = 'Recorder ready. No file leaves this device. Save to attach it.';
           ['memory-title', 'memory-notes'].forEach((id) => { byId(id).value = ''; });
           progress.style.setProperty('--upload-width', '100%');
           status.textContent = 'Preview memory saved.';

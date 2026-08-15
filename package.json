@@ -16,6 +16,7 @@
     "validate:github-shell": "node scripts/validate-github-shell.mjs",
     "validate": "npm run lint && npm run test && npm run validate:db && npm run validate:rls && npm run validate:env && npm run validate:github-shell && npm run validate:live-harness && npm run validate:deployment && npm run validate:secrets && npm run build",
     "validate:rls": "node scripts/validate-rls.mjs",
+    "verify:live-provider": "node scripts/verify-live-supabase.mjs",
     "verify:live-supabase": "node scripts/verify-live-supabase.mjs",
     "validate:live-harness": "node scripts/validate-live-harness.mjs",
     "deploy:supabase": "node scripts/deploy-supabase.mjs",

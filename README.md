@@ -12,6 +12,8 @@ Moms MemoryTree is a private family-centered digital legacy app. It helps famili
 
 **Written app index:** [`docs/APP_INDEX.md`](docs/APP_INDEX.md)
 
+**Provider-neutral platform plan:** [`docs/PROVIDER_NEUTRAL_PLATFORM_PLAN.md`](docs/PROVIDER_NEUTRAL_PLATFORM_PLAN.md)
+
 **Repository structure:** [`docs/REPOSITORY_STRUCTURE.md`](docs/REPOSITORY_STRUCTURE.md)
 
 The working dashboard, coded demo mirror, and app index show:
@@ -43,11 +45,12 @@ The current app opens to a dashboard that separates:
 - Model a family-owned archive.
 - Track people, family members, and relationships separately.
 - Create and display memories with privacy labels and family context.
+- Record video and audio in the browser and stage the captured file before saving.
 - Stage private media upload flows and metadata.
 - Route signed media access through an authorization boundary.
 - Model legacy custodians without granting automatic access.
 - Estimate storage usage, quotas, provider costs, and subscription revenue.
-- Validate migrations, RLS/static family isolation, environment rules, deployment safety, secrets, tests, and production build.
+- Validate migrations, authorization/static family isolation, environment rules, deployment safety, secrets, tests, and production build.
 
 ## Main screens
 
@@ -81,7 +84,7 @@ This repository is the source of truth for:
 
 ## Implemented foundation details
 
-- Centralized Supabase browser client.
+- Provider-neutral service boundaries for auth, database, memory, family, media storage, authorization, legacy, billing, AI, queues, and backup.
 - Safe unconfigured demo mode.
 - Email/password auth service foundation.
 - Profile creation/upsert after signup.
@@ -102,13 +105,13 @@ This repository is the source of truth for:
 - Backup and portable archive export foundations.
 - Audit log foundation.
 - Storage economics, subscription foundations, quota warnings, cost assumptions, and creator analytics.
-- Supabase deployment preflight and GitHub Actions workflow for migrations, Edge Function deployment, and optional live verification.
+- Existing provider deployment preflight and GitHub Actions workflow for migrations, signed-media deployment, and optional live verification.
 
 ## Not claimed yet
 
 These are not production-live yet:
 
-- live Supabase deployment from this environment
+- live production cloud provider deployment from this environment
 - live cloud upload/playback verification
 - independent backup provider
 - scheduled backup jobs
@@ -127,7 +130,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Set local Supabase values only if you are testing against a live project:
+Set local provider values only if you are testing against a live project. Existing Supabase variables remain supported as one temporary provider path, but the product is not locked to them:
 
 ```bash
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -155,19 +158,19 @@ The full validation pipeline covers:
 - secret scanning
 - production build
 
-## Supabase workflow
+## Provider workflow
 
-Every schema change must follow:
+Every provider-backed schema or storage-rule change must follow:
 
 1. Create or update a migration.
 2. Validate locally.
 3. Run tests and production build.
 4. Commit the migration and code.
 5. Push to GitHub.
-6. Apply migrations to Supabase with approved credentials.
+6. Apply migrations/rules/functions to the selected provider with approved credentials.
 7. Verify RLS and storage policies against real users.
 
-This repo includes reproducible SQL migrations and deployment automation, but it does not claim cloud deployment has occurred without project credentials.
+This repo includes reproducible migrations and deployment automation for the current provider path, but it does not claim cloud deployment has occurred without project credentials.
 
 ## Storage boundary
 

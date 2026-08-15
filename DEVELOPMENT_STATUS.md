@@ -2,6 +2,9 @@
 
 ## COMPLETED
 
+- Provider-neutral platform direction locked: Moms MemoryTree remains the product, while auth, database, private media, signed access, workers, billing, AI, and notifications stay replaceable behind service contracts.
+- Record flow upgraded for browser video/audio capture in the React app and Mini App preview; captured media is staged locally until the user saves the memory.
+- `docs/PROVIDER_NEUTRAL_PLATFORM_PLAN.md` added as the source-of-truth plan for recording, cloud storage, provider selection, and GitHub update discipline.
 - Existing React + TypeScript + Vite + Tailwind application preserved.
 - GitHub repository remains the source of truth.
 - Centralized Supabase client moved to `src/lib/supabase/client.ts` with compatibility export.

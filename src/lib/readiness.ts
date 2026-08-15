@@ -10,16 +10,16 @@ export interface RuntimeReadinessItem {
 export function getRuntimeReadiness(): RuntimeReadinessItem[] {
   return [
     {
-      id: 'supabase-env',
-      label: 'Supabase environment',
+      id: 'cloud-provider-env',
+      label: 'Production cloud provider',
       ready: isSupabaseConfigured,
-      detail: isSupabaseConfigured ? 'Supabase URL and anon key are configured.' : 'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'
+      detail: isSupabaseConfigured ? 'A live provider environment is configured behind the service registry.' : 'Choose and configure the provider for auth, database, object storage, and signed media access.'
     },
     {
       id: 'private-bucket',
       label: 'Private media bucket',
       ready: false,
-      detail: 'Create a private Supabase Storage bucket named family-media and route signed URL creation through authorization checks.'
+      detail: 'Create private object storage for family media and route signed URL creation through authorization checks.'
     },
     {
       id: 'edge-functions',

@@ -4,13 +4,13 @@
 
 - React + TypeScript + Vite foundation.
 - Tailwind mobile-first UI.
-- Supabase integration foundation.
+- Provider-neutral platform foundation.
 - Family ownership model.
 - Family members and relationships.
 - Universal memories.
 - Memory permissions.
 - Timeline.
-- Photo/video upload foundation.
+- Photo/video/audio upload foundation.
 - Private storage architecture.
 - Signed media access architecture.
 - Storage usage tracking foundation.
@@ -19,10 +19,12 @@
 
 ## PHASE 2 — Memory & Media
 
-- Supabase Auth onboarding.
+- Production provider auth onboarding.
 - Real profile creation.
 - Real photo upload.
 - Real video upload.
+- Real audio upload.
+- Browser video/audio recording save flow.
 - Thumbnail generation.
 - Media playback through signed URLs.
 - Media deletion recovery window.
@@ -41,7 +43,7 @@
 - Record flow by category.
 - Prompt playlists.
 - Draft saving.
-- Audio/video recording in browser.
+- Prompt-based recording playlists.
 
 ## PHASE 5 — Privacy & Family Permissions
 
@@ -49,7 +51,7 @@
 - Descendant visibility graph queries.
 - Family role editor.
 - Permission audit UI.
-- RLS hardening against live Supabase tests.
+- Authorization hardening against live provider isolation tests.
 
 ## PHASE 6 — Legacy Custodians
 
@@ -93,15 +95,15 @@
 ## PHASE 11 — Production Security Audit
 
 - External security review.
-- RLS penetration tests.
+- Authorization/RLS-equivalent penetration tests.
 - Storage signed URL testing.
 - Audit log review.
 - Optional client-side encryption design.
 
 ## PHASE 12 — Production Launch
 
-- Vercel deployment.
-- Supabase production project.
+- Production frontend deployment.
+- Production cloud provider deployment.
 - Backup provider production setup.
 - Monitoring.
 - Incident response procedures.

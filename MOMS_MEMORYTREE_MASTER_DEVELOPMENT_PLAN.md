@@ -12,13 +12,13 @@ The product must be simple enough for older adults to use without technical know
 
 1. **GitHub is the source of truth.** Source code, UI, assets, services, schemas, migrations, tests, docs, build config, and CI/CD stay version-controlled.
 2. **Reaper Mini Apps is the primary preview/runtime surface.** Use native Reaper Mini App capabilities first whenever they are sufficient, but do not block the product waiting for unavailable backend features.
-3. **Use the working provider path first.** The current practical live path is Supabase because migrations, services, storage policies, and verification scripts already exist.
+3. **Build Moms MemoryTree as our platform.** Auth, database, private media, signed access, AI, workers, billing, and notifications must stay behind replaceable service contracts.
 4. **Do not invent infrastructure.** Audit platform capabilities before adding backend/database/storage/billing/worker systems.
 4. **Use service interfaces.** UI must depend on services, not hard-coded provider clients.
 5. **No private media in GitHub.** User videos, photos, audio, private documents, secrets, credentials, and production records never belong in source control.
 6. **index.html is the working visual app prototype.** GitHub Pages must feel like the real Moms MemoryTree application, not a static marketing page.
 7. **Mock preview, production services.** GitHub Pages/Mini App previews use browser-local services only; the React app must wire real services when provider credentials exist.
-8. **Keep Supabase behind service interfaces.** Supabase is acceptable as the first production provider; keep it swappable instead of pretending it is gone.
+8. **No backend lock-in.** Provider-specific code may exist only behind service interfaces, and product copy must not make one provider a requirement.
 9. **Protect preserved stories at backend/database authorization level.** UI hiding is never enough.
 10. **Stop decorative stages.** Future work must remove a launch blocker: live backend deployment, auth, private upload/playback, invitations, backup/export, verification, or production deployment.
 
@@ -259,10 +259,10 @@ Stop after the preview/control work. Do not keep creating stages unless the work
 
 | Priority | Blocker | Done When |
 |---:|---|---|
-| 1 | Supabase live bring-up | migrations deployed, storage buckets created, signed media function deployed, live env configured |
+| 1 | Production provider decision | auth, database, object storage, signed media access, workers, and deployment target selected |
 | 2 | Live security proof | Family A / Family B isolation test passes for memories, media metadata, storage paths, and signed URLs |
 | 3 | Real auth flow | signup, signin, signout, password reset, profile creation, and session refresh work against live provider |
-| 4 | Real memory/media flow | create memory, upload private file, write metadata, and play through signed URL without false success states |
+| 4 | Real recording/media flow | browser video/audio recording, existing-file upload, private object storage, metadata write, and signed playback work without false success states |
 | 5 | Real invitation flow | invite, accept/expire token, role assignment, and audit record work against live provider |
 | 6 | Backup/export worker | archive export and restore verification run as jobs with evidence; until then, no backup protection claim |
 | 7 | Production deployment | operator can deploy, verify, rollback, and publish without private media or secrets entering source control |

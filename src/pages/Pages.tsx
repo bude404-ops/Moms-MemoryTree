@@ -1,5 +1,5 @@
 import { AlertTriangle, Camera, CheckCircle2, Clock, CreditCard, Database, FileHeart, Gauge, GitBranch, Home, LockKeyhole, Mic, Server, ShieldCheck, TrendingUp, Upload, UsersRound, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { CreatedFamilyInvitation, Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, Person, PrivacyLevel } from '../types/domain';
 import type { UploadProgressEvent } from '../lib/mediaStorage';
 import { AudioPlayer, ImageViewer, VideoPlayer } from '../components/SecureMedia';
@@ -45,9 +45,9 @@ const foundationStages = [
 
 const providerMatrix = [
   ['Mini App runtime', 'Reaper', 'Ready', 'Primary app shell and hosted runtime.'],
-  ['Auth', 'Supabase provider', 'Needs live config', 'Behind AuthService; Reaper-native replacement unavailable here.'],
-  ['Database', 'Supabase PostgreSQL/RLS', 'Needs live deployment', 'Behind DatabaseService and AuthorizationService.'],
-  ['Private media', 'Supabase Storage', 'Needs buckets/function', 'Behind MediaStorageService with signed access rules.'],
+  ['Auth', 'Provider-neutral AuthService', 'Provider pending', 'Accounts sit behind a swappable auth boundary; no product copy depends on one vendor.'],
+  ['Database', 'Provider-neutral DatabaseService', 'Provider pending', 'Families, people, memories, invites, permissions, and timeline data sit behind service contracts.'],
+  ['Private media', 'Provider-neutral cloud storage', 'Provider pending', 'Video, audio, photos, and documents use MediaStorageService plus signed access rules.'],
   ['Backups', 'Unavailable placeholder', 'Foundation only', 'Do not claim backup protection until jobs and restore pass.'],
   ['Payments', 'Unavailable placeholder', 'Foundation only', 'Plans exist; cards and checkout are not connected.'],
   ['AI processing', 'Unavailable placeholder', 'Foundation only', 'Transcription/summaries require a future provider.'],
@@ -57,18 +57,19 @@ const providerMatrix = [
 const securityGates = [
   'No secrets committed',
   'Placeholder-only environment example',
-  'RLS/static family isolation validation',
+  'Authorization contract and isolation validation',
   'Private media requires signed access',
   'Live Family A / Family B testing still required before production'
 ];
 
 const dashboardNextActions = [
   'Restore GitHub authorization and push the queued commits.',
-  'Deploy Supabase migrations, storage buckets, and signed media function.',
-  'Run live Family A / Family B isolation tests.',
-  'Wire the React auth, memory, media, and invitation flows to verified live services.',
+  'Choose the production cloud provider for auth, database, object storage, and signed media access.',
+  'Deploy provider migrations/storage rules/functions once a provider is selected.',
+  'Run live Family A / Family B isolation tests against the selected provider.',
+  'Wire the React auth, memory, media, invitations, recorder, and upload flows to verified live services.',
   'Build backup/export workers only after live storage and access control pass.'
-];
+] as const;
 
 export function AppDashboardPage({ archive, mode }: { archive: ArchiveDataState; mode: string }) {
   const runtime = getRuntimeReadiness();
@@ -111,7 +112,7 @@ export function AppDashboardPage({ archive, mode }: { archive: ArchiveDataState;
       </Card>
     </div>
 
-    <Card><SectionTitle eyebrow="Provider matrix" title="Reaper-first where possible, external only where necessary">Blocked capabilities stay explicit so the dashboard does not sell ghosts.</SectionTitle>
+    <Card><SectionTitle eyebrow="Provider matrix" title="Our platform first, cloud provider second">Blocked capabilities stay explicit so the dashboard does not sell ghosts or lock the product to one vendor.</SectionTitle>
       <div className="grid gap-3 md:grid-cols-2">{providerMatrix.map(([capability, provider, status, detail]) => <div key={capability} className="rounded-2xl border border-amber-100 bg-white p-4"><div className="flex items-center justify-between gap-3"><b>{capability}</b><span className={`rounded-full px-3 py-1 text-xs font-bold ${status === 'Ready' ? 'bg-emerald-100 text-emerald-800' : status === 'Foundation only' ? 'bg-stone-100 text-stone-700' : 'bg-amber-100 text-amber-900'}`}>{status}</span></div><p className="mt-1 text-sm font-semibold text-amber-800">{provider}</p><p className="mt-2 text-sm leading-6 text-stone-600">{detail}</p></div>)}</div>
     </Card>
 
@@ -124,7 +125,7 @@ export function AppDashboardPage({ archive, mode }: { archive: ArchiveDataState;
       </Card>
     </div>
 
-    <Card><SectionTitle eyebrow="Next actions" title="Launch blockers before more dashboard polish">The next pass should make the product real: live provider deployment, verified isolation, and working private media.</SectionTitle>
+    <Card><SectionTitle eyebrow="Next actions" title="Launch blockers before more dashboard polish">The next pass should make the product real: selected cloud provider, verified isolation, browser recording, and working private media.</SectionTitle>
       <div className="grid gap-3 md:grid-cols-5">{dashboardNextActions.map((action, index) => <div key={action} className="rounded-2xl bg-gradient-to-br from-amber-50 to-white p-4 ring-1 ring-amber-100"><GitBranch className="mb-3 text-amber-700" /><b>0{index + 1}</b><p className="mt-2 text-sm leading-6 text-stone-600">{action}</p></div>)}</div>
     </Card>
   </div>;
@@ -161,11 +162,11 @@ export function HomePage({ archive }: { archive: ArchiveDataState }) {
 function DataStateBanner({ archive }: { archive: ArchiveDataState }) {
   if (archive.loading) return <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">Loading family archive from {archive.source}...</div>;
   if (archive.error) return <div className="rounded-3xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">Archive data error: {archive.error}</div>;
-  return <div className={`rounded-3xl border p-4 text-sm ${archive.source === 'supabase' ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : 'border-amber-200 bg-amber-50 text-amber-950'}`}><b>Data source:</b> {archive.source === 'supabase' ? 'Live Supabase family archive' : 'Local demo archive'}</div>;
+  return <div className={`rounded-3xl border p-4 text-sm ${archive.source === 'supabase' ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : 'border-amber-200 bg-amber-50 text-amber-950'}`}><b>Data source:</b> {archive.source === 'supabase' ? 'Live cloud family archive' : 'Local demo archive'}</div>;
 }
 
 export function RecordPage({ archive, onCreate }: { archive: ArchiveDataState; onCreate: RecordPageProps['onCreate'] }) {
-  return <div className="space-y-5"><Card className="bg-gradient-to-br from-rose-50 to-amber-50"><SectionTitle eyebrow="Tell your story" title="Record My Story">Video and audio upload foundations are wired to private storage paths. Live recording controls are staged for the next media phase.</SectionTitle><MemoryForm archive={archive} onCreate={onCreate} /></Card><Card><SectionTitle eyebrow="Guided storytelling" title="Choose a question" /> <div className="grid gap-3 md:grid-cols-2">{storyQuestions.map(q=><div key={q.id} className="rounded-2xl border border-amber-100 bg-white p-4"><b className="text-amber-800">{q.category}</b><p className="mt-1 text-stone-700">{q.question}</p></div>)}</div></Card></div>;
+  return <div className="space-y-5"><Card className="bg-gradient-to-br from-rose-50 to-amber-50"><SectionTitle eyebrow="Tell your story" title="Record My Story">Record video or audio in the browser, upload existing files, and preserve everything through the cloud storage boundary when live services are configured.</SectionTitle><MemoryForm archive={archive} onCreate={onCreate} /></Card><Card><SectionTitle eyebrow="Guided storytelling" title="Choose a question" /> <div className="grid gap-3 md:grid-cols-2">{storyQuestions.map(q=><div key={q.id} className="rounded-2xl border border-amber-100 bg-white p-4"><b className="text-amber-800">{q.category}</b><p className="mt-1 text-stone-700">{q.question}</p></div>)}</div></Card></div>;
 }
 
 type PreservationStatus = 'draft' | 'creating_memory' | 'uploading_media' | 'preserved' | 'failed';
@@ -186,6 +187,11 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
   const [aborter, setAborter] = useState<AbortController | null>(null);
+  const [recordingMode, setRecordingMode] = useState<'video' | 'audio' | null>(null);
+  const [recordingError, setRecordingError] = useState<string | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const recordingChunksRef = useRef<BlobPart[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -231,6 +237,56 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
     }
   }
 
+  async function startRecording(kind: 'video' | 'audio') {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+      setRecordingError('This browser does not support in-app recording yet. Use file upload instead.');
+      return;
+    }
+    setRecordingError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia(kind === 'video' ? { video: true, audio: true } : { audio: true });
+      const recorder = new MediaRecorder(stream);
+      recordingChunksRef.current = [];
+      streamRef.current = stream;
+      recorderRef.current = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) recordingChunksRef.current.push(event.data);
+      };
+      recorder.onstop = () => {
+        const mimeType = recorder.mimeType || (kind === 'video' ? 'video/webm' : 'audio/webm');
+        const blob = new Blob(recordingChunksRef.current, { type: mimeType });
+        const extension = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('ogg') ? 'ogg' : 'webm';
+        const file = new File([blob], `memorytree-${kind}-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`, { type: mimeType });
+        setSelectedFile(file);
+        setMessage(`Recorded ${kind} is staged. It is not preserved until you save the memory.`);
+        setStatus('draft');
+        stream.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+        recorderRef.current = null;
+        setRecordingMode(null);
+      };
+      recorder.start();
+      setRecordingMode(kind);
+      setMessage(`Recording ${kind}. Stop when the story is complete.`);
+    } catch (error) {
+      setRecordingError(error instanceof Error ? error.message : 'Camera or microphone permission was denied.');
+      streamRef.current?.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+      recorderRef.current = null;
+      setRecordingMode(null);
+    }
+  }
+
+  function stopRecording() {
+    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+      recorderRef.current.stop();
+      return;
+    }
+    streamRef.current?.getTracks().forEach(track => track.stop());
+    streamRef.current = null;
+    setRecordingMode(null);
+  }
+
   function chooseFile(file: File | null, input: HTMLInputElement) {
     if (!file) {
       setSelectedFile(null);
@@ -263,7 +319,13 @@ function MemoryForm({ archive, onCreate }: { archive: ArchiveDataState; onCreate
     <div className="grid gap-3 sm:grid-cols-2"><select name="type" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100"><option value="story">Story</option><option value="photo">Photo</option><option value="video">Video</option><option value="audio">Audio</option><option value="life_lesson">Life Lesson</option><option value="letter">Letter</option></select><select name="privacy" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100"><option value="private">Private</option><option value="family">Family</option><option value="specific_people">Specific people</option><option value="descendants">Descendants</option><option value="legacy">Legacy</option></select></div>
     <div className="grid gap-3 sm:grid-cols-3"><select name="person" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100">{people.map(p=><option key={p.id || 'empty'} value={p.id}>{p.displayName}</option>)}</select><input name="date" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Date or approx date" /><input name="location" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Location" /></div>
     <input name="category" disabled={busy} className="rounded-2xl border border-amber-200 bg-white px-4 py-3 disabled:bg-stone-100" placeholder="Category e.g. Childhood" />
-    <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-stone-600"><Upload className="mb-2" /> Select a file only when you are ready to preserve it. The app now saves the memory row first, then the private media object and metadata. No success is shown until the chain completes.<input disabled={busy} className="mt-3 block w-full text-sm" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onChange={(event)=>chooseFile(event.currentTarget.files?.[0] ?? null, event.currentTarget)} />{selectedFile && <p className="mt-2 font-semibold text-stone-700">Staged: {selectedFile.name}</p>}</div>
+    <div className="rounded-2xl border border-amber-200 bg-white p-4 text-sm text-stone-700">
+      <div className="flex flex-wrap items-center justify-between gap-3"><div><b>Record inside MemoryTree</b><p className="mt-1 text-stone-600">Camera and microphone capture stays local until you press Preserve Memory.</p></div><span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900">Browser recorder</span></div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-3"><button type="button" disabled={busy || !!recordingMode} onClick={() => void startRecording('video')} className="rounded-2xl bg-stone-900 px-4 py-3 font-bold text-white disabled:bg-stone-300"><Camera className="mr-2 inline" size={17} />Record Video</button><button type="button" disabled={busy || !!recordingMode} onClick={() => void startRecording('audio')} className="rounded-2xl bg-amber-500 px-4 py-3 font-bold text-stone-950 disabled:bg-stone-300"><Mic className="mr-2 inline" size={17} />Record Audio</button><button type="button" disabled={!recordingMode} onClick={stopRecording} className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 font-bold text-red-800 disabled:bg-stone-100 disabled:text-stone-400">Stop Recording</button></div>
+      {recordingMode && <p className="mt-3 rounded-2xl bg-red-50 p-3 font-semibold text-red-800">Recording {recordingMode}. Keep this screen open.</p>}
+      {recordingError && <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-amber-950">{recordingError}</p>}
+    </div>
+    <div className="rounded-2xl border border-dashed border-amber-300 bg-amber-50 p-4 text-sm text-stone-600"><Upload className="mb-2" /> Upload an existing file only when you are ready to preserve it. The app saves the memory row first, then the private media object and metadata. No success is shown until the chain completes.<input disabled={busy || !!recordingMode} className="mt-3 block w-full text-sm" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onChange={(event)=>chooseFile(event.currentTarget.files?.[0] ?? null, event.currentTarget)} />{selectedFile && <p className="mt-2 font-semibold text-stone-700">Staged: {selectedFile.name}</p>}</div>
     <div className="grid gap-2 sm:grid-cols-[1fr_auto]"><button disabled={busy} className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white shadow-lg shadow-stone-900/20 disabled:bg-stone-400">{busy ? preservationCopy[status].label : 'Preserve Memory'}</button>{busy && <button type="button" onClick={() => aborter?.abort()} className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 font-bold text-red-800">Cancel upload</button>}</div>
   </form>;
 }
