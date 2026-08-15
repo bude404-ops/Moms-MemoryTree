@@ -104,6 +104,26 @@ for (const contract of stage6ReadinessContracts) {
   expect(html.includes(contract), `Stage 6 provider readiness gates must include ${contract}.`);
 }
 
+const stage7LockoutContracts = [
+  'preview-mode-lockout',
+  "productionMode = 'preview-locked'",
+  'productionEnablementChecklist',
+  'isProductionLocked',
+  'data-production-lock="auth"',
+  'data-production-lock="invitations"',
+  'data-production-lock="media"',
+  'data-production-lock="backup"',
+  'Live signup locked',
+  'Send real invite locked',
+  'Live upload locked',
+  'Archive export locked',
+  'No file leaves this device.',
+  'Production ${gate} is locked in preview mode until provider readiness gates pass.'
+];
+for (const contract of stage7LockoutContracts) {
+  expect(html.includes(contract), `Stage 7 production lockout must include ${contract}.`);
+}
+
 expect(!/supabase\.|@supabase|SUPABASE_/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
 
 if (failures.length) {

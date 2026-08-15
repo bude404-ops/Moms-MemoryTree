@@ -86,10 +86,13 @@
 - Stage 6 production provider readiness gates completed in `docs/STAGE_06_PROVIDER_READINESS_GATES_REPORT.md`.
 - Root `index.html` now shows explicit blocked/preview-safe readiness gates for auth, database, private media storage, invitation delivery, and backup/export worker capabilities.
 - `npm run validate:github-shell` now enforces Stage 6 provider readiness gate contracts.
+- Stage 7 production mode lockout completed in `docs/STAGE_07_PRODUCTION_MODE_LOCKOUT_REPORT.md`.
+- Root `index.html` now includes a preview-mode lockout banner, disabled production controls, and explicit preview-only copy for live signup, real invitations, live upload, and archive export.
+- `npm run validate:github-shell` now enforces Stage 7 production lockout contracts.
 
 ## IN PROGRESS
 
-- Stage 7 production mode lockout and user-facing safety copy is next.
+- Stage 8 provider enablement checklist and live verification harness is next.
 - Live production provider deployment remains pending provider selection/credentials.
 - Real cloud upload/playback requires an approved production storage/backend provider.
 - Family invitation email delivery is architecture-only.

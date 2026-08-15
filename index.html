@@ -456,6 +456,11 @@
     .provider-card p { margin: 0; color: var(--muted); line-height: 1.45; }
     .provider-card ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.55; }
     .readiness-summary { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(46,74,56,.08); border: 1px solid rgba(46,74,56,.22); color: var(--ink-soft); line-height: 1.5; }
+    .preview-lock-banner { display: grid; gap: 8px; padding: 16px; border-radius: 22px; background: rgba(126, 63, 23, .1); border: 1px solid rgba(126, 63, 23, .24); color: var(--ink-soft); }
+    .preview-lock-banner strong { color: var(--bark); font-family: Georgia, serif; font-size: 20px; }
+    .preview-lock-banner p { margin: 0; line-height: 1.55; }
+    .mode-badge { display: inline-flex; width: fit-content; align-items: center; gap: 7px; border-radius: 999px; padding: 6px 10px; background: rgba(200,132,41,.14); color: var(--bark); font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .locked-action { opacity: .72; cursor: not-allowed; background: rgba(255,255,255,.55); color: var(--muted); }
     .upload-bar { height: 9px; border-radius: 999px; background: #f2e2cb; overflow: hidden; }
     .upload-bar span { display: block; width: var(--upload-width, 0%); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--honey), var(--pine)); transition: width .35s ease; }
     .action-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -532,6 +537,11 @@
             <button class="btn secondary" data-tab="memories">View memories</button>
           </div>
         </div>
+        <div class="preview-lock-banner" id="preview-mode-lockout" aria-live="polite">
+          <span class="mode-badge">Preview mode locked</span>
+          <strong>No production action runs from this shell.</strong>
+          <p>Account creation, invitations, recordings, uploads, backups, and exports are mock-only until every provider gate is verified with production credentials and live isolation tests.</p>
+        </div>
         <div class="prototype-grid" aria-label="Interactive prototype setup">
           <article class="mock-panel">
             <div class="section-title">
@@ -545,7 +555,7 @@
               <label>Family archive<input id="mock-family" placeholder="The Johnson Family" /></label>
               <label>Role<select id="mock-role"><option>Archive Creator</option><option>Family Manager</option><option>Legacy Custodian</option></select></label>
             </div>
-            <div class="action-row"><button class="btn primary" id="mock-create-account" type="button">Create preview account</button><button class="btn secondary" id="mock-reset" type="button">Reset preview</button></div>
+            <div class="action-row"><button class="btn primary" id="mock-create-account" type="button">Create preview account</button><button class="btn secondary" id="mock-reset" type="button">Reset preview</button><button class="btn locked-action" data-production-lock="auth" type="button" aria-disabled="true">Live signup locked</button></div>
             <p class="save-note" id="mock-account-note" aria-live="polite"></p>
           </article>
           <article class="mock-panel">
@@ -609,7 +619,7 @@
           <div class="mock-form">
             <label>Invite email<input id="invite-email" placeholder="child@example.com" /></label>
             <label>Access role<select id="invite-role"><option>Viewer</option><option>Contributor</option><option>Family Manager</option><option>Legacy Custodian</option></select></label>
-            <button class="btn primary" id="send-invite" type="button">Save invitation</button>
+            <div class="action-row"><button class="btn primary" id="send-invite" type="button">Save invitation</button><button class="btn locked-action" data-production-lock="invitations" type="button" aria-disabled="true">Send real invite locked</button></div>
           </div>
           <p class="save-note" id="invite-note" aria-live="polite"></p>
           <div class="mock-list" id="invite-list"></div>
@@ -651,8 +661,8 @@
               <label>Visibility<select id="memory-visibility"><option>Family</option><option>Private</option><option>Legacy Custodians</option></select></label>
             </div>
             <div class="mock-form" style="margin-top:10px"><label>Story notes<textarea id="memory-notes" placeholder="Write the memory or recording note here..."></textarea></label></div>
-            <div class="upload-flow" id="upload-flow"><strong>Upload simulation</strong><div class="upload-bar"><span id="upload-progress"></span></div><small id="upload-status">Ready to save a preview memory.</small></div>
-            <div class="action-row"><button class="btn primary" id="save-memory" type="button">Save memory</button><button class="btn secondary" data-tab="memories" type="button">View saved memories</button></div>
+            <div class="upload-flow" id="upload-flow"><strong>Upload simulation — preview only</strong><div class="upload-bar"><span id="upload-progress"></span></div><small id="upload-status">Ready to save a browser-local preview memory. No file leaves this device.</small></div>
+            <div class="action-row"><button class="btn primary" id="save-memory" type="button">Save memory preview</button><button class="btn secondary" data-tab="memories" type="button">View saved memories</button><button class="btn locked-action" data-production-lock="media" type="button" aria-disabled="true">Live upload locked</button></div>
             <p class="save-note" id="memory-note" aria-live="polite"></p>
           </div>
         </article>
@@ -673,7 +683,7 @@
             <div class="matrix-row" role="row"><div><strong>Audit trail</strong><span>Preservation, legacy approval, media changes, and archive export are logged.</span></div><div>History</div><div><span class="pill dark">Append-only</span></div></div>
           </div>
         </article>
-        <article class="card"><span class="icon">🔒</span><h3>Immutable original</h3><p>No family member, Next of Kin, Legacy Custodian, or administrator can silently edit, replace, or delete the preserved original story.</p></article>
+        <article class="card"><span class="icon">🔒</span><h3>Immutable original</h3><p>No family member, Next of Kin, Legacy Custodian, or administrator can silently edit, replace, or delete the preserved original story.</p><div class="action-row"><button class="btn locked-action" data-production-lock="backup" type="button" aria-disabled="true">Archive export locked</button></div></article>
       </section>
 
       <section class="grid four" aria-label="App screens">
@@ -723,6 +733,15 @@
 
     const storageKey = 'moms-memorytree-stage4-prototype';
     const serviceSchemaVersion = 5;
+    const productionMode = 'preview-locked';
+    const productionEnablementChecklist = [
+      'production credentials installed outside the client shell',
+      'auth, database, media, invitation, and backup gates verified',
+      'live Family A / Family B isolation test passed',
+      'signed media playback verified with expiring URLs',
+      'restore/export drill completed without exposing private media'
+    ];
+
     const providerReadinessGates = [
       { key: 'auth', label: 'Auth provider', status: 'blocked', required: ['verified signup/signin', 'password reset route', 'session refresh'], safePreview: 'Mock account creation only' },
       { key: 'database', label: 'Database provider', status: 'blocked', required: ['deployed migrations', 'RLS live isolation test', 'typed repository binding'], safePreview: 'Browser-local family archive state' },
@@ -927,6 +946,10 @@
       node.innerHTML = `<strong>Mock service layer</strong><small>${escapeHtml(state.service?.provider || 'browser-local-mock')} · schema v${serviceSchemaVersion} · ${escapeHtml(state.service?.lastMigration || 'ready')}</small><small>${escapeHtml(validation)}</small>`;
     }
 
+    function isProductionLocked() {
+      return productionMode === 'preview-locked' || providerReadinessGates.some((gate) => gate.status !== 'ready');
+    }
+
     function evaluateProviderReadiness() {
       return providerReadinessGates.map((gate) => ({
         ...gate,
@@ -941,7 +964,7 @@
       if (!list || !summary) return;
       const gates = evaluateProviderReadiness();
       const readyCount = gates.filter((gate) => gate.ready).length;
-      summary.innerHTML = `<strong>${readyCount}/${gates.length} production providers ready.</strong><span>Preview mode remains safe: no real auth, database writes, media uploads, invitations, backups, or exports run until these gates pass.</span>`;
+      summary.innerHTML = `<strong>${readyCount}/${gates.length} production providers ready.</strong><span>Preview mode remains safe: no real auth, database writes, media uploads, invitations, backups, or exports run until these gates pass.</span><span><strong>Enablement checklist:</strong> ${productionEnablementChecklist.map(escapeHtml).join(' · ')}</span>`;
       list.innerHTML = gates.map((gate) => `<article class="provider-card" data-provider-gate="${escapeHtml(gate.key)}"><header><strong>${escapeHtml(gate.label)}</strong><span class="pill amber">Blocked</span></header><p>${escapeHtml(gate.blockedReason)}</p><ul>${gate.required.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul><p><strong>Preview-safe:</strong> ${escapeHtml(gate.safePreview)}</p></article>`).join('');
     }
 
@@ -1084,7 +1107,7 @@
         status.textContent = 'Encrypting preview media metadata...';
         setTimeout(() => {
           progress.style.setProperty('--upload-width', '75%');
-          status.textContent = 'Saving memory to browser preview storage...';
+          status.textContent = 'Saving memory to browser-local preview storage...';
         }, 180);
         setTimeout(() => {
           const memory = {
@@ -1117,6 +1140,15 @@
     }
 
     document.addEventListener('click', (event) => {
+      const locked = event.target.closest('[data-production-lock]');
+      if (locked) {
+        event.preventDefault();
+        const gate = locked.dataset.productionLock;
+        const message = `Production ${gate} is locked in preview mode until provider readiness gates pass.`;
+        const lockout = byId('preview-mode-lockout');
+        if (lockout) lockout.querySelector('p').textContent = message;
+        return;
+      }
       const control = event.target.closest('[data-tab]');
       if (control) setTab(control.dataset.tab);
     });
