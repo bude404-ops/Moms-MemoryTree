@@ -12,8 +12,8 @@ describe('Moms MemoryTree app shell', () => {
     const element = AppDashboardPage({ archive: demoArchiveState(), mode: 'demo' });
     const serialized = JSON.stringify(element);
 
-    expect(serialized).toContain('Foundation is complete. Dashboard phase is live.');
-    expect(serialized).toContain('Foundation stages');
+    expect(serialized).toContain('Preview is controlled. Launch blockers are exposed.');
+    expect(serialized).toContain('Foundation checkpoints');
     expect(serialized).toContain('Stage ');
     expect(serialized).toContain('Pre-dashboard handoff');
     expect(serialized).toContain('Provider matrix');

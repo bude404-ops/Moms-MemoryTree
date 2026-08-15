@@ -11,15 +11,16 @@ The product must be simple enough for older adults to use without technical know
 ## Permanent Principles
 
 1. **GitHub is the source of truth.** Source code, UI, assets, services, schemas, migrations, tests, docs, build config, and CI/CD stay version-controlled.
-2. **Reaper Mini Apps is the primary runtime.** Use native Reaper Mini App capabilities first whenever they are sufficient.
-3. **Do not invent infrastructure.** Audit platform capabilities before adding backend/database/storage/billing/worker systems.
+2. **Reaper Mini Apps is the primary preview/runtime surface.** Use native Reaper Mini App capabilities first whenever they are sufficient, but do not block the product waiting for unavailable backend features.
+3. **Use the working provider path first.** The current practical live path is Supabase because migrations, services, storage policies, and verification scripts already exist.
+4. **Do not invent infrastructure.** Audit platform capabilities before adding backend/database/storage/billing/worker systems.
 4. **Use service interfaces.** UI must depend on services, not hard-coded provider clients.
 5. **No private media in GitHub.** User videos, photos, audio, private documents, secrets, credentials, and production records never belong in source control.
 6. **index.html is the working visual app prototype.** GitHub Pages must feel like the real Moms MemoryTree application, not a static marketing page.
-7. **Mock now, production later.** GitHub Pages uses mock browser services/local persistence that mirror production service contracts.
-8. **No Supabase runtime dependency is the target.** Existing provider work must be migrated behind Reaper-first/portable interfaces before removing packages and code.
+7. **Mock preview, production services.** GitHub Pages/Mini App previews use browser-local services only; the React app must wire real services when provider credentials exist.
+8. **Keep Supabase behind service interfaces.** Supabase is acceptable as the first production provider; keep it swappable instead of pretending it is gone.
 9. **Protect preserved stories at backend/database authorization level.** UI hiding is never enough.
-10. **Build in stages.** After every stage: build, test, fix, document, commit, push.
+10. **Stop decorative stages.** Future work must remove a launch blocker: live backend deployment, auth, private upload/playback, invitations, backup/export, verification, or production deployment.
 
 ## Guiding Legacy Principle
 
@@ -252,45 +253,29 @@ GitHub Pages/index.html must simulate realistic actions through mock services an
 - help
 - large text mode
 
-## Development Stages
+## Launch Blocker Roadmap
 
-| Stage | Name | Gate |
+Stop after the preview/control work. Do not keep creating stages unless the work removes one of these blockers.
+
+| Priority | Blocker | Done When |
 |---:|---|---|
-| 1 | Platform audit | `REAPER_PLATFORM_CAPABILITIES.md` current, no guessing |
-| 2 | Architecture | service boundaries and portability documented |
-| 3 | GitHub application shell | source structure, validation, CI |
-| 4 | index.html interactive prototype | real mock app behavior, local persistence |
-| 5 | Design system | reusable components and accessibility tokens |
-| 6 | Authentication architecture | mock auth + production provider contract |
-| 7 | Family system | family, roles, invitations, isolation tests |
-| 8 | Memory system | creation, detail, privacy, search/filter |
-| 9 | Media/storage system | upload mock flow, progress, quota, storage service |
-| 10 | Timeline | visual timeline and event authorship |
-| 11 | Legacy Memory Lock | immutable original story and authorization tests |
-| 12 | Funeral/memorial system | memorial media as separate memories |
-| 13 | Archive/export | portable family archive manifest and mock export |
-| 14 | Security | cross-family and preserved-story security gates |
-| 15 | Accessibility | large text, contrast, keyboard, screen reader checks |
-| 16 | Billing/storage economics | plans, usage, warnings, billing abstraction |
-| 17 | Production Reaper integration | replace mock providers where native capability exists |
-| 18 | Production testing | live runtime/customer journey validation |
+| 1 | Supabase live bring-up | migrations deployed, storage buckets created, signed media function deployed, live env configured |
+| 2 | Live security proof | Family A / Family B isolation test passes for memories, media metadata, storage paths, and signed URLs |
+| 3 | Real auth flow | signup, signin, signout, password reset, profile creation, and session refresh work against live provider |
+| 4 | Real memory/media flow | create memory, upload private file, write metadata, and play through signed URL without false success states |
+| 5 | Real invitation flow | invite, accept/expire token, role assignment, and audit record work against live provider |
+| 6 | Backup/export worker | archive export and restore verification run as jobs with evidence; until then, no backup protection claim |
+| 7 | Production deployment | operator can deploy, verify, rollback, and publish without private media or secrets entering source control |
 
-## Stage Report Template
+## Delivery Report Template
 
-Every completed stage must report:
+Every future delivery must report:
 
-- stage number
-- stage name
-- status
-- what was built
-- what was tested
-- what was fixed
-- Reaper services used
-- external services used
-- Supabase dependencies remaining
-- security status
-- blocked items
-- creator action required
+- blocker removed
+- user-facing capability changed
+- files changed
+- validation/test output
+- security impact
+- remaining launch blockers
 - GitHub commit
 - GitHub push status
-- next stage

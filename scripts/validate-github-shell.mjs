@@ -159,7 +159,7 @@ const stage9OperatorHandoffContracts = [
   'Use throwaway live-test credentials in a local terminal or CI secret store only',
   'never paste credentials into the preview shell or commit them',
   'manual, reviewed, reversible, and blocked by default',
-  'Stage 9 evidence register',
+  'Evidence register',
   'production unlock remains blocked until real evidence is reviewed'
 ];
 for (const contract of stage9OperatorHandoffContracts) {

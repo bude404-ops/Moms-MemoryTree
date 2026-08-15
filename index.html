@@ -587,7 +587,7 @@
         </div>
         <div class="mock-panel" id="provider-enablement-checklist" style="margin-top:16px" aria-label="Provider enablement checklist and live verification harness">
           <div class="section-title">
-            <p class="eyebrow">stage 8 verification</p>
+            <p class="eyebrow">live verification</p>
             <h2>Unlock production only with evidence.</h2>
             <p>The preview now shows the exact credentials, scripts, and pass/fail proof required before any provider gate can be marked ready.</p>
           </div>
@@ -597,7 +597,7 @@
         </div>
         <div class="mock-panel" id="operator-handoff-runbook" style="margin-top:16px" aria-label="Live provider credential runbook and operator handoff">
           <div class="section-title">
-            <p class="eyebrow">stage 9 operator handoff</p>
+            <p class="eyebrow">operator handoff</p>
             <h2>Run live checks without leaking credentials.</h2>
             <p>This handoff keeps credentials outside the preview, records evidence manually, and makes every unlock reversible.</p>
           </div>
@@ -794,7 +794,7 @@
     const operatorHandoffRunbook = {
       phase: 'manual-reviewed-handoff',
       credentialRule: 'Use throwaway live-test credentials in a local terminal or CI secret store only; never paste credentials into the preview shell or commit them.',
-      evidenceTarget: 'Record redacted command output, timestamp, operator name, provider gate, and rollback note in the Stage 9 evidence register.',
+      evidenceTarget: 'Record redacted command output, timestamp, operator name, provider gate, and rollback note in the evidence register.',
       unlockPolicy: 'Unlocks are manual, reviewed, reversible, and blocked by default.'
     };
 
@@ -1050,7 +1050,7 @@
       if (!summary || !steps || !register) return;
       summary.innerHTML = `<strong>Handoff phase: ${escapeHtml(operatorHandoffRunbook.phase)}.</strong><span>${escapeHtml(operatorHandoffRunbook.credentialRule)}</span><span>${escapeHtml(operatorHandoffRunbook.unlockPolicy)}</span>`;
       steps.innerHTML = operatorHandoffSteps.map((step) => `<article class="handoff-card" data-handoff-step="${escapeHtml(step.key)}"><strong>${escapeHtml(step.label)}</strong><code class="operator-command">${escapeHtml(step.command)}</code><p>${escapeHtml(step.proof)}</p><span class="pill amber">Manual review</span></article>`).join('');
-      register.innerHTML = `<strong>Stage 9 evidence register</strong><span>${escapeHtml(operatorHandoffRunbook.evidenceTarget)}</span><span>Current result: operator handoff is ready, but production unlock remains blocked until real evidence is reviewed.</span>`;
+      register.innerHTML = `<strong>Evidence register</strong><span>${escapeHtml(operatorHandoffRunbook.evidenceTarget)}</span><span>Current result: operator handoff is ready, but production unlock remains blocked until real evidence is reviewed.</span>`;
     }
 
     function renderTree() {

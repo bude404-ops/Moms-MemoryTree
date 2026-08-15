@@ -98,21 +98,24 @@
 
 ## IN PROGRESS
 
-- Stage 10 evidence capture template and provider gate review board is next.
+- Product scope audit is aligning the repo away from decorative stages and toward launch blockers.
+- Production Sprint 1 — Supabase live bring-up is the next real build path once credentials are available.
 - Live production provider deployment remains pending provider selection/credentials.
-- Real cloud upload/playback requires an approved production storage/backend provider.
-- Family invitation email delivery is architecture-only.
+- Real cloud upload/playback requires deployed storage/backend provider verification.
+- Family invitation email delivery is architecture-only until a live provider is wired.
 
-## PLANNED
+## LAUNCH BLOCKERS
 
-- Deploy migration to Supabase project.
-- Deploy `signed-media-access` Edge Function.
-- Generate TypeScript database types from Supabase CLI.
-- Run real Supabase user isolation tests with Family A / Family B accounts.
-- Wire password reset UI.
-- Add specific-person permission management UI.
-- Build family archive export worker.
-- Integrate independent backup provider and verification.
+1. Deploy migrations to a live Supabase project.
+2. Deploy `signed-media-access` Edge Function.
+3. Configure live environment variables outside source control.
+4. Generate TypeScript database types from the live project.
+5. Run real Family A / Family B isolation tests.
+6. Wire password reset UI and complete live auth flow.
+7. Wire real private upload/playback end-to-end.
+8. Wire invitation accept/expire email flow.
+9. Build family archive export worker.
+10. Integrate independent backup provider and restore verification.
 
 ## BLOCKED
 

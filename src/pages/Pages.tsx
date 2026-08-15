@@ -62,11 +62,11 @@ const securityGates = [
 ];
 
 const dashboardNextActions = [
-  'Push dashboard commit with temporary GitHub authorization.',
-  'Deploy Supabase migrations and signed media function when provider credentials exist.',
-  'Run live cross-family isolation tests.',
-  'Keep dashboard copy honest for foundation-only services.',
-  'Design creator/operator controls after the status panels are stable.'
+  'Restore GitHub authorization and push the queued commits.',
+  'Deploy Supabase migrations, storage buckets, and signed media function.',
+  'Run live Family A / Family B isolation tests.',
+  'Wire the React auth, memory, media, and invitation flows to verified live services.',
+  'Build backup/export workers only after live storage and access control pass.'
 ];
 
 export function AppDashboardPage({ archive, mode }: { archive: ArchiveDataState; mode: string }) {
@@ -82,8 +82,8 @@ export function AppDashboardPage({ archive, mode }: { archive: ArchiveDataState;
       <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-amber-200"><Gauge size={16} /> App dashboard</p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-tight">Foundation is complete. Dashboard phase is live.</h1>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-200">This panel separates what is ready, what is provider-blocked, and what must not be overstated before production. Quiet truth beats fragile claims.</p>
+          <h1 className="mt-2 text-4xl font-semibold tracking-tight">Preview is controlled. Launch blockers are exposed.</h1>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-200">This panel separates real product readiness from staged documentation, so the next work removes live blockers instead of adding ceremony.</p>
         </div>
         <div className="rounded-3xl bg-white/10 p-4 ring-1 ring-white/15">
           <p className="text-xs uppercase tracking-[0.2em] text-amber-200">Current mode</p>
@@ -94,14 +94,14 @@ export function AppDashboardPage({ archive, mode }: { archive: ArchiveDataState;
     </Card>
 
     <div className="grid gap-4 md:grid-cols-4">
-      <Card><CheckCircle2 className="mb-3 text-emerald-700" /><p className="text-sm text-stone-500">Foundation stages</p><b className="text-3xl text-stone-900">{completedStages}/13</b><p className="mt-1 text-xs text-stone-500">Stages 0–12 complete.</p></Card>
+      <Card><CheckCircle2 className="mb-3 text-emerald-700" /><p className="text-sm text-stone-500">Foundation checkpoints</p><b className="text-3xl text-stone-900">{completedStages}/13</b><p className="mt-1 text-xs text-stone-500">Documentation/control work is closed.</p></Card>
       <Card><FileHeart className="mb-3 text-rose-700" /><p className="text-sm text-stone-500">Memories tracked</p><b className="text-3xl text-stone-900">{archive.memories.length}</b><p className="mt-1 text-xs text-stone-500">Demo or live provider data.</p></Card>
       <Card><Database className="mb-3 text-amber-700" /><p className="text-sm text-stone-500">Private media tracked</p><b className="text-3xl text-stone-900">{formatBytes(totalBytes)}</b><p className="mt-1 text-xs text-stone-500">Not a backup claim.</p></Card>
       <Card><AlertTriangle className="mb-3 text-orange-700" /><p className="text-sm text-stone-500">Known blockers</p><b className="text-3xl text-stone-900">{blockers}</b><p className="mt-1 text-xs text-stone-500">Mostly provider/live gates.</p></Card>
     </div>
 
     <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-      <Card><SectionTitle eyebrow="Foundation index" title="Every stage is closed before dashboard work">These are source-controlled foundations, not production launch claims.</SectionTitle>
+      <Card><SectionTitle eyebrow="Foundation index" title="Every checkpoint is closed before live work">These are source-controlled foundations, not production launch claims. New work should remove launch blockers.</SectionTitle>
         <div className="grid gap-2 sm:grid-cols-2">{foundationStages.map(([stage, label, status]) => <div key={stage} className="flex items-center justify-between gap-3 rounded-2xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-100"><div><b>Stage {stage}</b><p className="text-sm text-stone-600">{label}</p></div><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">{status}</span></div>)}</div>
       </Card>
       <Card><SectionTitle eyebrow="Storage economics" title="Costs stay visible early">Numbers are estimates from configured assumptions, not invoices.</SectionTitle>
@@ -123,7 +123,7 @@ export function AppDashboardPage({ archive, mode }: { archive: ArchiveDataState;
       </Card>
     </div>
 
-    <Card><SectionTitle eyebrow="Next actions" title="Operator queue before deeper dashboard controls">The next dashboard pass should add interactions, not blur foundations.</SectionTitle>
+    <Card><SectionTitle eyebrow="Next actions" title="Launch blockers before more dashboard polish">The next pass should make the product real: live provider deployment, verified isolation, and working private media.</SectionTitle>
       <div className="grid gap-3 md:grid-cols-5">{dashboardNextActions.map((action, index) => <div key={action} className="rounded-2xl bg-gradient-to-br from-amber-50 to-white p-4 ring-1 ring-amber-100"><GitBranch className="mb-3 text-amber-700" /><b>0{index + 1}</b><p className="mt-2 text-sm leading-6 text-stone-600">{action}</p></div>)}</div>
     </Card>
   </div>;
