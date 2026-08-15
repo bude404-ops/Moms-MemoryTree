@@ -462,6 +462,11 @@
     .verification-card p { margin: 0; color: var(--muted); line-height: 1.5; }
     .verification-card code { display: inline-block; width: fit-content; padding: 4px 8px; border-radius: 10px; background: rgba(43,29,20,.08); color: var(--bark); font-weight: 850; }
     .evidence-ledger { display: grid; gap: 8px; margin-top: 12px; padding: 14px; border-radius: 18px; background: rgba(200,132,41,.1); border: 1px solid rgba(200,132,41,.24); color: var(--ink-soft); }
+    .handoff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+    .handoff-card { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.74); border: 1px solid var(--line); }
+    .handoff-card strong { color: var(--ink); }
+    .handoff-card p { margin: 0; color: var(--muted); line-height: 1.48; }
+    .operator-command { display: block; width: 100%; overflow-x: auto; white-space: nowrap; padding: 10px 12px; border-radius: 14px; background: rgba(43,29,20,.08); color: var(--bark); font-weight: 850; }
     .preview-lock-banner { display: grid; gap: 8px; padding: 16px; border-radius: 22px; background: rgba(126, 63, 23, .1); border: 1px solid rgba(126, 63, 23, .24); color: var(--ink-soft); }
     .preview-lock-banner strong { color: var(--bark); font-family: Georgia, serif; font-size: 20px; }
     .preview-lock-banner p { margin: 0; line-height: 1.55; }
@@ -589,6 +594,16 @@
           <div class="readiness-summary" id="live-verification-harness">Live verification harness loading.</div>
           <div class="verification-grid" id="live-verification-steps"></div>
           <div class="evidence-ledger" id="provider-evidence-ledger"></div>
+        </div>
+        <div class="mock-panel" id="operator-handoff-runbook" style="margin-top:16px" aria-label="Live provider credential runbook and operator handoff">
+          <div class="section-title">
+            <p class="eyebrow">stage 9 operator handoff</p>
+            <h2>Run live checks without leaking credentials.</h2>
+            <p>This handoff keeps credentials outside the preview, records evidence manually, and makes every unlock reversible.</p>
+          </div>
+          <div class="readiness-summary" id="operator-handoff-summary">Operator handoff loading.</div>
+          <div class="handoff-grid" id="operator-handoff-steps"></div>
+          <div class="evidence-ledger" id="operator-evidence-register"></div>
         </div>
       </section>
 
@@ -774,6 +789,22 @@
       { key: 'media', label: 'Private media verified', command: 'verify:live-supabase', proof: 'Family B cannot upload into or download from Family A media paths' },
       { key: 'signed-media', label: 'Signed playback verified', command: 'verify:live-supabase', proof: 'Family A receives an expiring signed URL and Family B is denied' },
       { key: 'backup', label: 'Backup/export drill pending', command: 'manual production drill', proof: 'restore/export evidence must be attached before backup gate can unlock' }
+    ];
+
+    const operatorHandoffRunbook = {
+      phase: 'manual-reviewed-handoff',
+      credentialRule: 'Use throwaway live-test credentials in a local terminal or CI secret store only; never paste credentials into the preview shell or commit them.',
+      evidenceTarget: 'Record redacted command output, timestamp, operator name, provider gate, and rollback note in the Stage 9 evidence register.',
+      unlockPolicy: 'Unlocks are manual, reviewed, reversible, and blocked by default.'
+    };
+
+    const operatorHandoffSteps = [
+      { key: 'prepare', label: 'Prepare throwaway users', command: 'create or confirm Family A / Family B test accounts', proof: 'test accounts are disposable and not tied to real family data' },
+      { key: 'inject', label: 'Inject credentials safely', command: 'use environment variables or CI secrets', proof: 'no values appear in source, docs, browser storage, or Mini App copy' },
+      { key: 'run', label: 'Run verification commands', command: 'npm run validate:live-harness && npm run verify:live-supabase', proof: 'captured output shows auth, isolation, media, and signed URL checks' },
+      { key: 'record', label: 'Record redacted evidence', command: 'attach timestamped pass/fail summary', proof: 'evidence references commands and gate names without exposing secrets' },
+      { key: 'review', label: 'Manual owner review', command: 'approve or keep blocked', proof: 'reviewer confirms each gate and rollback path' },
+      { key: 'rollback', label: 'Keep rollback ready', command: 'revoke test credentials and return gate to blocked if evidence expires', proof: 'operator can disable credentials and restore preview lockout' }
     ];
 
     const providerReadinessGates = [
@@ -1012,6 +1043,16 @@
       ledger.innerHTML = `<strong>Evidence ledger before unlock</strong><span>${liveVerificationHarness.evidence.map(escapeHtml).join(' · ')}</span><span>Current shell status: locked. No provider gate can change to ready without captured live verification evidence.</span>`;
     }
 
+    function renderOperatorHandoffRunbook() {
+      const summary = byId('operator-handoff-summary');
+      const steps = byId('operator-handoff-steps');
+      const register = byId('operator-evidence-register');
+      if (!summary || !steps || !register) return;
+      summary.innerHTML = `<strong>Handoff phase: ${escapeHtml(operatorHandoffRunbook.phase)}.</strong><span>${escapeHtml(operatorHandoffRunbook.credentialRule)}</span><span>${escapeHtml(operatorHandoffRunbook.unlockPolicy)}</span>`;
+      steps.innerHTML = operatorHandoffSteps.map((step) => `<article class="handoff-card" data-handoff-step="${escapeHtml(step.key)}"><strong>${escapeHtml(step.label)}</strong><code class="operator-command">${escapeHtml(step.command)}</code><p>${escapeHtml(step.proof)}</p><span class="pill amber">Manual review</span></article>`).join('');
+      register.innerHTML = `<strong>Stage 9 evidence register</strong><span>${escapeHtml(operatorHandoffRunbook.evidenceTarget)}</span><span>Current result: operator handoff is ready, but production unlock remains blocked until real evidence is reviewed.</span>`;
+    }
+
     function renderTree() {
       if (!treeMembers) return;
       const members = state.members.filter((member) => member.name !== 'Mom');
@@ -1066,6 +1107,7 @@
       renderServiceStatus();
       renderProviderReadiness();
       renderLiveVerificationHarness();
+      renderOperatorHandoffRunbook();
       renderTree();
       renderMemories();
       renderInvites();

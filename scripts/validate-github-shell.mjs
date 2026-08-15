@@ -146,6 +146,26 @@ for (const contract of stage8VerificationContracts) {
   expect(html.includes(contract), `Stage 8 live verification harness must include ${contract}.`);
 }
 
+const stage9OperatorHandoffContracts = [
+  'operator-handoff-runbook',
+  'operator-handoff-summary',
+  'operator-handoff-steps',
+  'operator-evidence-register',
+  'operatorHandoffRunbook',
+  "phase: 'manual-reviewed-handoff'",
+  'operatorHandoffSteps',
+  'data-handoff-step=',
+  'renderOperatorHandoffRunbook',
+  'Use throwaway live-test credentials in a local terminal or CI secret store only',
+  'never paste credentials into the preview shell or commit them',
+  'manual, reviewed, reversible, and blocked by default',
+  'Stage 9 evidence register',
+  'production unlock remains blocked until real evidence is reviewed'
+];
+for (const contract of stage9OperatorHandoffContracts) {
+  expect(html.includes(contract), `Stage 9 operator handoff must include ${contract}.`);
+}
+
 expect(!/supabase\.|@supabase/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
 
 if (failures.length) {

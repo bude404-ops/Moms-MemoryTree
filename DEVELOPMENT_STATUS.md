@@ -92,10 +92,13 @@
 - Stage 8 provider enablement checklist and live verification harness completed in `docs/STAGE_08_PROVIDER_ENABLEMENT_CHECKLIST_AND_LIVE_VERIFICATION_HARNESS_REPORT.md`.
 - Root `index.html` now shows the exact safety command, live verification command, required throwaway live-test credentials, verification step cards, and evidence ledger needed before provider gates can unlock.
 - `npm run validate:github-shell` and `npm run validate:live-harness` now enforce Stage 8 verification harness contracts.
+- Stage 9 live provider credential runbook and operator handoff completed in `docs/STAGE_09_LIVE_PROVIDER_CREDENTIAL_RUNBOOK_AND_OPERATOR_HANDOFF_REPORT.md`.
+- Root `index.html` now shows safe operator credential rules, reviewed handoff steps, redacted evidence registration, and reversible production unlock policy.
+- `npm run validate:github-shell` now enforces Stage 9 operator handoff contracts.
 
 ## IN PROGRESS
 
-- Stage 9 live provider credential runbook and operator handoff is next.
+- Stage 10 evidence capture template and provider gate review board is next.
 - Live production provider deployment remains pending provider selection/credentials.
 - Real cloud upload/playback requires an approved production storage/backend provider.
 - Family invitation email delivery is architecture-only.
