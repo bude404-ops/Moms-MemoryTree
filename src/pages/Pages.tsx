@@ -9,6 +9,7 @@ import { prepareMemoryUpload, validateMemoryUpload } from '../lib/mediaUpload';
 import { getRuntimeReadiness } from '../lib/readiness';
 import { calculateStorageCostSummary, createCreatorCostDashboard, formatCurrency, planForFamily } from '../lib/storageEconomics';
 import type { ArchiveDataState } from '../lib/archiveData';
+import { downloadArchiveExportManifest } from '../lib/archiveExport';
 
 const privacyLabels: Record<PrivacyLevel, string> = {
   private: 'Private',
@@ -421,15 +422,23 @@ export function LegacyPage({ custodians, people }: { custodians: LegacyCustodian
 }
 
 export function StoragePanel({ archive }: { archive: ArchiveDataState }) {
+  const [lastExport, setLastExport] = useState<{ exportedAt: string; media: number; memories: number; warnings: number } | null>(null);
   const plan = archive.storagePlans.find(item => item.id === archive.subscription.planId) ?? planForFamily(archive.family, archive.storagePlans);
   const summary = calculateStorageCostSummary({ usage: archive.storage, plan, addons: archive.storageAddons, assumptions: archive.costAssumptions });
   const rows = [['Videos',archive.storage.videosBytes,Camera],['Photos',archive.storage.photosBytes,FileHeart],['Audio',archive.storage.audioBytes,Mic],['Documents',archive.storage.documentsBytes,Clock]] as const;
+
+  function exportManifest() {
+    const manifest = downloadArchiveExportManifest(archive);
+    setLastExport({ exportedAt: manifest.exportedAt, media: manifest.counts.media, memories: manifest.counts.memories, warnings: manifest.warnings.length });
+  }
+
   return <Card><SectionTitle eyebrow="Storage & plan" title="Family Cloud Storage">Usage and costs are estimates from configured plan and provider assumptions — not invoices.</SectionTitle>
     {summary.warning && <div className={`mb-4 rounded-2xl border p-3 text-sm ${summary.warning.severity === 'urgent' || summary.warning.severity === 'blocked' ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-950'}`}><AlertTriangle className="mb-1" size={18} /><b>{summary.warning.severity.toUpperCase()}</b><p>{summary.warning.message} You have {formatBytes(summary.remainingBytes)} remaining.</p></div>}
     <div className="rounded-3xl bg-stone-950 p-5 text-white"><p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-200">{plan.label} Plan</p><div className="mt-2 flex items-end justify-between gap-3"><b className="text-3xl">{formatCurrency(plan.monthlyPriceCents, plan.currency)}</b><span className="text-sm text-stone-300">/ month · payments not yet connected</span></div><div className="mt-5 flex justify-between text-sm"><span>{formatBytes(summary.usedBytes)} / {formatBytes(summary.allowedBytes)}</span><span>{summary.percentUsed.toFixed(1)}%</span></div><div className="mt-2 h-4 rounded-full bg-white/20"><div className="h-4 rounded-full bg-gradient-to-r from-amber-400 to-emerald-300" style={{width:`${summary.percentUsed}%`}} /></div><p className="mt-3 text-sm text-stone-200">{formatBytes(summary.remainingBytes)} remaining</p></div>
     <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">{rows.map(([label,bytes,Icon])=><div key={label} className="rounded-2xl bg-amber-50 p-3"><Icon className="mb-2 text-amber-700" /><b>{formatBytes(bytes)}</b><p className="text-sm text-stone-500">{label}</p></div>)}</div>
     <div className="mt-4 grid gap-3 md:grid-cols-3"><div className="rounded-2xl bg-white p-4 ring-1 ring-amber-100"><Database className="mb-2 text-emerald-700" /><b>Estimated Storage Cost</b><p className="text-xl">{formatCurrency(summary.estimatedStorageCostCents, plan.currency)}</p><p className="text-xs text-stone-500">Based on configured provider assumptions.</p></div><div className="rounded-2xl bg-white p-4 ring-1 ring-amber-100"><TrendingUp className="mb-2 text-amber-700" /><b>Estimated Total Cost</b><p className="text-xl">{formatCurrency(summary.estimatedTotalCostCents, plan.currency)}</p><p className="text-xs text-stone-500">Storage + bandwidth + backup + AI + processing estimates.</p></div><div className="rounded-2xl bg-white p-4 ring-1 ring-amber-100"><CreditCard className="mb-2 text-rose-700" /><b>Subscription Revenue</b><p className="text-xl">{formatCurrency(summary.monthlyRevenueCents, plan.currency)}</p><p className="text-xs text-stone-500">Revenue is separated from cost. Payments not connected.</p></div></div>
-    <div className="mt-4 grid gap-3 sm:grid-cols-3"><button className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white">Manage Storage</button><button className="rounded-2xl bg-amber-500 px-5 py-4 font-bold text-stone-950">Upgrade Plan</button><button className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 font-bold text-emerald-900">Export Family Archive</button></div>
+    <div className="mt-4 grid gap-3 sm:grid-cols-3"><button className="rounded-2xl bg-stone-900 px-5 py-4 font-bold text-white">Manage Storage</button><button className="rounded-2xl bg-amber-500 px-5 py-4 font-bold text-stone-950">Upgrade Plan</button><button type="button" onClick={exportManifest} className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 font-bold text-emerald-900">Export Manifest</button></div>
+    {lastExport && <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950"><b>Archive manifest prepared.</b><p>{lastExport.memories} memories and {lastExport.media} media records indexed. {lastExport.warnings ? `${lastExport.warnings} warning${lastExport.warnings === 1 ? '' : 's'} included.` : 'No warnings included.'}</p><p className="text-xs text-emerald-800">Exported {new Date(lastExport.exportedAt).toLocaleString()}. This manifest is an audit index; private media files still require signed access or backup workers.</p></div>}
   </Card>;
 }
 

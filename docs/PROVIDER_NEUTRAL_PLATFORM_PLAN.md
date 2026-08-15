@@ -62,6 +62,20 @@ Acceptable production paths include:
 
 No provider is considered production-ready until Family A / Family B isolation tests pass for auth, memory records, media metadata, storage paths, and signed URL access.
 
+## Archive export manifest
+
+The Storage screen can generate a provider-neutral JSON manifest for a family archive. The manifest indexes:
+
+- family identity and source mode
+- counts for people, memories, media, timeline events, and family members
+- privacy distribution across private, family, specific people, descendants, and legacy memories
+- media bytes by type
+- media records that explicitly require signed access
+- memory-to-media counts and preserved-original counts
+- warnings when the export is generated from demo data, incomplete media, or an errored archive load
+
+This is an audit index, not a full backup. Private media bytes still require a storage provider, signed access, and a future bundle/export worker.
+
 ## GitHub source-of-truth rule
 
 Every platform change must update:

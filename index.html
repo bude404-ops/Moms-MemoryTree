@@ -520,6 +520,7 @@
         <button class="nav-pill" data-tab="memories">Memories</button>
         <button class="nav-pill" data-tab="family">Family</button>
         <button class="nav-pill" data-tab="record">Record</button>
+        <button class="nav-pill" data-tab="storage">Storage</button>
         <button class="nav-pill" data-tab="timeline">Timeline</button>
         <button class="nav-pill" data-tab="legacy">Legacy</button>
       </div>
@@ -535,6 +536,7 @@
       <button data-tab="memories" aria-label="Memories">📚</button>
       <button data-tab="family" aria-label="Family">🌳</button>
       <button data-tab="record" aria-label="Record">🎙️</button>
+      <button data-tab="storage" aria-label="Storage">🧾</button>
       <button data-tab="timeline" aria-label="Timeline">📅</button>
       <button data-tab="legacy" aria-label="Legacy">🛡️</button>
     </aside>
@@ -701,6 +703,27 @@
         <article class="card"><span class="icon">🔴</span><h3>One clear choice</h3><p>No extra fields on this page. Just video or audio, then save the recording to the family archive.</p></article>
       </section>
 
+      <section class="card" data-view="storage">
+        <div class="section-title">
+          <p class="eyebrow">archive export manifest</p>
+          <h2>Index the family archive before a backup worker exists.</h2>
+          <p>Generate a preview-safe JSON manifest of family, memory, privacy, media, and signed-access records. This is an audit index — private media files still require live signed storage and future bundle workers.</p>
+        </div>
+        <div class="grid four" id="manifest-summary" aria-label="Archive manifest summary"></div>
+        <div class="mock-panel" style="margin-top:16px">
+          <h3>Provider-neutral export boundary</h3>
+          <div class="matrix" role="table" aria-label="Archive export manifest fields">
+            <div class="matrix-row" role="row"><div><strong>Family + source</strong><span>Identifies the archive and whether data is demo or live-provider backed.</span></div><div>Manifest v1</div><div><span class="pill green">Indexed</span></div></div>
+            <div class="matrix-row" role="row"><div><strong>Privacy distribution</strong><span>Private, family, specific people, descendants, and legacy memory counts.</span></div><div>No content leak</div><div><span class="pill green">Indexed</span></div></div>
+            <div class="matrix-row" role="row"><div><strong>Media records</strong><span>File names, types, bytes, upload status, and signed-access requirement.</span></div><div>Metadata only</div><div><span class="pill amber">No media bytes</span></div></div>
+            <div class="matrix-row" role="row"><div><strong>Warnings</strong><span>Flags demo exports, incomplete media, or load errors before anyone mistakes the manifest for a backup.</span></div><div>Safety rail</div><div><span class="pill dark">Explicit</span></div></div>
+          </div>
+          <div class="action-row" style="margin-top:14px"><button class="btn primary" id="export-manifest" type="button">Generate manifest</button><button class="btn locked-action" data-production-lock="backup" type="button" aria-disabled="true">Bundle media locked</button></div>
+          <p class="save-note" id="manifest-note" aria-live="polite"></p>
+          <pre id="manifest-preview" class="empty-state" style="white-space:pre-wrap;max-height:260px;overflow:auto"></pre>
+        </div>
+      </section>
+
       <section class="panel-grid" data-view="legacy">
         <article class="card">
           <div class="section-title">
@@ -753,6 +776,10 @@
         title: 'Record',
         html: '<div class="mobile-feature"><small>Record</small><h3>Choose video or audio.</h3><p>Save the memory on the main Record screen and watch it appear across the preview.</p></div><div class="mobile-grid"><button class="mobile-card" data-tab="record"><h3>🎥 Video</h3><p>Record with camera.</p></button><button class="mobile-card" data-tab="record"><h3>🎙️ Audio</h3><p>Record voice only.</p></button></div>'
       },
+      storage: {
+        title: 'Storage',
+        html: '<div class="mobile-feature"><small>Archive manifest</small><h3>Export the index, not the private files.</h3><p>The manifest records memory counts, privacy levels, media metadata, and warnings while bundle workers remain locked.</p></div><div class="mobile-grid"><button class="mobile-card" data-tab="storage"><h3>🧾 Manifest</h3><p>Generate from the Storage screen.</p></button><div class="mobile-card"><h3>🔒 Media</h3><p>Signed access still required.</p></div></div>'
+      },
       timeline: {
         title: 'Timeline',
         html: '<div class="mobile-feature"><small>Timeline</small><h3>Every memory keeps its source.</h3><p>Original life story, family additions, memorial videos, and later tributes are clearly separated.</p></div><div id="mobile-timeline-list" class="mock-list"></div>'
@@ -764,7 +791,7 @@
     };
 
     const storageKey = 'moms-memorytree-stage4-prototype';
-    const serviceSchemaVersion = 5;
+    const serviceSchemaVersion = 6;
     const productionMode = 'preview-locked';
     const productionEnablementChecklist = [
       'production credentials installed outside the client shell',
@@ -1109,6 +1136,53 @@
       if (memberCount) memberCount.textContent = String(state.members.length);
     }
 
+    function createArchiveManifest() {
+      const memories = state.memories.map((memory) => ({
+        id: memory.id,
+        title: memory.title,
+        type: memory.type,
+        privacy: memory.visibility,
+        associatedPerson: memory.person,
+        mediaCount: memory.recording ? 1 : 0,
+        requiresSignedAccess: Boolean(memory.recording)
+      }));
+      const recordedMedia = state.memories.filter((memory) => memory.recording).map((memory) => ({
+        memoryId: memory.id,
+        mediaType: memory.recording.kind,
+        bytes: memory.recording.bytes,
+        mimeType: memory.recording.mimeType,
+        requiresSignedAccess: true,
+        status: 'preview-staged'
+      }));
+      return {
+        manifestVersion: 'memorytree-export-v1',
+        exportedAt: new Date().toISOString(),
+        source: 'browser-local-preview',
+        family: state.family,
+        counts: { people: state.members.length, memories: state.memories.length, media: recordedMedia.length, invitations: state.invites.length },
+        privacy: {
+          family: state.memories.filter((memory) => memory.visibility === 'Family').length,
+          private: state.memories.filter((memory) => memory.visibility === 'Private').length,
+          legacyCustodians: state.memories.filter((memory) => memory.visibility === 'Legacy Custodians').length
+        },
+        media: recordedMedia,
+        memories,
+        warnings: ['Preview manifest only. It is not a verified cloud backup.', 'Private media bytes are not bundled until the backup/export worker exists.']
+      };
+    }
+
+    function renderManifestSummary() {
+      const target = byId('manifest-summary');
+      if (!target) return;
+      const manifest = createArchiveManifest();
+      target.innerHTML = [
+        ['People', manifest.counts.people],
+        ['Memories', manifest.counts.memories],
+        ['Media records', manifest.counts.media],
+        ['Warnings', manifest.warnings.length]
+      ].map(([label, value]) => `<article class="card"><span class="icon">🧾</span><h3>${escapeHtml(value)}</h3><p>${escapeHtml(label)}</p></article>`).join('');
+    }
+
     function renderAll() {
       renderStatus();
       renderServiceStatus();
@@ -1120,6 +1194,7 @@
       renderInvites();
       renderTimeline();
       renderMobileCounts();
+      renderManifestSummary();
     }
 
     const createAccount = byId('mock-create-account');
@@ -1219,6 +1294,17 @@
     if (stopRecordingButton) {
       stopRecordingButton.addEventListener('click', () => {
         if (activeRecorder && activeRecorder.state !== 'inactive') activeRecorder.stop();
+      });
+    }
+
+    const exportManifestButton = byId('export-manifest');
+    if (exportManifestButton) {
+      exportManifestButton.addEventListener('click', () => {
+        const manifest = createArchiveManifest();
+        const preview = byId('manifest-preview');
+        const note = byId('manifest-note');
+        if (preview) preview.textContent = JSON.stringify(manifest, null, 2);
+        if (note) note.textContent = `Manifest generated with ${manifest.counts.memories} memories, ${manifest.counts.media} media records, and ${manifest.warnings.length} warnings.`;
       });
     }
 

@@ -4,7 +4,8 @@
 
 - Provider-neutral platform direction locked: Moms MemoryTree remains the product, while auth, database, private media, signed access, workers, billing, AI, and notifications stay replaceable behind service contracts.
 - Record flow upgraded for browser video/audio capture in the React app and Mini App preview; captured media is staged locally until the user saves the memory.
-- `docs/PROVIDER_NEUTRAL_PLATFORM_PLAN.md` added as the source-of-truth plan for recording, cloud storage, provider selection, and GitHub update discipline.
+- Archive export manifest generator added so families can download a provider-neutral JSON index of memories, privacy levels, media records, signed-access requirements, and export warnings.
+- `docs/PROVIDER_NEUTRAL_PLATFORM_PLAN.md` added as the source-of-truth plan for recording, cloud storage, provider selection, export manifests, and GitHub update discipline.
 - Existing React + TypeScript + Vite + Tailwind application preserved.
 - GitHub repository remains the source of truth.
 - Centralized Supabase client moved to `src/lib/supabase/client.ts` with compatibility export.
@@ -147,9 +148,9 @@
 
 ## ARCHIVE EXPORT
 
-FOUNDATION ONLY.
+FOUNDATION ADVANCED.
 
-Archive export tracking exists, but no export worker is implemented yet.
+Archive export tracking exists, and the app can now generate a downloadable provider-neutral JSON manifest that indexes family, memory, media, privacy, signed-access, and warning metadata. A real export worker that bundles private media files is still pending.
 
 ## STORAGE ECONOMICS
 

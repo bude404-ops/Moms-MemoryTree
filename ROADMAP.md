@@ -66,7 +66,7 @@
 - Independent backup provider abstraction.
 - Scheduled backup jobs.
 - Backup integrity checks.
-- Family archive export manifest.
+- Family archive export manifest. — implemented as provider-neutral JSON index
 - Downloadable archive bundle.
 - Restore procedure documentation.
 

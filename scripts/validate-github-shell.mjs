@@ -20,7 +20,7 @@ expect(/<title>Moms MemoryTree/.test(html), 'index.html must identify Moms Memor
 expect(html.includes('assets/memorytree-hero.png'), 'index.html must reference the portable committed asset path.');
 expect(!html.includes('1000016553.png'), 'index.html must not reference the old root-level generated image name.');
 
-const requiredTabs = ['home', 'memories', 'family', 'record', 'timeline', 'legacy'];
+const requiredTabs = ['home', 'memories', 'family', 'record', 'storage', 'timeline', 'legacy'];
 for (const tab of requiredTabs) {
   const tabPattern = new RegExp(`data-tab=["']${tab}["']`, 'i');
   const viewPattern = new RegExp(`data-view=["']${tab}["']`, 'i');
@@ -28,7 +28,7 @@ for (const tab of requiredTabs) {
   expect(viewPattern.test(html), `index.html must expose a ${tab} application view.`);
 }
 
-const requiredLabels = ['Home', 'Memories', 'Family', 'Record', 'Timeline', 'Legacy'];
+const requiredLabels = ['Home', 'Memories', 'Family', 'Record', 'Storage', 'Timeline', 'Legacy'];
 for (const label of requiredLabels) {
   expect(html.includes(`>${label}<`) || html.includes(`aria-label="${label}"`), `Navigation must include the plain-language label ${label}.`);
 }
@@ -73,7 +73,7 @@ for (const phrase of stage4Phrases) {
 }
 
 const stage5ServiceContracts = [
-  'serviceSchemaVersion = 5',
+  'serviceSchemaVersion = 6',
   'mockServices =',
   'migrateState',
   'validateState',
@@ -166,7 +166,22 @@ for (const contract of stage9OperatorHandoffContracts) {
   expect(html.includes(contract), `Stage 9 operator handoff must include ${contract}.`);
 }
 
-expect(!/supabase\.|@supabase/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
+const stage6ArchiveManifestContracts = [
+  'archive export manifest',
+  'createArchiveManifest',
+  'renderManifestSummary',
+  'export-manifest',
+  'manifest-preview',
+  'memorytree-export-v1',
+  'Preview manifest only. It is not a verified cloud backup.',
+  'Private media bytes are not bundled until the backup/export worker exists.',
+  'Bundle media locked'
+];
+for (const contract of stage6ArchiveManifestContracts) {
+  expect(html.includes(contract), `Stage 6 archive manifest must include ${contract}.`);
+}
+
+expect(!/@supabase/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
 
 if (failures.length) {
   console.error('GitHub shell validation failed:');
