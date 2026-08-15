@@ -89,10 +89,13 @@
 - Stage 7 production mode lockout completed in `docs/STAGE_07_PRODUCTION_MODE_LOCKOUT_REPORT.md`.
 - Root `index.html` now includes a preview-mode lockout banner, disabled production controls, and explicit preview-only copy for live signup, real invitations, live upload, and archive export.
 - `npm run validate:github-shell` now enforces Stage 7 production lockout contracts.
+- Stage 8 provider enablement checklist and live verification harness completed in `docs/STAGE_08_PROVIDER_ENABLEMENT_CHECKLIST_AND_LIVE_VERIFICATION_HARNESS_REPORT.md`.
+- Root `index.html` now shows the exact safety command, live verification command, required throwaway live-test credentials, verification step cards, and evidence ledger needed before provider gates can unlock.
+- `npm run validate:github-shell` and `npm run validate:live-harness` now enforce Stage 8 verification harness contracts.
 
 ## IN PROGRESS
 
-- Stage 8 provider enablement checklist and live verification harness is next.
+- Stage 9 live provider credential runbook and operator handoff is next.
 - Live production provider deployment remains pending provider selection/credentials.
 - Real cloud upload/playback requires an approved production storage/backend provider.
 - Family invitation email delivery is architecture-only.

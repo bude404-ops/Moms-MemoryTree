@@ -16,4 +16,18 @@ for (const pattern of forbidden) {
   if (pattern.test(source)) throw new Error(`Live harness must not reference privileged credentials: ${pattern}`);
 }
 if (!source.includes('SUPABASE_LIVE_PUBLISHABLE_KEY')) throw new Error('Live harness should use publishable client credentials.');
+
+const requiredChecks = [
+  'signUpAndProfile',
+  'createFamilyFixture',
+  'Family B cannot read Family A family memory',
+  'Family B cannot modify Family A memory',
+  'Family B cannot upload media into Family A storage path',
+  'Family A receives signed media URL through Edge Function',
+  'Family B cannot receive signed media URL for Family A media'
+];
+for (const check of requiredChecks) {
+  if (!source.includes(check)) throw new Error(`Live harness must preserve verification check: ${check}`);
+}
+
 console.log('Live harness safety validation passed.');

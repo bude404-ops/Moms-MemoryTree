@@ -456,6 +456,12 @@
     .provider-card p { margin: 0; color: var(--muted); line-height: 1.45; }
     .provider-card ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.55; }
     .readiness-summary { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(46,74,56,.08); border: 1px solid rgba(46,74,56,.22); color: var(--ink-soft); line-height: 1.5; }
+    .verification-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+    .verification-card { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.72); border: 1px solid var(--line); }
+    .verification-card strong { color: var(--ink); }
+    .verification-card p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .verification-card code { display: inline-block; width: fit-content; padding: 4px 8px; border-radius: 10px; background: rgba(43,29,20,.08); color: var(--bark); font-weight: 850; }
+    .evidence-ledger { display: grid; gap: 8px; margin-top: 12px; padding: 14px; border-radius: 18px; background: rgba(200,132,41,.1); border: 1px solid rgba(200,132,41,.24); color: var(--ink-soft); }
     .preview-lock-banner { display: grid; gap: 8px; padding: 16px; border-radius: 22px; background: rgba(126, 63, 23, .1); border: 1px solid rgba(126, 63, 23, .24); color: var(--ink-soft); }
     .preview-lock-banner strong { color: var(--bark); font-family: Georgia, serif; font-size: 20px; }
     .preview-lock-banner p { margin: 0; line-height: 1.55; }
@@ -573,6 +579,16 @@
           </div>
           <div class="readiness-summary" id="provider-readiness-summary">Provider readiness checks loading.</div>
           <div class="provider-grid" id="provider-readiness-list"></div>
+        </div>
+        <div class="mock-panel" id="provider-enablement-checklist" style="margin-top:16px" aria-label="Provider enablement checklist and live verification harness">
+          <div class="section-title">
+            <p class="eyebrow">stage 8 verification</p>
+            <h2>Unlock production only with evidence.</h2>
+            <p>The preview now shows the exact credentials, scripts, and pass/fail proof required before any provider gate can be marked ready.</p>
+          </div>
+          <div class="readiness-summary" id="live-verification-harness">Live verification harness loading.</div>
+          <div class="verification-grid" id="live-verification-steps"></div>
+          <div class="evidence-ledger" id="provider-evidence-ledger"></div>
         </div>
       </section>
 
@@ -740,6 +756,24 @@
       'live Family A / Family B isolation test passed',
       'signed media playback verified with expiring URLs',
       'restore/export drill completed without exposing private media'
+    ];
+
+    const liveVerificationHarness = {
+      mode: 'evidence-required',
+      safetyCheck: 'npm run validate:live-harness',
+      liveCommand: 'npm run verify:live-supabase',
+      requiredCredentials: ['SUPABASE_LIVE_URL', 'SUPABASE_LIVE_PUBLISHABLE_KEY', 'SUPABASE_LIVE_TEST_PASSWORD'],
+      optionalFixtures: ['SUPABASE_LIVE_TEST_EMAIL_A', 'SUPABASE_LIVE_TEST_EMAIL_B', 'SUPABASE_SIGNED_MEDIA_FUNCTION'],
+      evidence: ['command output captured', 'timestamped pass/fail result', 'provider gate owner review', 'no privileged credentials used']
+    };
+
+    const liveVerificationSteps = [
+      { key: 'credentials', label: 'Client credentials loaded', command: 'validate:live-harness', proof: 'publishable-only environment names are present and privileged names are absent' },
+      { key: 'auth', label: 'Auth signup/signin verified', command: 'verify:live-supabase', proof: 'throwaway Family A and Family B test users can authenticate' },
+      { key: 'database', label: 'Family isolation verified', command: 'verify:live-supabase', proof: 'Family B cannot read, update, or delete Family A memories' },
+      { key: 'media', label: 'Private media verified', command: 'verify:live-supabase', proof: 'Family B cannot upload into or download from Family A media paths' },
+      { key: 'signed-media', label: 'Signed playback verified', command: 'verify:live-supabase', proof: 'Family A receives an expiring signed URL and Family B is denied' },
+      { key: 'backup', label: 'Backup/export drill pending', command: 'manual production drill', proof: 'restore/export evidence must be attached before backup gate can unlock' }
     ];
 
     const providerReadinessGates = [
@@ -968,6 +1002,16 @@
       list.innerHTML = gates.map((gate) => `<article class="provider-card" data-provider-gate="${escapeHtml(gate.key)}"><header><strong>${escapeHtml(gate.label)}</strong><span class="pill amber">Blocked</span></header><p>${escapeHtml(gate.blockedReason)}</p><ul>${gate.required.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul><p><strong>Preview-safe:</strong> ${escapeHtml(gate.safePreview)}</p></article>`).join('');
     }
 
+    function renderLiveVerificationHarness() {
+      const harness = byId('live-verification-harness');
+      const steps = byId('live-verification-steps');
+      const ledger = byId('provider-evidence-ledger');
+      if (!harness || !steps || !ledger) return;
+      harness.innerHTML = `<strong>Production unlock mode: ${escapeHtml(liveVerificationHarness.mode)}.</strong><span>Run <code>${escapeHtml(liveVerificationHarness.safetyCheck)}</code> first, then <code>${escapeHtml(liveVerificationHarness.liveCommand)}</code> with throwaway live-test credentials outside this client shell.</span><span><strong>Required credentials:</strong> ${liveVerificationHarness.requiredCredentials.map(escapeHtml).join(' · ')}</span><span><strong>Optional fixtures:</strong> ${liveVerificationHarness.optionalFixtures.map(escapeHtml).join(' · ')}</span>`;
+      steps.innerHTML = liveVerificationSteps.map((step) => `<article class="verification-card" data-verification-step="${escapeHtml(step.key)}"><strong>${escapeHtml(step.label)}</strong><code>${escapeHtml(step.command)}</code><p>${escapeHtml(step.proof)}</p><span class="pill amber">Evidence required</span></article>`).join('');
+      ledger.innerHTML = `<strong>Evidence ledger before unlock</strong><span>${liveVerificationHarness.evidence.map(escapeHtml).join(' · ')}</span><span>Current shell status: locked. No provider gate can change to ready without captured live verification evidence.</span>`;
+    }
+
     function renderTree() {
       if (!treeMembers) return;
       const members = state.members.filter((member) => member.name !== 'Mom');
@@ -1021,6 +1065,7 @@
       renderStatus();
       renderServiceStatus();
       renderProviderReadiness();
+      renderLiveVerificationHarness();
       renderTree();
       renderMemories();
       renderInvites();

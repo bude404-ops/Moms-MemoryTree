@@ -124,7 +124,29 @@ for (const contract of stage7LockoutContracts) {
   expect(html.includes(contract), `Stage 7 production lockout must include ${contract}.`);
 }
 
-expect(!/supabase\.|@supabase|SUPABASE_/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
+const stage8VerificationContracts = [
+  'provider-enablement-checklist',
+  'live-verification-harness',
+  'live-verification-steps',
+  'provider-evidence-ledger',
+  'liveVerificationHarness',
+  "mode: 'evidence-required'",
+  'npm run validate:live-harness',
+  'npm run verify:live-supabase',
+  'SUPABASE_LIVE_URL',
+  'SUPABASE_LIVE_PUBLISHABLE_KEY',
+  'SUPABASE_LIVE_TEST_PASSWORD',
+  'liveVerificationSteps',
+  'data-verification-step=',
+  'renderLiveVerificationHarness',
+  'Evidence required',
+  'No provider gate can change to ready without captured live verification evidence.'
+];
+for (const contract of stage8VerificationContracts) {
+  expect(html.includes(contract), `Stage 8 live verification harness must include ${contract}.`);
+}
+
+expect(!/supabase\.|@supabase/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
 
 if (failures.length) {
   console.error('GitHub shell validation failed:');
