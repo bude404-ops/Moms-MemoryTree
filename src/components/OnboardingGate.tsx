@@ -1,18 +1,19 @@
 import { LogIn, Mail, Sprout, ShieldCheck, UserPlus } from 'lucide-react';
 import { FormEvent, useState } from 'react';
-import type { AuthCredentials, FirstFamilyInput, OnboardingState } from '../lib/onboarding';
+import type { AuthCredentials, FirstFamilyInput, InvitationAcceptanceInput, OnboardingState } from '../lib/onboarding';
 
 export interface OnboardingGateProps {
   state: OnboardingState;
   onSignIn: (input: AuthCredentials) => Promise<void>;
   onSignUp: (input: AuthCredentials) => Promise<void>;
   onCreateFamily: (input: FirstFamilyInput) => Promise<void>;
+  onAcceptInvitation: (input: InvitationAcceptanceInput) => Promise<void>;
   onRequestPasswordReset: (email: string) => Promise<void>;
 }
 
-export function OnboardingGate({ state, onSignIn, onSignUp, onCreateFamily, onRequestPasswordReset }: OnboardingGateProps) {
+export function OnboardingGate({ state, onSignIn, onSignUp, onCreateFamily, onAcceptInvitation, onRequestPasswordReset }: OnboardingGateProps) {
   if (state.mode === 'demo' || state.mode === 'ready') return null;
-  if (state.mode === 'needs_family') return <CreateFamilyGate state={state} onCreateFamily={onCreateFamily} />;
+  if (state.mode === 'needs_family') return <CreateFamilyGate state={state} onCreateFamily={onCreateFamily} onAcceptInvitation={onAcceptInvitation} />;
   return <AuthGate state={state} onSignIn={onSignIn} onSignUp={onSignUp} onRequestPasswordReset={onRequestPasswordReset} />;
 }
 
@@ -56,8 +57,9 @@ function AuthGate({ state, onSignIn, onSignUp, onRequestPasswordReset }: Pick<On
   </div>;
 }
 
-function CreateFamilyGate({ state, onCreateFamily }: Pick<OnboardingGateProps, 'state' | 'onCreateFamily'>) {
-  const [form, setForm] = useState({ familyName: '', displayName: state.user?.userMetadata?.display_name as string || '' });
+function CreateFamilyGate({ state, onCreateFamily, onAcceptInvitation }: Pick<OnboardingGateProps, 'state' | 'onCreateFamily' | 'onAcceptInvitation'>) {
+  const inviteFromUrl = typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('invite') ?? '';
+  const [form, setForm] = useState({ familyName: '', displayName: state.user?.userMetadata?.display_name as string || '', inviteToken: inviteFromUrl });
   async function submit(event: FormEvent) {
     event.preventDefault();
     await onCreateFamily(form);
@@ -72,7 +74,14 @@ function CreateFamilyGate({ state, onCreateFamily }: Pick<OnboardingGateProps, '
         <input required className="w-full rounded-2xl border border-amber-200 px-4 py-4" placeholder="Family name, e.g. The Willow Family" value={form.familyName} onChange={event => setForm({ ...form, familyName: event.target.value })} />
         <input required className="w-full rounded-2xl border border-amber-200 px-4 py-4" placeholder="Your display name" value={form.displayName} onChange={event => setForm({ ...form, displayName: event.target.value })} />
         {state.error && <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{state.error}</div>}
+        {state.notice && <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">{state.notice}</div>}
         <button disabled={state.loading} className="w-full rounded-2xl bg-stone-950 px-5 py-4 font-black text-white disabled:opacity-60">{state.loading ? 'Creating...' : 'Create family archive'}</button>
+        <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4">
+          <b className="text-stone-900">Joining an existing family?</b>
+          <p className="mt-1 text-sm leading-6 text-stone-600">Paste the private invite token from the family manager. Your email must match the invitation.</p>
+          <input className="mt-3 w-full rounded-2xl border border-amber-200 px-4 py-3" placeholder="Invite token" value={form.inviteToken} onChange={event => setForm({ ...form, inviteToken: event.target.value })} />
+          <button type="button" disabled={state.loading || !form.inviteToken.trim() || !form.displayName.trim()} onClick={() => void onAcceptInvitation({ token: form.inviteToken, displayName: form.displayName })} className="mt-3 w-full rounded-2xl bg-emerald-700 px-5 py-3 font-black text-white disabled:opacity-50">Accept family invitation</button>
+        </div>
       </div>
     </form>
   </div>;

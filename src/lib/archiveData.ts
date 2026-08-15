@@ -6,7 +6,7 @@ import type { CreateMemoryInput, CreateRelationshipInput, InviteFamilyMemberInpu
 import { supabase } from './supabase';
 import { createSupabaseMediaStorageService, createUnavailableMediaStorageService, type MediaStorageService, type UploadProgressEvent } from './mediaStorage';
 import { mediaTypeFromFile } from './mediaUpload';
-import type { CostAssumptions, Family, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageAddon, StoragePlan, StorageUsage } from '../types/domain';
+import type { CostAssumptions, CreatedFamilyInvitation, Family, FamilyInvitation, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, StorageAddon, StoragePlan, StorageUsage } from '../types/domain';
 
 export interface ArchiveDataState {
   source: 'demo' | 'supabase';
@@ -14,6 +14,7 @@ export interface ArchiveDataState {
   error: string | null;
   family: Family;
   members: FamilyMember[];
+  invitations: FamilyInvitation[];
   people: Person[];
   relationships: FamilyRelationship[];
   memories: Memory[];
@@ -48,6 +49,7 @@ export function demoArchiveState(local: LocalArchiveState = loadArchive()): Arch
     source: 'demo',
     family: demoFamily,
     members: local.members,
+    invitations: [],
     people: local.people,
     relationships: local.relationships,
     memories: local.memories,
@@ -80,8 +82,9 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
     setLoading(true);
     setError(null);
     try {
-      const [members, people, relationships, memories, media, timeline, custodians, storage, storagePlans, subscription, storageAddons, costAssumptions] = await Promise.all([
+      const [members, invitations, people, relationships, memories, media, timeline, custodians, storage, storagePlans, subscription, storageAddons, costAssumptions] = await Promise.all([
         repository.listFamilyMembers(context.activeFamily.id),
+        repository.listFamilyInvitations(context.activeFamily.id),
         repository.listPeople(context.activeFamily.id),
         repository.listRelationships(context.activeFamily.id),
         repository.listMemories(context.activeFamily.id),
@@ -94,7 +97,7 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
         repository.listStorageAddons(context.activeFamily.id),
         repository.getCostAssumptions()
       ]);
-      setLiveState(buildArchiveState({ source: 'supabase', family: context.activeFamily, members, people, relationships, memories, media, timeline, custodians, storage, storagePlans, subscription, storageAddons, costAssumptions }));
+      setLiveState(buildArchiveState({ source: 'supabase', family: context.activeFamily, members, invitations, people, relationships, memories, media, timeline, custodians, storage, storagePlans, subscription, storageAddons, costAssumptions }));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load family archive data.');
     } finally {
@@ -107,7 +110,7 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
   const archive = useMemo(() => {
     if (context.mode === 'ready' && liveState) return { ...liveState, loading, error };
     if (context.mode === 'ready' && context.activeFamily) {
-      return buildArchiveState({ source: 'supabase', family: context.activeFamily, members: [], people: [], relationships: [], memories: [], media: [], timeline: [], custodians: [], storage: { ...demoStorage, familyId: context.activeFamily.id, limitBytes: context.activeFamily.storageLimitBytes || demoStorage.limitBytes }, storagePlans: demoStoragePlans, subscription: { ...demoSubscription, familyId: context.activeFamily.id, planId: context.activeFamily.storagePlanId ?? demoSubscription.planId }, storageAddons: [], costAssumptions: demoCostAssumptions, loading, error });
+      return buildArchiveState({ source: 'supabase', family: context.activeFamily, members: [], invitations: [], people: [], relationships: [], memories: [], media: [], timeline: [], custodians: [], storage: { ...demoStorage, familyId: context.activeFamily.id, limitBytes: context.activeFamily.storageLimitBytes || demoStorage.limitBytes }, storagePlans: demoStoragePlans, subscription: { ...demoSubscription, familyId: context.activeFamily.id, planId: context.activeFamily.storagePlanId ?? demoSubscription.planId }, storageAddons: [], costAssumptions: demoCostAssumptions, loading, error });
     }
     return { ...demoArchiveState(localArchive), loading, error };
   }, [context.activeFamily, context.mode, error, liveState, loading, localArchive]);
@@ -219,5 +222,15 @@ export function useArchiveData(context: ArchiveContextInput, repository: MemoryT
     return member;
   }
 
-  return { archive, createMemory, addPerson, createRelationship, inviteFamilyMember, reload };
+  async function createFamilyInvitation(input: { email: string; role: FamilyMember['role']; relationshipLabel?: string }): Promise<CreatedFamilyInvitation | null> {
+    if (context.mode === 'ready' && context.activeFamily) {
+      const invitation = await repository.createFamilyInvitation({ ...input, familyId: context.activeFamily.id });
+      setLiveState(prev => prev ? buildArchiveState({ ...prev, invitations: [invitation, ...prev.invitations] }) : prev);
+      await reload();
+      return invitation;
+    }
+    return null;
+  }
+
+  return { archive, createMemory, addPerson, createRelationship, inviteFamilyMember, createFamilyInvitation, reload };
 }

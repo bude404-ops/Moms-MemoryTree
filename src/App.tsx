@@ -51,7 +51,7 @@ export default function App() {
 
     <main className="mx-auto max-w-6xl px-4 py-5 pb-28 md:pb-8">
       {!isSupabaseConfigured && <div className="mb-5 rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950"><b>Development mode:</b> Supabase is not configured yet, so the UI uses local seed data. Database migrations, RLS policies, and private storage architecture are included for real Supabase deployment.</div>}
-      <OnboardingGate state={onboarding.state} onSignIn={onboarding.actions.signIn} onSignUp={onboarding.actions.signUp} onRequestPasswordReset={(email) => onboarding.actions.requestPasswordReset({ email })} onCreateFamily={onboarding.actions.createFirstFamily} />
+      <OnboardingGate state={onboarding.state} onSignIn={onboarding.actions.signIn} onSignUp={onboarding.actions.signUp} onRequestPasswordReset={(email) => onboarding.actions.requestPasswordReset({ email })} onCreateFamily={onboarding.actions.createFirstFamily} onAcceptInvitation={onboarding.actions.acceptInvitation} />
       {(onboarding.state.mode === 'demo' || onboarding.state.mode === 'ready') && <>
         {onboarding.state.mode === 'ready' && <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950"><span><b>Family archive active:</b> {onboarding.state.activeFamily?.name}<span className="ml-2 text-emerald-800">Signed in as {onboarding.state.user?.email ?? 'authenticated family member'}</span></span><button onClick={() => void onboarding.actions.signOut()} className="rounded-full bg-white px-4 py-2 font-bold text-emerald-900 ring-1 ring-emerald-200">Sign out</button></div>}
         {tab === 'dashboard' && <AppDashboardPage archive={archive} mode={onboarding.state.mode} />}
@@ -59,7 +59,7 @@ export default function App() {
         {tab === 'tree' && <MemoryTreePage people={archive.people} relationships={archive.relationships} />}
         {tab === 'record' && <RecordPage archive={archive} onCreate={createMemory} />}
         {tab === 'memories' && <MemoriesPage archive={archive} />}
-        {tab === 'family' && <FamilyPage family={archive.family} members={archive.members} people={archive.people} relationships={archive.relationships} onAddPerson={async (displayName) => { await archiveData.addPerson(displayName); }} onCreateRelationship={async (input) => { await archiveData.createRelationship(input); }} onInviteMember={async (input) => { await archiveData.inviteFamilyMember(input); }} />}
+        {tab === 'family' && <FamilyPage family={archive.family} members={archive.members} people={archive.people} relationships={archive.relationships} onAddPerson={async (displayName) => { await archiveData.addPerson(displayName); }} onCreateRelationship={async (input) => { await archiveData.createRelationship(input); }} onInviteMember={async (input) => { await archiveData.inviteFamilyMember(input); }} onCreateInvitation={archiveData.createFamilyInvitation} />}
         {tab === 'storage' && <StoragePanel archive={archive} />}
         {tab === 'timeline' && <TimelinePage events={archive.timeline} />}
         {tab === 'legacy' && <LegacyPage custodians={archive.custodians} people={archive.people} />}

@@ -99,6 +99,29 @@ describe('repository service layer', () => {
     expect(access.signedUrl).toBe('signed://temporary');
     expect(access.expiresInSeconds).toBe(300);
   });
+
+  it('creates secure family invitations with one-time plaintext token and stored hash only', async () => {
+    const insert = vi.fn().mockImplementation((row) => ({
+      select: () => ({ single: () => Promise.resolve({ data: { id: 'invite-1', ...row, created_at: '2026-08-15T00:00:00Z' }, error: null }) })
+    }));
+    const repo = new MemoryTreeRepository({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'user-1', email: 'mom@example.com', user_metadata: {} } }, error: null }) },
+      from: vi.fn().mockReturnValue({ insert })
+    } as never);
+    const invite = await repo.createFamilyInvitation({ familyId: 'family-1', email: 'KIN@EXAMPLE.COM', role: 'member', relationshipLabel: 'Daughter', expiresInDays: 1 });
+    expect(invite.token).toMatch(/^[a-f0-9]{48}$/);
+    expect(invite.acceptUrl).toContain(encodeURIComponent(invite.token));
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      family_id: 'family-1',
+      email: 'kin@example.com',
+      role: 'member',
+      relationship_label: 'Daughter',
+      invited_by: 'user-1',
+      status: 'pending'
+    }));
+    expect(insert.mock.calls[0][0].token_hash).toMatch(/^[a-f0-9]{64}$/);
+    expect(insert.mock.calls[0][0].token_hash).not.toBe(invite.token);
+  });
 });
 
 describe('repository media preservation chain', () => {

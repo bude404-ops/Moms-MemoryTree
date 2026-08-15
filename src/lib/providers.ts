@@ -68,6 +68,9 @@ export class UnavailableDatabaseProvider implements DatabaseService {
   async addPerson() { return this.unavailable(); }
   async createRelationship() { return this.unavailable(); }
   async inviteFamilyMember() { return this.unavailable(); }
+  async listFamilyInvitations() { return this.unavailable(); }
+  async createFamilyInvitation() { return this.unavailable(); }
+  async acceptFamilyInvitation() { return this.unavailable(); }
   async listRelationships() { return this.unavailable(); }
   async listMemories() { return this.unavailable(); }
   async createMemory() { return this.unavailable(); }
@@ -89,6 +92,9 @@ export class DatabaseFamilyServiceAdapter implements FamilyService {
   listFamilies() { return this.database.listFamilies(); }
   listFamilyMembers(familyId: string) { return this.database.listFamilyMembers(familyId); }
   inviteFamilyMember(input: Parameters<DatabaseService['inviteFamilyMember']>[0]) { return this.database.inviteFamilyMember(input); }
+  listFamilyInvitations(familyId: string) { return this.database.listFamilyInvitations(familyId); }
+  createFamilyInvitation(input: Parameters<DatabaseService['createFamilyInvitation']>[0]) { return this.database.createFamilyInvitation(input); }
+  acceptFamilyInvitation(input: Parameters<DatabaseService['acceptFamilyInvitation']>[0]) { return this.database.acceptFamilyInvitation(input); }
   listPeople(familyId: string) { return this.database.listPeople(familyId); }
   addPerson(familyId: string, displayName: string) { return this.database.addPerson(familyId, displayName); }
   listRelationships(familyId: string) { return this.database.listRelationships(familyId); }

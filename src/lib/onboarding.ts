@@ -32,6 +32,11 @@ export interface FirstFamilyInput {
   displayName: string;
 }
 
+export interface InvitationAcceptanceInput {
+  token: string;
+  displayName: string;
+}
+
 export function resolveOnboardingMode(configured: boolean, user: AppUser | null, families: Family[]): OnboardingMode {
   if (!configured) return 'demo';
   if (!user) return 'signed_out';
@@ -109,6 +114,20 @@ export function useOnboarding(repository: MemoryTreeRepository = memoryTreeRepos
         await refresh();
       } catch (error) {
         setState(prev => ({ ...prev, loading: false, error: error instanceof Error ? error.message : 'Unable to create family archive.' }));
+      }
+    },
+    async acceptInvitation(input: InvitationAcceptanceInput) {
+      if (!state.user) {
+        setState(prev => ({ ...prev, error: 'Sign in before accepting an invitation.' }));
+        return;
+      }
+      setState(prev => ({ ...prev, loading: true, error: null, notice: null }));
+      try {
+        await repository.acceptFamilyInvitation(input);
+        setState(prev => ({ ...prev, notice: 'Invitation accepted. Your family archive is ready.' }));
+        await refresh();
+      } catch (error) {
+        setState(prev => ({ ...prev, loading: false, error: error instanceof Error ? error.message : 'Unable to accept this family invitation.' }));
       }
     },
     async signOut() {

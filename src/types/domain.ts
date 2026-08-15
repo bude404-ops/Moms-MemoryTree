@@ -131,6 +131,23 @@ export interface FamilyMember {
   permissions: string[];
 }
 
+export interface FamilyInvitation {
+  id: string;
+  familyId: string;
+  email: string;
+  role: FamilyRole;
+  relationshipLabel?: string;
+  invitedBy: string;
+  status: 'pending' | 'accepted' | 'expired' | 'revoked';
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface CreatedFamilyInvitation extends FamilyInvitation {
+  token: string;
+  acceptUrl: string;
+}
+
 export interface Person {
   id: string;
   familyId: string;

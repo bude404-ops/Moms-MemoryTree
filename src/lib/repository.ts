@@ -2,8 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { MemoryTreeAuthService } from './auth';
 import { createSupabaseMediaStorageService } from './mediaStorage';
 import { requireSupabase, supabase } from './supabase';
-import type { AuthSessionState, CreateFamilyInput, CreateMemoryInput, DatabaseService, InviteFamilyMemberInput, CreateRelationshipInput, UploadMediaInput } from './services';
-import type { CostAssumptions, Family, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageAddon, StoragePlan, StorageUsage } from '../types/domain';
+import type { AcceptFamilyInvitationInput, AuthSessionState, CreateFamilyInput, CreateFamilyInvitationInput, CreateMemoryInput, DatabaseService, InviteFamilyMemberInput, CreateRelationshipInput, UploadMediaInput } from './services';
+import type { CostAssumptions, CreatedFamilyInvitation, Family, FamilyInvitation, FamilyMember, FamilyRelationship, FamilySubscription, LegacyCustodian, LifeEvent, Memory, MemoryMedia, Person, PrivacyLevel, StorageAddon, StoragePlan, StorageUsage } from '../types/domain';
 import { demoCostAssumptions, demoCustodians, demoFamily, demoMembers, demoPeople, demoRelationships, demoStorage, demoStorageAddons, demoStoragePlans, demoSubscription, demoTimeline } from './demoData';
 
 function mapFamily(row: Record<string, unknown>): Family {
@@ -37,6 +37,37 @@ function mapMember(row: Record<string, unknown>): FamilyMember {
     status: row.status as FamilyMember['status'],
     permissions: Array.isArray(row.permissions) ? row.permissions.map(String) : []
   };
+}
+
+function mapInvitation(row: Record<string, unknown>): FamilyInvitation {
+  return {
+    id: String(row.id),
+    familyId: String(row.family_id),
+    email: String(row.email),
+    role: row.role as FamilyInvitation['role'],
+    relationshipLabel: row.relationship_label ? String(row.relationship_label) : undefined,
+    invitedBy: String(row.invited_by),
+    status: row.status as FamilyInvitation['status'],
+    expiresAt: String(row.expires_at),
+    createdAt: String(row.created_at)
+  };
+}
+
+function makeInvitationToken(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function sha256Hex(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function inviteAcceptUrl(token: string): string {
+  const base = typeof window === 'undefined' ? 'https://moms-memorytree.local' : window.location.origin + window.location.pathname;
+  return `${base}?invite=${encodeURIComponent(token)}`;
 }
 
 function mapMemory(row: Record<string, unknown>): Memory {
@@ -272,6 +303,45 @@ export class MemoryTreeRepository implements DatabaseService {
     }).select('*').single();
     if (error) throw error;
     return mapMember(data);
+  }
+
+
+  async listFamilyInvitations(familyId: string): Promise<FamilyInvitation[]> {
+    if (!this.client) return [];
+    const { data, error } = await this.client.from('family_invitations').select('*').eq('family_id', familyId).order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map(mapInvitation);
+  }
+
+  async createFamilyInvitation(input: CreateFamilyInvitationInput): Promise<CreatedFamilyInvitation> {
+    const client = this.client ?? requireSupabase();
+    const auth = await this.getAuthState();
+    if (!auth.user) throw new Error('Sign in before inviting family.');
+    const token = makeInvitationToken();
+    const tokenHash = await sha256Hex(token);
+    const expiresAt = new Date(Date.now() + (input.expiresInDays ?? 14) * 24 * 60 * 60 * 1000).toISOString();
+    const { data, error } = await client.from('family_invitations').insert({
+      family_id: input.familyId,
+      email: input.email.trim().toLowerCase(),
+      role: input.role,
+      relationship_label: input.relationshipLabel,
+      invited_by: auth.user.id,
+      token_hash: tokenHash,
+      status: 'pending',
+      expires_at: expiresAt
+    }).select('*').single();
+    if (error) throw error;
+    return { ...mapInvitation(data), token, acceptUrl: inviteAcceptUrl(token) };
+  }
+
+  async acceptFamilyInvitation(input: AcceptFamilyInvitationInput): Promise<Family> {
+    const client = this.client ?? requireSupabase();
+    const { data, error } = await client.rpc('accept_family_invitation', { invite_token: input.token.trim(), display_name: input.displayName.trim() });
+    if (error) throw error;
+    const familyId = typeof data === 'string' ? data : String(data?.family_id ?? data);
+    const { data: family, error: familyError } = await client.from('families').select('*').eq('id', familyId).single();
+    if (familyError) throw familyError;
+    return mapFamily(family);
   }
 
   async listRelationships(familyId: string): Promise<FamilyRelationship[]> {

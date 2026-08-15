@@ -1,6 +1,8 @@
 import type {
   CostAssumptions,
+  CreatedFamilyInvitation,
   Family,
+  FamilyInvitation,
   FamilyMember,
   FamilyRelationship,
   FamilySubscription,
@@ -81,6 +83,19 @@ export interface InviteFamilyMemberInput {
   permissions?: string[];
 }
 
+export interface CreateFamilyInvitationInput {
+  familyId: string;
+  email: string;
+  role: FamilyMember['role'];
+  relationshipLabel?: string;
+  expiresInDays?: number;
+}
+
+export interface AcceptFamilyInvitationInput {
+  token: string;
+  displayName: string;
+}
+
 export interface CreateRelationshipInput {
   familyId: string;
   fromPersonId: string;
@@ -110,6 +125,9 @@ export interface FamilyService {
   listFamilies(): Promise<Family[]>;
   listFamilyMembers(familyId: string): Promise<FamilyMember[]>;
   inviteFamilyMember(input: InviteFamilyMemberInput): Promise<FamilyMember>;
+  listFamilyInvitations(familyId: string): Promise<FamilyInvitation[]>;
+  createFamilyInvitation(input: CreateFamilyInvitationInput): Promise<CreatedFamilyInvitation>;
+  acceptFamilyInvitation(input: AcceptFamilyInvitationInput): Promise<Family>;
   listPeople(familyId: string): Promise<Person[]>;
   addPerson(familyId: string, displayName: string): Promise<Person>;
   listRelationships(familyId: string): Promise<FamilyRelationship[]>;
@@ -169,6 +187,9 @@ export interface DatabaseService {
   addPerson(familyId: string, displayName: string): Promise<Person>;
   createRelationship(input: CreateRelationshipInput): Promise<FamilyRelationship>;
   inviteFamilyMember(input: InviteFamilyMemberInput): Promise<FamilyMember>;
+  listFamilyInvitations(familyId: string): Promise<FamilyInvitation[]>;
+  createFamilyInvitation(input: CreateFamilyInvitationInput): Promise<CreatedFamilyInvitation>;
+  acceptFamilyInvitation(input: AcceptFamilyInvitationInput): Promise<Family>;
   listRelationships(familyId: string): Promise<FamilyRelationship[]>;
   listMemories(familyId: string): Promise<Memory[]>;
   createMemory(input: CreateMemoryInput): Promise<Memory>;
