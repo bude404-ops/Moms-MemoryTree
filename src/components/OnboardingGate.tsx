@@ -1,4 +1,4 @@
-import { LogIn, Mail, Sprout, ShieldCheck, UserPlus } from 'lucide-react';
+import { KeyRound, LogIn, Mail, Sprout, ShieldCheck, UserPlus } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import type { AuthCredentials, FirstFamilyInput, InvitationAcceptanceInput, OnboardingState } from '../lib/onboarding';
 
@@ -9,12 +9,49 @@ export interface OnboardingGateProps {
   onCreateFamily: (input: FirstFamilyInput) => Promise<void>;
   onAcceptInvitation: (input: InvitationAcceptanceInput) => Promise<void>;
   onRequestPasswordReset: (email: string) => Promise<void>;
+  onUpdatePassword: (password: string) => Promise<void>;
 }
 
-export function OnboardingGate({ state, onSignIn, onSignUp, onCreateFamily, onAcceptInvitation, onRequestPasswordReset }: OnboardingGateProps) {
+export function OnboardingGate({ state, onSignIn, onSignUp, onCreateFamily, onAcceptInvitation, onRequestPasswordReset, onUpdatePassword }: OnboardingGateProps) {
   if (state.mode === 'demo' || state.mode === 'ready') return null;
+  if (state.mode === 'password_reset') return <PasswordResetGate state={state} onUpdatePassword={onUpdatePassword} />;
   if (state.mode === 'needs_family') return <CreateFamilyGate state={state} onCreateFamily={onCreateFamily} onAcceptInvitation={onAcceptInvitation} />;
   return <AuthGate state={state} onSignIn={onSignIn} onSignUp={onSignUp} onRequestPasswordReset={onRequestPasswordReset} />;
+}
+
+function PasswordResetGate({ state, onUpdatePassword }: Pick<OnboardingGateProps, 'state' | 'onUpdatePassword'>) {
+  const [passwords, setPasswords] = useState({ password: '', confirm: '' });
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setLocalError(null);
+    if (passwords.password.length < 8) {
+      setLocalError('Use at least 8 characters for the new password.');
+      return;
+    }
+    if (passwords.password !== passwords.confirm) {
+      setLocalError('The password confirmation does not match.');
+      return;
+    }
+    await onUpdatePassword(passwords.password);
+  }
+
+  return <div className="mx-auto grid min-h-[72vh] max-w-2xl place-items-center px-4 py-8">
+    <form onSubmit={submit} className="w-full rounded-[2rem] bg-white p-7 shadow-2xl shadow-stone-900/10 ring-1 ring-amber-100 md:p-10">
+      <div className="mb-6 grid h-14 w-14 place-items-center rounded-3xl bg-emerald-100"><KeyRound className="text-emerald-800" /></div>
+      <p className="text-xs font-bold uppercase tracking-[0.25em] text-amber-700">Secure account recovery</p>
+      <h2 className="mt-3 text-3xl font-black text-stone-950">Set a new archive password.</h2>
+      <p className="mt-3 leading-7 text-stone-600">This screen appears only from a valid recovery link. The new password updates through the live auth provider; Moms MemoryTree does not store it in family tables.</p>
+      <div className="mt-6 space-y-4">
+        <input required minLength={8} type="password" className="w-full rounded-2xl border border-amber-200 px-4 py-4" placeholder="New password, 8+ characters" value={passwords.password} onChange={event => setPasswords({ ...passwords, password: event.target.value })} />
+        <input required minLength={8} type="password" className="w-full rounded-2xl border border-amber-200 px-4 py-4" placeholder="Confirm new password" value={passwords.confirm} onChange={event => setPasswords({ ...passwords, confirm: event.target.value })} />
+        {(localError || state.error) && <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{localError ?? state.error}</div>}
+        {state.notice && <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">{state.notice}</div>}
+        <button disabled={state.loading} className="w-full rounded-2xl bg-stone-950 px-5 py-4 font-black text-white disabled:opacity-60">{state.loading ? 'Updating...' : 'Update password'}</button>
+      </div>
+    </form>
+  </div>;
 }
 
 function AuthGate({ state, onSignIn, onSignUp, onRequestPasswordReset }: Pick<OnboardingGateProps, 'state' | 'onSignIn' | 'onSignUp' | 'onRequestPasswordReset'>) {

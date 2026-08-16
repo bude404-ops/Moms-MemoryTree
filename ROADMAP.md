@@ -20,6 +20,8 @@
 ## PHASE 2 — Memory & Media
 
 - Production provider auth onboarding.
+  - Sign up/sign in/password reset request wired.
+  - Password recovery links route to a secure in-app password update screen.
 - Real profile creation.
 - Real photo upload.
 - Real video upload.

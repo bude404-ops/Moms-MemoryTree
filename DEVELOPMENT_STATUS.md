@@ -46,7 +46,7 @@
 - `MediaStorageService` abstraction and `SupabaseStorageProvider` exist so another storage provider can be added later without rewriting the app.
 - Reusable secure `VideoPlayer`, `ImageViewer`, and `AudioPlayer` components exist for temporary signed media access.
 - Dedicated auth service tests cover email normalization, signup profile creation, password reset redirects, signout, and Supabase-disabled fallback.
-- Centralized auth service supports sign up, sign in, sign out, password reset requests, profile creation after signup, and session-change refresh.
+- Centralized auth service supports sign up, sign in, sign out, password reset requests, password recovery callback detection, and secure password update through the live auth provider.
 - Mobile UI remains functional in demo mode without Supabase env vars.
 - Local tests cover privacy, storage authorization, signed URL expiry logic, migration/RLS/static family isolation checks, and local archive persistence.
 - Supabase deployment preflight script and GitHub Actions workflow added for controlled migrations, Edge Function deployment, and optional live verification.
@@ -115,7 +115,7 @@
 3. Configure live environment variables outside source control.
 4. Generate TypeScript database types from the live project.
 5. Run real Family A / Family B isolation tests.
-6. Wire password reset UI and complete live auth flow.
+6. Password reset request and password update UI are wired; live email delivery still depends on provider configuration.
 7. Wire real private upload/playback end-to-end.
 8. Wire invitation accept/expire email flow.
 9. Build family archive export worker.

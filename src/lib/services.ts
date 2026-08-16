@@ -52,6 +52,7 @@ export interface AuthService {
   signInWithEmail(email: string, password: string): Promise<{ error: Error | null }>;
   signUpWithEmail(input: SignUpInput): Promise<{ error: Error | null; user?: AppUser | null }>;
   requestPasswordReset(input: PasswordResetInput): Promise<{ error: Error | null }>;
+  updatePassword(newPassword: string): Promise<{ error: Error | null }>;
   signOut(): Promise<{ error: Error | null }>;
 }
 

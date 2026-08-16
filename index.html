@@ -571,6 +571,21 @@
             <div class="action-row"><button class="btn primary" id="mock-create-account" type="button">Create preview account</button><button class="btn secondary" id="mock-reset" type="button">Reset preview</button><button class="btn locked-action" data-production-lock="auth" type="button" aria-disabled="true">Live signup locked</button></div>
             <p class="save-note" id="mock-account-note" aria-live="polite"></p>
           </article>
+          <article class="mock-panel" aria-label="Password recovery preview">
+            <div class="section-title">
+              <p class="eyebrow">auth recovery</p>
+              <h2>Reset without exposing family data.</h2>
+              <p>Password reset requests and recovery-link password updates are wired through the auth boundary. This preview validates the screen copy only; live email delivery still requires provider credentials.</p>
+            </div>
+            <div class="mock-form two">
+              <label>Recovery email<input id="mock-reset-email" autocomplete="email" placeholder="mom@example.com" /></label>
+              <label>New password<input id="mock-new-password" autocomplete="new-password" type="password" placeholder="8+ characters" /></label>
+              <label>Confirm password<input id="mock-confirm-password" autocomplete="new-password" type="password" placeholder="Confirm password" /></label>
+              <label>Recovery route<input value="?type=recovery" readonly aria-label="Recovery route token marker" /></label>
+            </div>
+            <div class="action-row"><button class="btn primary" id="mock-password-update" type="button">Preview password update</button><button class="btn locked-action" data-production-lock="auth" type="button" aria-disabled="true">Live email locked</button></div>
+            <p class="save-note" id="mock-password-note" aria-live="polite">Passwords never enter family tables, local archive state, GitHub, or docs.</p>
+          </article>
           <article class="mock-panel">
             <h3>Live preview state</h3>
             <div class="prototype-status" id="prototype-status" aria-label="Preview status"></div>
@@ -836,7 +851,7 @@
     ];
 
     const providerReadinessGates = [
-      { key: 'auth', label: 'Auth provider', status: 'blocked', required: ['verified signup/signin', 'password reset route', 'session refresh'], safePreview: 'Mock account creation only' },
+      { key: 'auth', label: 'Auth provider', status: 'blocked', required: ['verified signup/signin', 'password reset request', 'recovery password update screen', 'session refresh'], safePreview: 'Mock account creation and recovery UI only' },
       { key: 'database', label: 'Database provider', status: 'blocked', required: ['deployed migrations', 'authorization live isolation test', 'typed repository binding'], safePreview: 'Browser-local family archive state' },
       { key: 'media', label: 'Private media storage', status: 'blocked', required: ['private bucket/object policy', 'signed playback function', 'quota enforcement'], safePreview: 'Upload progress simulation only' },
       { key: 'invitations', label: 'Invitation delivery', status: 'blocked', required: ['email provider', 'accept/expire token flow', 'role audit log'], safePreview: 'Pending invitation cards only' },
@@ -1217,6 +1232,31 @@
         state = mockServices.reset();
         byId('mock-account-note').textContent = 'Preview reset.';
         renderAll();
+      });
+    }
+
+    const passwordUpdate = byId('mock-password-update');
+    if (passwordUpdate) {
+      passwordUpdate.addEventListener('click', () => {
+        const email = (byId('mock-reset-email').value || '').trim();
+        const next = byId('mock-new-password').value || '';
+        const confirm = byId('mock-confirm-password').value || '';
+        const note = byId('mock-password-note');
+        if (!email || !email.includes('@')) {
+          note.textContent = 'Enter a valid email before previewing recovery.';
+          return;
+        }
+        if (next.length < 8) {
+          note.textContent = 'Use at least 8 characters for the new password.';
+          return;
+        }
+        if (next !== confirm) {
+          note.textContent = 'The password confirmation does not match.';
+          return;
+        }
+        note.textContent = `Recovery screen validated for ${email}. Live password updates remain locked until the auth provider passes verification.`;
+        byId('mock-new-password').value = '';
+        byId('mock-confirm-password').value = '';
       });
     }
 

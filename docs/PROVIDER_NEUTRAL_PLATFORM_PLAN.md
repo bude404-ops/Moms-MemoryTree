@@ -62,6 +62,10 @@ Acceptable production paths include:
 
 No provider is considered production-ready until Family A / Family B isolation tests pass for auth, memory records, media metadata, storage paths, and signed URL access.
 
+## Auth recovery
+
+The auth boundary supports sign up, sign in, sign out, password reset requests, and password recovery link handling. Recovery URLs enter a dedicated password update screen, validate confirmation locally, and call the active auth provider for the actual password update. Passwords must never be stored in family tables, local archive data, logs, docs, or GitHub.
+
 ## Archive export manifest
 
 The Storage screen can generate a provider-neutral JSON manifest for a family archive. The manifest indexes:

@@ -54,6 +54,7 @@ export class UnavailableAuthProvider implements AuthService {
   async signInWithEmail(): Promise<{ error: Error | null }> { return { error: new Error(this.message) }; }
   async signUpWithEmail(): Promise<{ error: Error | null; user: null }> { return { error: new Error(this.message), user: null }; }
   async requestPasswordReset(): Promise<{ error: Error | null }> { return { error: new Error(this.message) }; }
+  async updatePassword(): Promise<{ error: Error | null }> { return { error: new Error(this.message) }; }
   async signOut(): Promise<{ error: Error | null }> { return { error: null }; }
 }
 

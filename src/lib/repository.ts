@@ -230,6 +230,10 @@ export class MemoryTreeRepository implements DatabaseService {
     return this.authService.requestPasswordReset({ email, redirectTo });
   }
 
+  async updatePassword(newPassword: string) {
+    return this.authService.updatePassword(newPassword);
+  }
+
   async signOut() {
     return this.authService.signOut();
   }

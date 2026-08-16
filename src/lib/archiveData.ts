@@ -29,7 +29,7 @@ export interface ArchiveDataState {
 }
 
 export interface ArchiveContextInput {
-  mode: 'demo' | 'signed_out' | 'needs_family' | 'ready';
+  mode: 'demo' | 'signed_out' | 'password_reset' | 'needs_family' | 'ready';
   activeFamily: Family | null;
   userId?: string;
 }

@@ -48,6 +48,11 @@ export class MemoryTreeAuthService implements AuthService {
     });
   }
 
+  async updatePassword(newPassword: string) {
+    const client = this.client ?? requireSupabase();
+    return client.auth.updateUser({ password: newPassword });
+  }
+
   async signOut() {
     const client = this.client ?? requireSupabase();
     return client.auth.signOut();
