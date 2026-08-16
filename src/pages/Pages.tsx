@@ -1,5 +1,5 @@
-import { AlertTriangle, Camera, CheckCircle2, Clock, CreditCard, Database, FileHeart, Gauge, GitBranch, Home, LockKeyhole, Mic, Server, ShieldCheck, TrendingUp, Upload, UsersRound, XCircle } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { AlertTriangle, Camera, CheckCircle2, Clock, CreditCard, Database, FileHeart, Gauge, GitBranch, Home, LockKeyhole, Mic, Network, Server, ShieldCheck, TrendingUp, TreePine, Upload, UsersRound, XCircle } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
 import type { CreatedFamilyInvitation, Family, FamilyMember, FamilyRelationship, LegacyCustodian, LifeEvent, Memory, Person, PrivacyLevel } from '../types/domain';
 import type { UploadProgressEvent } from '../lib/mediaStorage';
 import { AudioPlayer, ImageViewer, VideoPlayer } from '../components/SecureMedia';
@@ -7,6 +7,7 @@ import { storyQuestions } from '../lib/demoData';
 import { formatBytes } from '../lib/archiveStore';
 import { prepareMemoryUpload, validateMemoryUpload } from '../lib/mediaUpload';
 import { getRuntimeReadiness } from '../lib/readiness';
+import { buildFamilyTreeLayout } from '../lib/familyTreeLayout';
 import { calculateStorageCostSummary, createCreatorCostDashboard, formatCurrency, planForFamily } from '../lib/storageEconomics';
 import type { ArchiveDataState } from '../lib/archiveData';
 import { downloadArchiveExportManifest } from '../lib/archiveExport';
@@ -347,7 +348,70 @@ function MemoryMediaPreview({ media, live }: { media: ArchiveDataState['media'][
 }
 
 export function MemoryTreePage({ people, relationships }: { people: Person[]; relationships: FamilyRelationship[] }) {
-  return <Card><SectionTitle eyebrow="MemoryTree" title="Family relationships without generation limits">People use internal IDs. Names are display labels only.</SectionTitle>{people.length === 0 && <p className="rounded-2xl bg-amber-50 p-4 text-stone-600">No people have been added to this family tree yet.</p>}<div className="overflow-x-auto pb-4"><div className="grid min-w-[680px] grid-cols-4 gap-4">{people.map(person=><div key={person.id} className="rounded-[1.6rem] border border-emerald-100 bg-emerald-50 p-4 text-center"><div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-full bg-white text-2xl shadow-inner">{person.displayName[0]}</div><b>{person.displayName}</b><p className="text-sm text-stone-500">{person.relationshipToViewer}</p><p className="mt-2 text-xs text-stone-400">ID: {person.id}</p></div>)}</div></div><div className="mt-5 grid gap-2">{relationships.map(r=><p key={r.id} className="rounded-2xl bg-white px-4 py-3 text-sm text-stone-700 ring-1 ring-amber-100">{r.fromPersonId} → {r.relationshipType} → {r.toPersonId}</p>)}</div></Card>;
+  const layout = useMemo(() => buildFamilyTreeLayout(people, relationships), [people, relationships]);
+  const [selectedPersonId, setSelectedPersonId] = useState(people[0]?.id ?? '');
+  const selected = layout.nodesById[selectedPersonId] ?? layout.generations[0]?.nodes[0];
+  const selectedRelations = selected ? [
+    ['Parents', selected.parentIds],
+    ['Children', selected.childIds],
+    ['Partners', selected.partnerIds],
+    ['Siblings', selected.siblingIds]
+  ] as const : [];
+
+  return <div className="space-y-5">
+    <Card className="overflow-hidden bg-gradient-to-br from-emerald-950 via-stone-950 to-amber-950 text-white">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-amber-200"><TreePine size={16} /> Interactive MemoryTree</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">Generations are mapped before profiles become folders.</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-200">This view groups ancestors and descendants into generation lanes, keeps disconnected relatives visible, and uses internal IDs under every friendly name.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:min-w-[460px]">
+          {[
+            ['People', layout.stats.people],
+            ['Relationships', layout.stats.relationships],
+            ['Generations', layout.stats.generations],
+            ['Unlinked', layout.stats.disconnectedPeople]
+          ].map(([label, value]) => <div key={String(label)} className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/15"><p className="text-xs uppercase tracking-[0.18em] text-amber-200">{label}</p><b className="text-2xl">{value}</b></div>)}
+        </div>
+      </div>
+    </Card>
+
+    {people.length === 0 && <Card><p className="rounded-2xl bg-amber-50 p-4 text-stone-600">No people have been added to this family tree yet.</p></Card>}
+
+    {people.length > 0 && <div className="grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
+      <Card>
+        <SectionTitle eyebrow="Generation map" title="Unlimited-generation navigation">Scroll sideways on small screens. Each lane is derived from parent/child relationship records, not hardcoded family positions.</SectionTitle>
+        <div className="overflow-x-auto pb-4">
+          <div className="flex min-w-[760px] gap-4">
+            {layout.generations.map(group => <div key={group.generation} className="min-w-[230px] flex-1 rounded-[1.7rem] border border-amber-100 bg-gradient-to-b from-white to-amber-50 p-3">
+              <div className="mb-3 flex items-center justify-between gap-2"><b className="text-sm text-stone-900">{group.label}</b><span className="rounded-full bg-stone-900 px-2 py-1 text-xs font-bold text-white">{group.nodes.length}</span></div>
+              <div className="grid gap-3">
+                {group.nodes.map(node => <button key={node.person.id} type="button" onClick={() => setSelectedPersonId(node.person.id)} className={`rounded-[1.4rem] border p-4 text-left transition ${selected?.person.id === node.person.id ? 'border-emerald-300 bg-emerald-50 shadow-lg shadow-emerald-900/10' : 'border-amber-100 bg-white hover:border-amber-300'}`}>
+                  <div className="flex items-center gap-3"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-amber-100 to-emerald-100 text-xl font-bold text-stone-900 shadow-inner">{node.person.displayName[0]}</div><div><b className="text-stone-900">{node.person.displayName}</b><p className="text-xs text-stone-500">{node.person.relationshipToViewer ?? 'Family person'}</p></div></div>
+                  <div className="mt-3 flex flex-wrap gap-1 text-[11px] font-bold text-stone-500"><span className="rounded-full bg-amber-50 px-2 py-1">{node.parentIds.length} parent links</span><span className="rounded-full bg-emerald-50 px-2 py-1">{node.childIds.length} child links</span></div>
+                </button>)}
+              </div>
+            </div>)}
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <SectionTitle eyebrow="Person profile" title={selected?.person.displayName ?? 'Select a person'}>A profile page starts from the tree node and can grow into person-specific timelines, memories, and privacy rules.</SectionTitle>
+        {selected && <div className="space-y-3">
+          <div className="rounded-3xl bg-stone-950 p-5 text-white"><Network className="mb-3 text-amber-200" /><p className="text-xs uppercase tracking-[0.2em] text-amber-200">Internal person ID</p><b className="break-all text-lg">{selected.person.id}</b><p className="mt-2 text-sm text-stone-300">Birth year: {selected.person.birthYear ?? 'Not set'}</p><p className="text-sm text-stone-300">Generation lane: {selected.generation}</p></div>
+          {selected.person.storyPrompt && <p className="rounded-2xl bg-amber-50 p-4 text-sm italic leading-6 text-amber-950">“{selected.person.storyPrompt}”</p>}
+          <div className="grid gap-2">{selectedRelations.map(([label, ids]) => <div key={label} className="rounded-2xl bg-white p-3 ring-1 ring-amber-100"><b>{label}</b><p className="mt-1 text-sm text-stone-600">{ids.length ? ids.map(id => layout.nodesById[id]?.person.displayName ?? id).join(', ') : 'None linked yet'}</p></div>)}</div>
+        </div>}
+      </Card>
+    </div>}
+
+    <Card><SectionTitle eyebrow="Relationship ledger" title="Readable edges, stable IDs">The tree stays auditable because every visual connection comes from a relationship record.</SectionTitle>
+      <div className="grid gap-2 md:grid-cols-2">{layout.relationshipSummaries.map(summary => <p key={summary} className="rounded-2xl bg-white px-4 py-3 text-sm text-stone-700 ring-1 ring-amber-100">{summary}</p>)}</div>
+      {layout.relationshipSummaries.length === 0 && <p className="rounded-2xl bg-amber-50 p-4 text-stone-600">No relationship edges yet. Add two people on the Family screen, then connect them.</p>}
+    </Card>
+  </div>;
 }
 
 export function FamilyPage({ family, members, people, relationships, onAddPerson, onCreateRelationship, onInviteMember, onCreateInvitation }: { family: Family; members: FamilyMember[]; people: Person[]; relationships: FamilyRelationship[]; onAddPerson: (displayName: string) => Promise<void> | void; onCreateRelationship: (input: Omit<FamilyRelationship, 'id' | 'familyId'>) => Promise<void> | void; onInviteMember: (input: { personId: string; role: FamilyMember['role']; relationshipLabel?: string; permissions?: string[] }) => Promise<void> | void; onCreateInvitation?: (input: { email: string; role: FamilyMember['role']; relationshipLabel?: string }) => Promise<CreatedFamilyInvitation | null> | CreatedFamilyInvitation | null }) {

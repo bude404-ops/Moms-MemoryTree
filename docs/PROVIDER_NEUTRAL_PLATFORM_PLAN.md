@@ -80,6 +80,18 @@ The Storage screen can generate a provider-neutral JSON manifest for a family ar
 
 This is an audit index, not a full backup. Private media bytes still require a storage provider, signed access, and a future bundle/export worker.
 
+## Interactive MemoryTree
+
+The MemoryTree surface now uses a provider-neutral layout helper to group people into generation lanes derived from relationship records. The UI exposes:
+
+- ancestor/descendant lanes without hardcoded generation limits
+- stable internal person IDs under friendly display names
+- parent, child, partner, and sibling link summaries
+- disconnected-relative visibility instead of silently dropping unlinked people
+- a person profile seed panel for later person-specific memories, timelines, and privacy rules
+
+This is a front-end product slice. Live relationship persistence still depends on the selected database/provider passing isolation tests.
+
 ## GitHub source-of-truth rule
 
 Every platform change must update:

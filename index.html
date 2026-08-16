@@ -417,6 +417,16 @@
     .tree-node { min-width: 130px; padding: 12px 14px; border-radius: 18px; text-align: center; background: #fffdf9; border: 1px solid var(--line); box-shadow: 0 8px 20px rgba(92, 64, 35, .05); }
     .tree-node strong { display: block; color: var(--ink); }
     .tree-node span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .tree-generation-map { display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 12px; margin-top: 14px; }
+    .tree-generation { border-radius: 22px; padding: 12px; background: rgba(255,255,255,.76); border: 1px solid var(--line); }
+    .tree-generation h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--bark); }
+    .tree-profile-panel { margin-top: 14px; border-radius: 22px; padding: 16px; background: linear-gradient(135deg, rgba(46,74,56,.95), rgba(43,29,20,.94)); color: white; }
+    .tree-profile-panel small { color: var(--honey-2); font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .tree-profile-panel p { color: rgba(255,255,255,.78); }
+    .tree-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+    .tree-stat { border-radius: 18px; padding: 12px; background: rgba(46,74,56,.08); border: 1px solid rgba(46,74,56,.14); }
+    .tree-stat span { display:block; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .tree-stat strong { font-size: 24px; color: var(--ink); }
     .save-note { color: var(--pine); font-size: 13px; font-weight: 850; min-height: 18px; }
     
     .progress { height: 10px; border-radius: 999px; background: #f2e2cb; overflow: hidden; }
@@ -657,10 +667,13 @@
               <button class="btn primary" id="save-tree" type="button">Save</button>
             </div>
             <p class="save-note" id="tree-save-note" aria-live="polite"></p>
+            <div class="tree-stat-grid" id="tree-stats" aria-label="MemoryTree stats"></div>
             <div class="tree-visual" aria-label="Saved family tree preview">
               <div class="tree-row"><div class="tree-node"><strong>Mom</strong><span>Family root</span></div></div>
               <div class="tree-row" id="tree-members"><div class="tree-node"><strong>Add a person</strong><span>Your tree appears here</span></div></div>
             </div>
+            <div class="tree-generation-map" id="tree-generation-map" aria-label="Interactive generation map"></div>
+            <div class="tree-profile-panel" id="tree-profile-panel"><small>Person profile</small><h3>Mom</h3><p>Select a saved family member to inspect generation, connection, and profile seed data.</p></div>
           </div>
         </article>
         <article class="card mock-panel"><span class="icon">🌲</span><h3>Family invitations</h3><p>Invite trusted family members in the prototype. Invitations are saved locally and clearly marked as preview-only.</p>
@@ -806,7 +819,7 @@
     };
 
     const storageKey = 'moms-memorytree-stage4-prototype';
-    const serviceSchemaVersion = 6;
+    const serviceSchemaVersion = 7;
     const productionMode = 'preview-locked';
     const productionEnablementChecklist = [
       'production credentials installed outside the client shell',
@@ -867,6 +880,9 @@
     const treeConnection = document.getElementById('tree-connection');
     const saveTree = document.getElementById('save-tree');
     const treeMembers = document.getElementById('tree-members');
+    const treeStats = document.getElementById('tree-stats');
+    const treeGenerationMap = document.getElementById('tree-generation-map');
+    const treeProfilePanel = document.getElementById('tree-profile-panel');
     const treeSaveNote = document.getElementById('tree-save-note');
     const memoryPerson = document.getElementById('memory-person');
     const recordingStatus = document.getElementById('recording-status');
@@ -1102,13 +1118,45 @@
       register.innerHTML = `<strong>Evidence register</strong><span>${escapeHtml(operatorHandoffRunbook.evidenceTarget)}</span><span>Current result: operator handoff is ready, but production unlock remains blocked until real evidence is reviewed.</span>`;
     }
 
+    function memberGeneration(member) {
+      if (member.role === 'Family root') return 0;
+      if (['Mother', 'Father'].includes(member.role)) return 0;
+      if (member.role === 'Partner') return 0;
+      if (member.role === 'Child') return 1;
+      if (member.role === 'Grandchild') return 2;
+      return member.connection === 'Family root' ? 1 : 0;
+    }
+
     function renderTree() {
       if (!treeMembers) return;
       const members = state.members.filter((member) => member.name !== 'Mom');
       if (!members.length) {
         treeMembers.innerHTML = '<div class="tree-node"><strong>Add a person</strong><span>Your tree appears here</span></div>';
       } else {
-        treeMembers.innerHTML = members.map((member) => `<div class="tree-node"><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.role)} · ${escapeHtml(member.connection)}</span></div>`).join('');
+        treeMembers.innerHTML = members.map((member) => `<button class="tree-node" type="button" data-tree-profile="${escapeHtml(member.id)}"><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.role)} · ${escapeHtml(member.connection)}</span></button>`).join('');
+      }
+
+      const groups = new Map();
+      state.members.forEach((member) => {
+        const generation = memberGeneration(member);
+        const label = generation === 0 ? 'Anchor generation' : `${generation} generation${generation === 1 ? '' : 's'} after`;
+        groups.set(label, [...(groups.get(label) || []), member]);
+      });
+      if (treeGenerationMap) {
+        treeGenerationMap.innerHTML = Array.from(groups.entries()).map(([label, group]) => `<section class="tree-generation"><h4>${escapeHtml(label)}</h4>${group.map((member) => `<button class="tree-node" type="button" data-tree-profile="${escapeHtml(member.id)}"><strong>${escapeHtml(member.name)}</strong><span>${escapeHtml(member.role)} · ${escapeHtml(member.connection)}</span></button>`).join('')}</section>`).join('');
+      }
+      if (treeStats) {
+        const connected = state.members.filter((member) => member.role !== 'Family root' && member.connection && member.connection !== 'Family root').length;
+        treeStats.innerHTML = [
+          ['People', state.members.length],
+          ['Generations', groups.size],
+          ['Edges', connected],
+          ['Unlinked', Math.max(0, state.members.length - connected - 1)]
+        ].map(([label, value]) => `<div class="tree-stat"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join('');
+      }
+      if (treeProfilePanel) {
+        const selected = state.members[0];
+        treeProfilePanel.innerHTML = `<small>Person profile</small><h3>${escapeHtml(selected.name)}</h3><p>${escapeHtml(selected.role)} · ${escapeHtml(selected.connection)}. Profile pages are seeded from the tree node before person-specific memories and timelines are attached.</p>`;
       }
       if (memoryPerson) {
         memoryPerson.innerHTML = state.members.map((member) => `<option>${escapeHtml(member.name)}</option>`).join('');
@@ -1407,6 +1455,11 @@
         const lockout = byId('preview-mode-lockout');
         if (lockout) lockout.querySelector('p').textContent = message;
         return;
+      }
+      const treeProfile = event.target.closest('[data-tree-profile]');
+      if (treeProfile && treeProfilePanel) {
+        const member = state.members.find((item) => item.id === treeProfile.dataset.treeProfile);
+        if (member) treeProfilePanel.innerHTML = `<small>Person profile</small><h3>${escapeHtml(member.name)}</h3><p>${escapeHtml(member.role)} · ${escapeHtml(member.connection)}. Generation lane: ${escapeHtml(memberGeneration(member))}. This is where person-specific memories, timeline entries, and privacy rules attach next.</p>`;
       }
       const control = event.target.closest('[data-tab]');
       if (control) setTab(control.dataset.tab);

@@ -33,10 +33,10 @@
 
 ## PHASE 3 — FamilyTree
 
-- Interactive family tree graph.
-- Unlimited generation navigation.
+- Interactive family tree graph. — implemented as generation-lane preview with clickable person profile seeds
+- Unlimited generation navigation. — implemented in layout helper and preview shell grouping
 - Relationship editing.
-- Person profile pages.
+- Person profile pages. — foundation added as profile seed panel from tree node
 - Person-specific timelines and memories.
 
 ## PHASE 4 — Guided Storytelling

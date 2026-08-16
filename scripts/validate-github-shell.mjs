@@ -73,7 +73,7 @@ for (const phrase of stage4Phrases) {
 }
 
 const stage5ServiceContracts = [
-  'serviceSchemaVersion = 6',
+  'serviceSchemaVersion = 7',
   'mockServices =',
   'migrateState',
   'validateState',
@@ -179,6 +179,21 @@ const stage6ArchiveManifestContracts = [
 ];
 for (const contract of stage6ArchiveManifestContracts) {
   expect(html.includes(contract), `Stage 6 archive manifest must include ${contract}.`);
+}
+
+const stage7InteractiveTreeContracts = [
+  'tree-generation-map',
+  'tree-profile-panel',
+  'tree-stats',
+  'Interactive generation map',
+  'memberGeneration',
+  'data-tree-profile',
+  'Person profile',
+  'Generation lane',
+  'person-specific memories, timeline entries, and privacy rules attach next'
+];
+for (const contract of stage7InteractiveTreeContracts) {
+  expect(html.includes(contract), `Stage 7 interactive MemoryTree must include ${contract}.`);
 }
 
 expect(!/@supabase/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
