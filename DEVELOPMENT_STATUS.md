@@ -6,6 +6,7 @@
 - Record flow upgraded for browser video/audio capture in the React app and Mini App preview; captured media is staged locally until the user saves the memory.
 - Archive export manifest generator added so families can download a provider-neutral JSON index of memories, privacy levels, media records, signed-access requirements, and export warnings.
 - Interactive MemoryTree generation layout added in React and the live preview shell, grouping relatives into generation lanes, exposing person profile seeds, and keeping disconnected relatives visible.
+- Mobile shell cleanup completed: duplicate desktop rail/navigation and repeated screen-summary cards removed, bottom tabs now drive the app, readiness runbooks collapse behind tap-to-open panels, and single-purpose screens no longer repeat the same content twice.
 - `docs/PROVIDER_NEUTRAL_PLATFORM_PLAN.md` added as the source-of-truth plan for recording, cloud storage, provider selection, export manifests, interactive tree profiles, and GitHub update discipline.
 - Existing React + TypeScript + Vite + Tailwind application preserved.
 - GitHub repository remains the source of truth.

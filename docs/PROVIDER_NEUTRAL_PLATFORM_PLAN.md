@@ -92,6 +92,19 @@ The MemoryTree surface now uses a provider-neutral layout helper to group people
 
 This is a front-end product slice. Live relationship persistence still depends on the selected database/provider passing isolation tests.
 
+## Mobile shell cleanup
+
+The published preview now behaves like a focused mobile app shell instead of a desktop dashboard compressed into a phone panel:
+
+- one sticky app header
+- one bottom tab bar for primary navigation
+- no duplicate side rail or repeated screen-summary cards
+- one MemoryTree visualization per Family screen
+- one Record flow without a second explanatory card repeating the same choice
+- production readiness and operator proof panels collapsed behind tap-to-open disclosure rows
+
+The shell remains preview-locked until live provider gates pass.
+
 ## GitHub source-of-truth rule
 
 Every platform change must update:

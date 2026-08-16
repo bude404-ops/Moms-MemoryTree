@@ -349,11 +349,11 @@
     .mobile-tabs button { border: 0; text-align: center; padding: 8px 2px; border-radius: 12px; font-size: 9px; font-weight: 800; color: var(--muted); background: rgba(255, 255, 255, .7); }
     .mobile-tabs button.active { color: white; background: var(--pine); }
 
-    .panel-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 20px; }
+    .panel-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
     
     .card {
-      border-radius: 24px;
-      padding: 24px;
+      border-radius: 22px;
+      padding: 16px;
       background: rgba(255, 255, 255, .82);
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
@@ -386,9 +386,9 @@
     .memory-list { display: grid; gap: 12px; }
     .memory-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, .6); border: 1px solid var(--line); }
     .avatar { width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; background: var(--sage); color: var(--pine); font-weight: 900; flex: 0 0 auto; font-family: Georgia, serif; }
-    .record-choice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .record-choice-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
     .record-choice {
-      min-height: 220px;
+      min-height: 142px;
       display: grid;
       place-items: center;
       text-align: center;
@@ -400,7 +400,7 @@
     .record-choice .big-icon { display: block; margin-bottom: 12px; font-size: 52px; }
     .record-choice h3 { font-size: 28px; margin-bottom: 8px; }
     .tree-editor { display: grid; gap: 14px; }
-    .tree-form { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 10px; align-items: end; }
+    .tree-form { display: grid; grid-template-columns: 1fr; gap: 10px; align-items: end; }
     .tree-field { display: grid; gap: 6px; }
     .tree-field label { color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
     .tree-field input, .tree-field select {
@@ -417,13 +417,13 @@
     .tree-node { min-width: 130px; padding: 12px 14px; border-radius: 18px; text-align: center; background: #fffdf9; border: 1px solid var(--line); box-shadow: 0 8px 20px rgba(92, 64, 35, .05); }
     .tree-node strong { display: block; color: var(--ink); }
     .tree-node span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
-    .tree-generation-map { display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 12px; margin-top: 14px; }
+    .tree-generation-map { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
     .tree-generation { border-radius: 22px; padding: 12px; background: rgba(255,255,255,.76); border: 1px solid var(--line); }
     .tree-generation h4 { margin: 0 0 8px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--bark); }
     .tree-profile-panel { margin-top: 14px; border-radius: 22px; padding: 16px; background: linear-gradient(135deg, rgba(46,74,56,.95), rgba(43,29,20,.94)); color: white; }
     .tree-profile-panel small { color: var(--honey-2); font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
     .tree-profile-panel p { color: rgba(255,255,255,.78); }
-    .tree-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+    .tree-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
     .tree-stat { border-radius: 18px; padding: 12px; background: rgba(46,74,56,.08); border: 1px solid rgba(46,74,56,.14); }
     .tree-stat span { display:block; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
     .tree-stat strong { font-size: 24px; color: var(--ink); }
@@ -432,18 +432,79 @@
     .progress { height: 10px; border-radius: 999px; background: #f2e2cb; overflow: hidden; }
     .progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--honey), var(--pine)); }
     
-    .footer { padding: 10px 0 50px; color: var(--muted); }
-    .footer .card { display: flex; justify-content: space-between; gap: 20px; align-items: center; }
+    .mobile-app-shell {
+      width: min(100%, 460px);
+      min-height: 100dvh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      background: linear-gradient(135deg, #fbf7ee, #fffdf9, #edf3e3);
+      box-shadow: 0 0 0 1px var(--line), 0 24px 80px rgba(43,29,20,.16);
+    }
+    .mobile-appbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: max(12px, env(safe-area-inset-top)) 14px 12px;
+      background: rgba(251,247,238,.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .mobile-appbar .brand { min-width: 0; flex: 1; }
+    .mobile-appbar .brand-logo { width: 48px; height: 36px; }
+    .mobile-appbar .brand strong { font-size: 18px; }
+    .compact-action { white-space: nowrap; padding: 10px 12px; border-radius: 13px; font-size: 13px; }
+    .mobile-viewport { min-height: 0; overflow-y: auto; padding: 14px 12px 18px; }
+    .bottom-tabs {
+      position: sticky;
+      bottom: 0;
+      z-index: 30;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+      background: rgba(251,247,238,.96);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .bottom-tabs button {
+      border: 0;
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+      place-items: center;
+      padding: 7px 2px;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .bottom-tabs button b { font-size: 9px; line-height: 1; font-weight: 900; letter-spacing: -.02em; }
+    .bottom-tabs button.active { background: var(--pine); color: white; }
+    .panel-grid > article:only-child { grid-column: 1 / -1; }
+    .tree-member-cache { display: none; }
 
     [data-view] { display: none; }
     [data-view].active { display: block; }
 
 
-    .prototype-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+    .prototype-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 18px; }
     .mock-panel { display: grid; gap: 12px; padding: 18px; border-radius: 22px; background: rgba(255, 253, 249, .75); border: 1px solid var(--line); }
     .mock-panel h3 { margin: 0; color: var(--ink); font-family: Georgia, serif; }
+    .compact-disclosure { margin-top: 12px; }
+    .compact-disclosure summary { cursor: pointer; list-style: none; display: grid; gap: 4px; }
+    .compact-disclosure summary::-webkit-details-marker { display: none; }
+    .compact-disclosure summary span { color: var(--honey); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; }
+    .compact-disclosure summary strong { color: var(--ink); font-family: Georgia, serif; font-size: 18px; }
+    .compact-disclosure summary::after { content: 'Tap to open'; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .compact-disclosure[open] summary::after { content: 'Tap to close'; }
+    .compact-disclosure:not([open]) > :not(summary) { display: none !important; }
     .mock-form { display: grid; gap: 10px; }
-    .mock-form.two { grid-template-columns: repeat(2, 1fr); }
+    .mock-form.two { grid-template-columns: 1fr; }
     .mock-form label { display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
     .mock-form input, .mock-form select, .mock-form textarea {
       width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,.92); color: var(--ink); outline: none; font: inherit;
@@ -459,20 +520,20 @@
     .prototype-status .status-chip span { color: var(--muted); }
     .prototype-status .status-chip b { color: var(--ink); font-size: 18px; }
     .upload-flow { display: grid; gap: 8px; padding: 12px; border-radius: 16px; background: rgba(235, 224, 203, .45); border: 1px dashed rgba(106, 86, 55, .28); }
-    .provider-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+    .provider-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
     .provider-card { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.72); border: 1px solid var(--line); }
     .provider-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
     .provider-card strong { color: var(--ink); }
     .provider-card p { margin: 0; color: var(--muted); line-height: 1.45; }
     .provider-card ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.55; }
     .readiness-summary { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(46,74,56,.08); border: 1px solid rgba(46,74,56,.22); color: var(--ink-soft); line-height: 1.5; }
-    .verification-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+    .verification-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
     .verification-card { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.72); border: 1px solid var(--line); }
     .verification-card strong { color: var(--ink); }
     .verification-card p { margin: 0; color: var(--muted); line-height: 1.5; }
     .verification-card code { display: inline-block; width: fit-content; padding: 4px 8px; border-radius: 10px; background: rgba(43,29,20,.08); color: var(--bark); font-weight: 850; }
     .evidence-ledger { display: grid; gap: 8px; margin-top: 12px; padding: 14px; border-radius: 18px; background: rgba(200,132,41,.1); border: 1px solid rgba(200,132,41,.24); color: var(--ink-soft); }
-    .handoff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+    .handoff-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
     .handoff-card { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,.74); border: 1px solid var(--line); }
     .handoff-card strong { color: var(--ink); }
     .handoff-card p { margin: 0; color: var(--muted); line-height: 1.48; }
@@ -519,39 +580,17 @@
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <nav class="shell nav" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="Moms MemoryTree home">
+  <div id="top" class="mobile-app-shell">
+    <header class="mobile-appbar" aria-label="Moms MemoryTree mobile shell">
+      <a class="brand" href="#home" data-tab="home" aria-label="Moms MemoryTree home">
         <img class="brand-logo" src="assets/memorytree-hero.png" alt="Moms MemoryTree storybook family tree logo" />
         <span><small>Private family archive</small><strong>Moms MemoryTree</strong></span>
       </a>
-      <div class="nav-center" aria-label="Dashboard sections">
-        <button class="nav-pill active" data-tab="home">Home</button>
-        <button class="nav-pill" data-tab="memories">Memories</button>
-        <button class="nav-pill" data-tab="family">Family</button>
-        <button class="nav-pill" data-tab="record">Record</button>
-        <button class="nav-pill" data-tab="storage">Storage</button>
-        <button class="nav-pill" data-tab="timeline">Timeline</button>
-        <button class="nav-pill" data-tab="legacy">Legacy</button>
-      </div>
-      <div class="nav-actions">
-        <button class="btn ghost" data-tab="record">Add a story</button>
-      </div>
-    </nav>
-  </header>
+      <button class="btn primary compact-action" data-tab="record">Add story</button>
+    </header>
 
-  <main id="top" class="shell app-shell">
-    <aside class="rail" aria-label="App navigation">
-      <button class="active" data-tab="home" aria-label="Home">🏠</button>
-      <button data-tab="memories" aria-label="Memories">📚</button>
-      <button data-tab="family" aria-label="Family">🌳</button>
-      <button data-tab="record" aria-label="Record">🎙️</button>
-      <button data-tab="storage" aria-label="Storage">🧾</button>
-      <button data-tab="timeline" aria-label="Timeline">📅</button>
-      <button data-tab="legacy" aria-label="Legacy">🛡️</button>
-    </aside>
-
-    <div class="workspace">
+    <main class="mobile-viewport" aria-label="Moms MemoryTree app screens">
+      <div class="workspace">
       <section class="home-panel simple-home" data-view="home">
         <div class="photo-home" aria-label="Uploaded family memory photo">
           <img class="uploaded-photo" src="assets/memorytree-hero.png" alt="Uploaded family memory" />
@@ -603,35 +642,26 @@
             <div class="upload-flow" id="mock-service-status" aria-live="polite"><strong>Mock service layer</strong><small>State adapter ready.</small></div>
           </article>
         </div>
-        <div class="mock-panel" style="margin-top:16px" aria-label="Production provider readiness gates">
-          <div class="section-title">
-            <p class="eyebrow">production readiness</p>
-            <h2>Provider gates before real family data.</h2>
-            <p>Preview actions stay local until auth, database, media, invitation, and backup providers pass their readiness checks.</p>
-          </div>
+        <details class="mock-panel compact-disclosure" aria-label="Production provider readiness gates">
+          <summary><span>Production readiness</span><strong>Provider gates before real family data.</strong></summary>
+          <p>Preview actions stay local until auth, database, media, invitation, and backup providers pass their readiness checks.</p>
           <div class="readiness-summary" id="provider-readiness-summary">Provider readiness checks loading.</div>
           <div class="provider-grid" id="provider-readiness-list"></div>
-        </div>
-        <div class="mock-panel" id="provider-enablement-checklist" style="margin-top:16px" aria-label="Provider enablement checklist and live verification harness">
-          <div class="section-title">
-            <p class="eyebrow">live verification</p>
-            <h2>Unlock production only with evidence.</h2>
-            <p>The preview now shows the exact credentials, scripts, and pass/fail proof required before any provider gate can be marked ready.</p>
-          </div>
+        </details>
+        <details class="mock-panel compact-disclosure" id="provider-enablement-checklist" aria-label="Provider enablement checklist and live verification harness">
+          <summary><span>Live verification</span><strong>Unlock production only with evidence.</strong></summary>
+          <p>The preview now shows the exact credentials, scripts, and pass/fail proof required before any provider gate can be marked ready.</p>
           <div class="readiness-summary" id="live-verification-harness">Live verification harness loading.</div>
           <div class="verification-grid" id="live-verification-steps"></div>
           <div class="evidence-ledger" id="provider-evidence-ledger"></div>
-        </div>
-        <div class="mock-panel" id="operator-handoff-runbook" style="margin-top:16px" aria-label="Live provider credential runbook and operator handoff">
-          <div class="section-title">
-            <p class="eyebrow">operator handoff</p>
-            <h2>Run live checks without leaking credentials.</h2>
-            <p>This handoff keeps credentials outside the preview, records evidence manually, and makes every unlock reversible.</p>
-          </div>
+        </details>
+        <details class="mock-panel compact-disclosure" id="operator-handoff-runbook" aria-label="Live provider credential runbook and operator handoff">
+          <summary><span>Operator handoff</span><strong>Run live checks without leaking credentials.</strong></summary>
+          <p>This handoff keeps credentials outside the preview, records evidence manually, and makes every unlock reversible.</p>
           <div class="readiness-summary" id="operator-handoff-summary">Operator handoff loading.</div>
           <div class="handoff-grid" id="operator-handoff-steps"></div>
           <div class="evidence-ledger" id="operator-evidence-register"></div>
-        </div>
+        </details>
       </section>
 
       <section class="card" data-view="memories">
@@ -640,13 +670,7 @@
           <h2>All family memories in one calm place.</h2>
           <p>Browse videos, photos, written stories, audio, and memorial memories with clear cards and plain labels.</p>
         </div>
-        <div class="grid four">
-          <article class="card"><span class="icon">🎥</span><h3>Video memories</h3><p>Faces, voices, celebrations, and quiet everyday moments stay attached to the right family people.</p></article>
-          <article class="card"><span class="icon">📷</span><h3>Photos</h3><p>Private family photos remain separate from GitHub and are represented here by safe metadata.</p></article>
-          <article class="card"><span class="icon">✍️</span><h3>Stories</h3><p>Written memories can become drafts first, then preserved when the creator is ready.</p></article>
-          <article class="card"><span class="icon">🕯️</span><h3>Memorial</h3><p>Tributes and funeral videos are new contributions, never replacements for the original life story.</p></article>
-        </div>
-        <div class="mock-panel" style="margin-top:16px">
+        <div class="mock-panel">
           <h3>Saved preview memories</h3>
           <div class="mock-list" id="memory-list"></div>
         </div>
@@ -668,11 +692,8 @@
             </div>
             <p class="save-note" id="tree-save-note" aria-live="polite"></p>
             <div class="tree-stat-grid" id="tree-stats" aria-label="MemoryTree stats"></div>
-            <div class="tree-visual" aria-label="Saved family tree preview">
-              <div class="tree-row"><div class="tree-node"><strong>Mom</strong><span>Family root</span></div></div>
-              <div class="tree-row" id="tree-members"><div class="tree-node"><strong>Add a person</strong><span>Your tree appears here</span></div></div>
-            </div>
             <div class="tree-generation-map" id="tree-generation-map" aria-label="Interactive generation map"></div>
+            <div class="tree-row tree-member-cache" id="tree-members" aria-hidden="true"></div>
             <div class="tree-profile-panel" id="tree-profile-panel"><small>Person profile</small><h3>Mom</h3><p>Select a saved family member to inspect generation, connection, and profile seed data.</p></div>
           </div>
         </article>
@@ -728,7 +749,6 @@
             <p class="save-note" id="memory-note" aria-live="polite"></p>
           </div>
         </article>
-        <article class="card"><span class="icon">🔴</span><h3>One clear choice</h3><p>No extra fields on this page. Just video or audio, then save the recording to the family archive.</p></article>
       </section>
 
       <section class="card" data-view="storage">
@@ -769,22 +789,19 @@
         <article class="card"><span class="icon">🔒</span><h3>Immutable original</h3><p>No family member, Next of Kin, Legacy Custodian, or administrator can silently edit, replace, or delete the preserved original story.</p><div class="action-row"><button class="btn locked-action" data-production-lock="backup" type="button" aria-disabled="true">Archive export locked</button></div></article>
       </section>
 
-      <section class="grid four" aria-label="App screens">
-        <article class="card screen-card"><div><span class="icon">🏠</span><h3>Home</h3><p>Storybook logo header and warm entry point for the family archive.</p></div><footer><span>Start here</span><span>Welcome</span></footer></article>
-        <article class="card screen-card"><div><span class="icon">🎙️</span><h3>Record</h3><p>Only video or audio, with a clean choice before saving.</p></div><footer><span>Create</span><span>Preserve</span></footer></article>
-        <article class="card screen-card"><div><span class="icon">🌳</span><h3>MemoryTree</h3><p>Enter and save the family tree in one focused view.</p></div><footer><span>Connect</span><span>Save</span></footer></article>
-        <article class="card screen-card"><div><span class="icon">💌</span><h3>Legacy</h3><p>Leave lessons, wishes, and future messages for trusted loved ones.</p></div><footer><span>Prepare</span><span>Share</span></footer></article>
-      </section>
-
     </div>
-  </main>
+    </main>
 
-  <footer class="shell footer">
-    <div class="card">
-      <div><strong>Moms MemoryTree</strong><p>A warm private home for stories, photos, people, and legacy messages.</p></div>
-      <button class="btn secondary" data-tab="record">Record a memory</button>
-    </div>
-  </footer>
+    <nav class="bottom-tabs" aria-label="Primary mobile navigation">
+      <button class="active" data-tab="home" aria-label="Home"><span>🏠</span><b>Home</b></button>
+      <button data-tab="memories" aria-label="Memories"><span>📚</span><b>Memories</b></button>
+      <button data-tab="family" aria-label="Family"><span>🌳</span><b>Family</b></button>
+      <button data-tab="record" aria-label="Record"><span>🎙️</span><b>Record</b></button>
+      <button data-tab="storage" aria-label="Storage"><span>🧾</span><b>Storage</b></button>
+      <button data-tab="timeline" aria-label="Timeline"><span>📅</span><b>Timeline</b></button>
+      <button data-tab="legacy" aria-label="Legacy"><span>🛡️</span><b>Legacy</b></button>
+    </nav>
+  </div>
 
   <script>
     const copy = {

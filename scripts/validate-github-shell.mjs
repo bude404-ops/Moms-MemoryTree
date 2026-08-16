@@ -196,6 +196,21 @@ for (const contract of stage7InteractiveTreeContracts) {
   expect(html.includes(contract), `Stage 7 interactive MemoryTree must include ${contract}.`);
 }
 
+const mobileShellContracts = [
+  'mobile-app-shell',
+  'mobile-appbar',
+  'mobile-viewport',
+  'bottom-tabs',
+  'Primary mobile navigation',
+  'compact-disclosure',
+  'tree-member-cache'
+];
+for (const contract of mobileShellContracts) {
+  expect(html.includes(contract), `Mobile shell cleanup must include ${contract}.`);
+}
+expect(!html.includes('aria-label="App screens"'), 'Mobile shell must not render duplicate screen summary cards.');
+expect(!html.includes('class="rail"'), 'Mobile shell must not render a duplicate side rail navigation.');
+
 expect(!/@supabase/i.test(html), 'index.html must not directly depend on Supabase runtime calls.');
 
 if (failures.length) {
